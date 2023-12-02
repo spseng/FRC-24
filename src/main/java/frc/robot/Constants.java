@@ -12,4 +12,29 @@ package frc.robot;
  * <p>It is advised to statically import this class (or one of its inner classes) wherever the
  * constants are needed, to reduce verbosity.
  */
-public final class Constants {}
+public final class Constants {
+
+      // CAN IDs
+      public static final int BR_STEER_CAN = 1;
+      public static final int FR_STEER_CAN = 2;
+      public static final int FL_STEER_CAN = 3;
+      public static final int BL_STEER_CAN = 4;
+      public static final int BR_DRIVE_CAN = 5;
+      public static final int FR_DRIVE_CAN = 6;
+      public static final int FL_DRIVE_CAN = 7;
+      public static final int BL_DRIVE_CAN = 8;
+
+      // Steer offsets
+      public static final double BR_STEER_OFFSET = 0;
+      public static final double FR_STEER_OFFSET = 0.238;
+      public static final double FL_STEER_OFFSET = -0.340;
+      public static final double BL_STEER_OFFSET = -0.107;
+
+      // Driver Settings
+      public static final double DRIVE_SPEED = 0.3; // Zero to one
+
+      // PID Constants
+      public static final double KP = 1;
+      public static final double KI = 0.1;
+      public static final double KD = 0.01;
+}
