@@ -21,7 +21,7 @@ public final class SwerveMotor {
 
     public SwerveMotor(int steerPort, int drivePort, double offset, boolean steerReverse) {
         this.offset = offset;
-        this.steerFactor = steerReverse ? -1 : 1;
+        this.steerFactor = steerReverse ? 1 : 1;
         this.steerMotor = new CANSparkMax(steerPort,MotorType.kBrushless);
         this.driveMotor = new CANSparkMax(drivePort,MotorType.kBrushless);
     }
@@ -49,16 +49,18 @@ public final class SwerveMotor {
     
     // Helper functions
     private double closestAngle(double a, double b){
-        double angle = (b%2) - (a%2);
+        double delta = (b%2) - (a%2);
 
         // If past 180 degrees, go the other way
-        if( Math.abs(angle)>1){
-            angle = -Math.signum(angle)*2 + angle;
-        }
+        // if( Math.abs(angle)>1){
+        //     angle = -Math.signum(angle)*2 + angle;
+        // }
         
-        return angle;
+        return a+delta;
+
+        // return b;
     }
-   
+
    
     // Getters and Setters
     public double getSteeringPosition() {

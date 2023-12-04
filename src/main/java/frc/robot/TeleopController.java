@@ -13,42 +13,64 @@ public class TeleopController {
     private final SwerveMotor br_motor;
 
 
+        public double getAngle(double x, double y) {
+        double rad = Math.sqrt(Math.pow(x, 2)+Math.pow(y, 2));
+        double theta=0;
+        if(x>=0 ){
+            rad = rad;
+            // quad 1
+            theta = Math.atan2(y,x);
+        } else if (x<0 ) {
+            rad = -rad;
+            theta = Math.atan2(y,-x) + Math.PI;
+        }
+        return theta;
+    }
+
     public TeleopController() {
         fl_motor = new SwerveMotor(FL_STEER_CAN, FL_DRIVE_CAN, FL_STEER_OFFSET, true);
         fr_motor = new SwerveMotor(FR_STEER_CAN, FR_DRIVE_CAN, FR_STEER_OFFSET, false);
         bl_motor = new SwerveMotor(BL_STEER_CAN, BL_DRIVE_CAN, BL_STEER_OFFSET, true);
         br_motor = new SwerveMotor(BR_STEER_CAN, BR_DRIVE_CAN, BR_STEER_OFFSET, false);
     }
-
+    double prevTheta = 0;
     public void teleopPeriodic(XboxController m_stick) {
         double x = m_stick.getLeftX();
         double y = m_stick.getLeftY();
         double r = DRIVE_SPEED*Math.sqrt( Math.pow(x,2) + Math.pow(y,2) );
-        double theta = Math.atan2(y,-x);
-
+        double theta = getAngle(x,y)/Math.PI-.5;
+        if (x>0){
+            // r=-r;
+            // theta=1-theta;
+        }
         // Account for joystick deadzone
-        if (r > DRIVE_SPEED/2) {
+        if (Math.abs(r) > 0.1) {
             // TODO: Conditional checking for various forms of turning
 
             br_motor.steer(theta);
             fr_motor.steer(theta);
             bl_motor.steer(theta);
             fl_motor.steer(theta);
+            SmartDashboard.putNumber("Theta", theta);
+
+            
+            prevTheta=theta;
             br_motor.drive(r);
             fr_motor.drive(r);
             bl_motor.drive(r);
             fl_motor.drive(r);
-        }else {
+            
+        } else{
+            br_motor.steer(prevTheta);
+            fr_motor.steer(prevTheta);
+            bl_motor.steer(prevTheta);
+            fl_motor.steer(prevTheta);
             br_motor.drive(0);
             fr_motor.drive(0);
-            fl_motor.drive(0);
             bl_motor.drive(0);
-            br_motor.stopSteering();
-            fr_motor.stopSteering();
-            fl_motor.stopSteering();
-            bl_motor.stopSteering();
-        }
+            fl_motor.drive(0);
 
+        }
         if (m_stick.getAButton()) {
             br_motor.zeroPosition();
             fr_motor.zeroPosition();

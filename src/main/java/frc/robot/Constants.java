@@ -36,7 +36,7 @@ public final class Constants {
       public static final double BL_STEER_OFFSET = 0.375;
 
       // Driver Settings
-      public static final double DRIVE_SPEED = 0.3; // Zero to one
+      public static final double DRIVE_SPEED = 0.14; // Zero to one
 
       // PID Constants
       // PID values were carefully found through trial and error
