@@ -94,15 +94,6 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
 
     teleopController.teleopPeriodic(m_stick);
-
-    // SmartDashboard.putNumber("BR Position", br_steer_enc.getPosition());
-    // SmartDashboard.putNumber("BL Position", bl_steer_enc.getPosition());
-    // SmartDashboard.putNumber("FR Position", fr_steer_enc.getPosition());
-    // SmartDashboard.putNumber("FL Position", fl_steer_enc.getPosition());
-    // SmartDashboard.putNumber("Theta", theta);
-    // SmartDashboard.putNumber("R", r);
-    // SmartDashboard.putNumber("X", x);
-    // SmartDashboard.putNumber("Y", y);
   }
 
   @Override
