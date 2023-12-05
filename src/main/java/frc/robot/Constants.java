@@ -25,11 +25,6 @@ public final class Constants {
       public static final int BL_DRIVE_CAN = 8;
 
       // Steer offsets
-      // public static final double BR_STEER_OFFSET = 0;
-      // public static final double FR_STEER_OFFSET = 0.238;
-      // public static final double FL_STEER_OFFSET = -0.340;
-      // public static final double BL_STEER_OFFSET = -0.107;
-      // Steer offsets
       public static final double BR_STEER_OFFSET = 1.125;
       public static final double FR_STEER_OFFSET = 1.125;
       public static final double FL_STEER_OFFSET = 0;

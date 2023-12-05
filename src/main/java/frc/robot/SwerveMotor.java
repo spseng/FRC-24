@@ -12,16 +12,14 @@ public final class SwerveMotor {
     // Instance Variables
     private final PIDController pidController = new PIDController(STEER_KP, STEER_KI, STEER_KD);
     private final double offset;
-    private final double steerFactor;
     private final CANSparkMax steerMotor;
     private final  CANSparkMax driveMotor;
 
     private double prevAngle=0;
 
 
-    public SwerveMotor(int steerPort, int drivePort, double offset, boolean steerReverse) {
+    public SwerveMotor(int steerPort, int drivePort, double offset) {
         this.offset = offset;
-        this.steerFactor = steerReverse ? 1 : 1;
         this.steerMotor = new CANSparkMax(steerPort,MotorType.kBrushless);
         this.driveMotor = new CANSparkMax(drivePort,MotorType.kBrushless);
     }
@@ -35,7 +33,9 @@ public final class SwerveMotor {
     }
 
     public void steer(double goalRotation){
-        steerMotor.set(pidController.calculate(steerMotor.getEncoder().getPosition(), closestAngle(prevAngle, goalRotation * steerFactor + this.offset)));
+        double closestAngle = closestAngle(prevAngle, goalRotation) + this.offset;
+
+        steerMotor.set(pidController.calculate(steerMotor.getEncoder().getPosition(), closestAngle));
 
         prevAngle = steerMotor.getEncoder().getPosition();
     }
@@ -45,22 +45,28 @@ public final class SwerveMotor {
     }
 
     
-    
-    
     // Helper functions
-    private double closestAngle(double a, double b){
-        double delta = (b%2) - (a%2);
 
-        // If past 180 degrees, go the other way
-        // if( Math.abs(angle)>1){
-        //     angle = -Math.signum(angle)*2 + angle;
-        // }
-        
-        return a+delta;
+    // This function is used to calculate the angle the wheel should be set to
+    // uses previous angle to determine which direction to turn
+    // https://compendium.readthedocs.io/en/latest/tasks/drivetrains/swerve.html
+    private static double closestAngle(double a, double b)
+    {
+        // get direction
+        double dir = modulo(b, 2) - modulo(a, 2);
 
-        // return b;
+        // convert from -360 to 360 to -180 to 180
+        if (Math.abs(dir) > 1)
+        {
+            dir = -(Math.signum(dir) * 2) + dir;
+        }
+        return dir;
     }
 
+    private static double modulo(double a, double b)
+    {
+        return a - b * Math.floor(a / b);
+    }
    
     // Getters and Setters
     public double getSteeringPosition() {
