@@ -19,33 +19,15 @@ public class TeleopController {
         br_motor = new SwerveMotor(BR_STEER_CAN, BR_DRIVE_CAN, BR_STEER_OFFSET);
     }
     public void teleopPeriodic(XboxController m_stick) {
-        double x = m_stick.getLeftX();
+        double x = - m_stick.getLeftX();
         double y = m_stick.getLeftY();
         double r = DRIVE_SPEED*Math.sqrt( Math.pow(x,2) + Math.pow(y,2) );
         double theta = getAngle(x,y);
 
-        // System.out.println(theta);
-        // Account for joystick deadzone
-
-        // if (x<0){
-        //     theta=Math.signum(theta)+theta;
-        // } else if (Math.abs(r) > .1 ) {
-        //     theta = getAngle(x,y);
-        //     steer(theta);
-        //     drive(-r);
-        //     prevtheta=theta;
-
-        // } else if (Math.abs(r) > .1 && Math.abs(theta-prevtheta)>0.5){
-        //     theta = getAngle(-x,-y); 
-        //     drive(r);
-        //     prevtheta=theta;
-
-        // } else 
         if (r > DRIVE_SPEED/2) {
             steer(theta);
             drive(r);
         }else 
-
         if (m_stick.getAButton()) {
             zeroSteering();
         } else
@@ -69,6 +51,8 @@ public class TeleopController {
         SmartDashboard.putNumber("BR Position", br_motor.getSteeringPosition());
         SmartDashboard.putNumber("FR Position", fr_motor.getSteeringPosition());
         SmartDashboard.putNumber("FL Position", fl_motor.getSteeringPosition());
+
+
         SmartDashboard.putNumber("BL Position", bl_motor.getSteeringPosition());
     }
 

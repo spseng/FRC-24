@@ -21,7 +21,7 @@ public final class SwerveMotor {
     private final RelativeEncoder steerEncoder;
 
     private double prevAngle = 0;
-    // private double directionFactor = 1;
+    private double directionFactor = 1;
 
 
     public SwerveMotor(int steerPort, int drivePort, double offset) {
@@ -40,43 +40,14 @@ public final class SwerveMotor {
     }
 
     public void steer(double goalRotation){
-        double goalAngle = prevAngle + closestAngle(prevAngle, goalRotation);
+        double goalAngle = prevAngle + closestAngle(prevAngle, goalRotation + this.offset);
+
         steerMotor.set(pidController.calculate(prevAngle, goalAngle));
-
-        // double delta=(-prevAngle+goalRotation);
-        // if (Math.abs(delta)>0.6){
-        //     steerMotor.set(pidController.calculate(getSteeringPosition(),prevAngle+2.375/2+delta));
-
-        // }else{
-        //     steerMotor.set(pidController.calculate(getSteeringPosition(), goalRotation));
-        // }
-
-        // // find closest angle to goal + 180
-        // double goalAngleFlipped = closestAngle(prevAngle, goalRotation + 180.0);
-
-        // // if the closest angle to setpoint is shorter
-        // if (Math.abs(goalAngle) <= Math.abs(goalAngleFlipped))
-        // {
-        //     // unflip the motor direction use the setpoint
-        //     directionFactor = 1;
-
-        //     steerMotor.set(pidController.calculate(getSteeringPosition(), goalAngle * directionFactor));
-        // }
-        // // if the closest angle to setpoint + 180 is shorter
-        // else
-        // {
-        //     // flip the motor direction and use the setpoint + 180
-        //     directionFactor = -1;
-        //     steerMotor.set(pidController.calculate(getSteeringPosition(), goalAngleFlipped * directionFactor));
-        // }
-        
-        
-        
         prevAngle = getSteeringPosition();
     }
 
     public void drive(double speed) {
-        driveMotor.set(speed);
+        driveMotor.set(speed * directionFactor);
     }
 
     
