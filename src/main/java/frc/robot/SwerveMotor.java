@@ -1,8 +1,13 @@
 package frc.robot;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
+
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 
 import static frc.robot.Constants.*;
 
@@ -13,19 +18,22 @@ public final class SwerveMotor {
     private final PIDController pidController = new PIDController(STEER_KP, STEER_KI, STEER_KD);
     private final double offset;
     private final CANSparkMax steerMotor;
-    private final  CANSparkMax driveMotor;
+    private final CANSparkMax driveMotor;
+    private final RelativeEncoder steerEncoder;
 
-    private double prevAngle=0;
+    private double prevAngle = 0;
+    private double directionFactor = 1;
 
 
     public SwerveMotor(int steerPort, int drivePort, double offset) {
         this.offset = offset;
         this.steerMotor = new CANSparkMax(steerPort,MotorType.kBrushless);
         this.driveMotor = new CANSparkMax(drivePort,MotorType.kBrushless);
+        this.steerEncoder = this.steerMotor.getEncoder();
     }
 
     public void zeroPosition() {
-        steerMotor.set(pidController.calculate(this.steerMotor.getEncoder().getPosition(), offset));
+        steerMotor.set(pidController.calculate(getSteeringPosition(), offset));
     }
 
     public void stopSteering() {
@@ -33,11 +41,37 @@ public final class SwerveMotor {
     }
 
     public void steer(double goalRotation){
-        double closestAngle = closestAngle(prevAngle, goalRotation) + this.offset;
+        double goalAngle = closestAngle(prevAngle, goalRotation);
+        System.out.println(goalAngle);
+        double delta=(-prevAngle+goalRotation);
+        if (Math.abs(delta)>0.6){
+            steerMotor.set(pidController.calculate(getSteeringPosition(),prevAngle+2.375/2+delta));
 
-        steerMotor.set(pidController.calculate(steerMotor.getEncoder().getPosition(), closestAngle));
+        }else{
+        steerMotor.set(pidController.calculate(getSteeringPosition(), goalRotation));
+        }
+        // // find closest angle to goal + 180
+        // double goalAngleFlipped = closestAngle(prevAngle, goalRotation + 180.0);
 
-        prevAngle = steerMotor.getEncoder().getPosition();
+        // // if the closest angle to setpoint is shorter
+        // if (Math.abs(goalAngle) <= Math.abs(goalAngleFlipped))
+        // {
+        //     // unflip the motor direction use the setpoint
+        //     directionFactor = 1;
+
+        //     steerMotor.set(pidController.calculate(getSteeringPosition(), goalAngle * directionFactor));
+        // }
+        // // if the closest angle to setpoint + 180 is shorter
+        // else
+        // {
+        //     // flip the motor direction and use the setpoint + 180
+        //     directionFactor = -1;
+        //     steerMotor.set(pidController.calculate(getSteeringPosition(), goalAngleFlipped * directionFactor));
+        // }
+        
+        
+        
+        prevAngle = getSteeringPosition();
     }
 
     public void drive(double speed) {
@@ -48,18 +82,20 @@ public final class SwerveMotor {
     // Helper functions
 
     // This function is used to calculate the angle the wheel should be set to
-    // uses previous angle to determine which direction to turn
+    // based on the previous angle to determine which direction to turn
     // https://compendium.readthedocs.io/en/latest/tasks/drivetrains/swerve.html
-    private static double closestAngle(double a, double b)
+
+    private static double closestAngle(double previous, double goal)
     {
         // get direction
-        double dir = modulo(b, 2) - modulo(a, 2);
+        double dir = modulo(goal, FULL_ROTATION) - modulo(previous, FULL_ROTATION);
 
         // convert from -360 to 360 to -180 to 180
-        if (Math.abs(dir) > 1)
+        if (Math.abs(dir) > FULL_ROTATION/2)
         {
-            dir = -(Math.signum(dir) * 2) + dir;
+            dir = -(Math.signum(dir) * FULL_ROTATION) + dir;
         }
+
         return dir;
     }
 
@@ -70,7 +106,6 @@ public final class SwerveMotor {
    
     // Getters and Setters
     public double getSteeringPosition() {
-        return steerMotor.getEncoder().getPosition();
+        return steerEncoder.getPosition();
     }
-
 }

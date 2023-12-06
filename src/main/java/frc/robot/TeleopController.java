@@ -11,6 +11,8 @@ public class TeleopController {
     private final SwerveMotor fr_motor;
     private final SwerveMotor bl_motor;
     private final SwerveMotor br_motor;
+    private double prevtheta=0;
+
 
     public TeleopController() {
         fl_motor = new SwerveMotor(FL_STEER_CAN, FL_DRIVE_CAN, FL_STEER_OFFSET);
@@ -22,27 +24,37 @@ public class TeleopController {
         double x = m_stick.getLeftX();
         double y = m_stick.getLeftY();
         double r = DRIVE_SPEED*Math.sqrt( Math.pow(x,2) + Math.pow(y,2) );
-        double theta = getAngle(x,y);
-
+        double theta = getAngle(x,y)*2.375/2;
+        // System.out.println(theta);
         // Account for joystick deadzone
-        if (Math.abs(r) > 0.1) {
+        if (x<0){
+            theta=Math.signum(theta)*2.375/2+theta;
+        }
+        if (Math.abs(r) > .1 ) {
+            theta = getAngle(x,y)*2.375/2;
             steer(theta);
-            drive(0);
-        } else{
-            stopSteering();
-            drive(0);
-        }
-        if (m_stick.getAButton()) {
+            drive(-r);
+            prevtheta=theta;
+
+        } else if (Math.abs(r) > .1 && Math.abs(theta-prevtheta)>0.5){
+            theta = getAngle(-x,-y)*2.375/2; 
+            drive(r);
+            prevtheta=theta;
+
+        } else if (m_stick.getAButton()) {
             zeroSteering();
-        }
+        } else
         if (m_stick.getYButton()) {
             steer(0);
-        }
+        } else
         if (m_stick.getBButton()) {
             steer(1);
-        }
+        } else
         if(m_stick.getAButtonReleased() || m_stick.getBButtonReleased()){
             stopSteering();
+        } else {
+            stopSteering();
+            drive(0);
         }
 
         updateShuffleboard();
@@ -86,6 +98,6 @@ public class TeleopController {
 
     // Helper functions
     public double getAngle(double x, double y) {
-        return Math.atan2(y, x)/Math.PI-.5;
+        return (Math.atan2(y, x))/Math.PI;
     }
 }
