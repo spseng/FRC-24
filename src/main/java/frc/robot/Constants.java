@@ -33,10 +33,10 @@ public final class Constants {
       
       public static final double BR_STEER_OFFSET = 0;
       public static final double FR_STEER_OFFSET = 0;
-      public static final double FL_STEER_OFFSET = .25;
+      public static final double FL_STEER_OFFSET = 0;
       public static final double BL_STEER_OFFSET = 0;
 
-      public static final double FULL_ROTATION = 1;
+      public static final double FULL_ROTATION = 2;
 
       // Driver Settings
       public static final double DRIVE_SPEED = 0.14; // Zero to one

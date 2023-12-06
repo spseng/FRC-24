@@ -1,15 +1,14 @@
 package frc.robot;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 
 import static frc.robot.Constants.*;
+
+import javax.swing.plaf.synth.SynthStyle;
 
 
 public final class SwerveMotor {
@@ -22,7 +21,7 @@ public final class SwerveMotor {
     private final RelativeEncoder steerEncoder;
 
     private double prevAngle = 0;
-    private double directionFactor = 1;
+    // private double directionFactor = 1;
 
 
     public SwerveMotor(int steerPort, int drivePort, double offset) {
@@ -41,15 +40,17 @@ public final class SwerveMotor {
     }
 
     public void steer(double goalRotation){
-        double goalAngle = closestAngle(prevAngle, goalRotation);
-        System.out.println(goalAngle);
-        double delta=(-prevAngle+goalRotation);
-        if (Math.abs(delta)>0.6){
-            steerMotor.set(pidController.calculate(getSteeringPosition(),prevAngle+2.375/2+delta));
+        double goalAngle = prevAngle + closestAngle(prevAngle, goalRotation);
+        steerMotor.set(pidController.calculate(prevAngle, goalAngle));
 
-        }else{
-        steerMotor.set(pidController.calculate(getSteeringPosition(), goalRotation));
-        }
+        // double delta=(-prevAngle+goalRotation);
+        // if (Math.abs(delta)>0.6){
+        //     steerMotor.set(pidController.calculate(getSteeringPosition(),prevAngle+2.375/2+delta));
+
+        // }else{
+        //     steerMotor.set(pidController.calculate(getSteeringPosition(), goalRotation));
+        // }
+
         // // find closest angle to goal + 180
         // double goalAngleFlipped = closestAngle(prevAngle, goalRotation + 180.0);
 
@@ -84,13 +85,12 @@ public final class SwerveMotor {
     // This function is used to calculate the angle the wheel should be set to
     // based on the previous angle to determine which direction to turn
     // https://compendium.readthedocs.io/en/latest/tasks/drivetrains/swerve.html
-
     private static double closestAngle(double previous, double goal)
     {
         // get direction
         double dir = modulo(goal, FULL_ROTATION) - modulo(previous, FULL_ROTATION);
-
-        // convert from -360 to 360 to -180 to 180
+        
+        // goal mod 1 - prev mod 1
         if (Math.abs(dir) > FULL_ROTATION/2)
         {
             dir = -(Math.signum(dir) * FULL_ROTATION) + dir;
@@ -106,6 +106,6 @@ public final class SwerveMotor {
    
     // Getters and Setters
     public double getSteeringPosition() {
-        return steerEncoder.getPosition();
+        return steerEncoder.getPosition()/2.375*2;
     }
 }
