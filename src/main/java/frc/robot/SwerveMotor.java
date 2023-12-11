@@ -7,6 +7,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 import static frc.robot.Constants.*;
 
@@ -20,6 +22,7 @@ public final class SwerveMotor {
     private final double offset;
     private final CANSparkMax steerMotor;
     private final CANSparkMax driveMotor;
+    private final RelativeEncoder driveEncoder;
     private final RelativeEncoder steerEncoder;
     private final AbsoluteEncoder steerAbsoluteEncoder;
 
@@ -32,7 +35,15 @@ public final class SwerveMotor {
         this.steerMotor = new CANSparkMax(steerPort,MotorType.kBrushless);
         this.driveMotor = new CANSparkMax(drivePort,MotorType.kBrushless);
         this.steerEncoder = this.steerMotor.getEncoder();
+        this.driveEncoder = this.driveMotor.getEncoder();
         this.steerAbsoluteEncoder = this.steerMotor.getAbsoluteEncoder(Type.kDutyCycle);
+    }
+
+    public void calibrate() {
+        while (Math.abs(getSteeringPosition() - offset) > 0.1) {
+            drive(pidController.calculate(getSteeringPosition(), offset));
+        }
+        stopSteering();
     }
 
     public void zeroPosition() {
@@ -85,5 +96,9 @@ public final class SwerveMotor {
     }
     public double getAbsoluteSteeringPosition() {
         return steerAbsoluteEncoder.getPosition();
+    }
+    public SwerveModulePosition getSwervePosition(){
+        return new SwerveModulePosition(
+                driveEncoder.getPosition(), new Rotation2d(getSteeringPosition()));
     }
 }

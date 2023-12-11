@@ -24,6 +24,7 @@ public class Robot extends TimedRobot {
   private XboxController m_stick;
 
   private TeleopController teleopController;
+  private Drivetrain drivetrain;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -39,7 +40,7 @@ public class Robot extends TimedRobot {
 
     teleopController = new TeleopController();
 
-    
+    drivetrain = new Drivetrain();
   }
 
   /**
@@ -92,12 +93,12 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    teleopController.teleopInit();
+    teleopController.teleopInit(drivetrain);
   }
   @Override
   public void teleopPeriodic() {
 
-    teleopController.teleopPeriodic(m_stick);
+    teleopController.teleopPeriodic(m_stick, drivetrain);
   }
 
   @Override
