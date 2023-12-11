@@ -1,8 +1,10 @@
 package frc.robot;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.controller.PIDController;
 
@@ -19,6 +21,7 @@ public final class SwerveMotor {
     private final CANSparkMax steerMotor;
     private final CANSparkMax driveMotor;
     private final RelativeEncoder steerEncoder;
+    private final AbsoluteEncoder steerAbsoluteEncoder;
 
     private double prevAngle = 0;
     private double directionFactor = 1;
@@ -29,6 +32,7 @@ public final class SwerveMotor {
         this.steerMotor = new CANSparkMax(steerPort,MotorType.kBrushless);
         this.driveMotor = new CANSparkMax(drivePort,MotorType.kBrushless);
         this.steerEncoder = this.steerMotor.getEncoder();
+        this.steerAbsoluteEncoder = this.steerMotor.getAbsoluteEncoder(Type.kDutyCycle);
     }
 
     public void zeroPosition() {
@@ -78,5 +82,8 @@ public final class SwerveMotor {
     // Getters and Setters
     public double getSteeringPosition() {
         return steerEncoder.getPosition()/2.375*2;
+    }
+    public double getAbsoluteSteeringPosition() {
+        return steerAbsoluteEncoder.getPosition();
     }
 }

@@ -38,6 +38,8 @@ public class Robot extends TimedRobot {
     m_stick = new XboxController(0);
 
     teleopController = new TeleopController();
+
+    
   }
 
   /**
@@ -89,6 +91,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    teleopController.teleopInit();
   }
   @Override
   public void teleopPeriodic() {

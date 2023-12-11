@@ -59,6 +59,11 @@ public class TeleopController {
         SmartDashboard.putNumber("FR Position", fr_motor.getSteeringPosition());
         SmartDashboard.putNumber("FL Position", fl_motor.getSteeringPosition());
         SmartDashboard.putNumber("BL Position", bl_motor.getSteeringPosition());
+        
+        SmartDashboard.putNumber("BR ABS Position", br_motor.getAbsoluteSteeringPosition());
+        SmartDashboard.putNumber("FR ABS Position", fr_motor.getAbsoluteSteeringPosition());
+        SmartDashboard.putNumber("FL ABS Position", fl_motor.getAbsoluteSteeringPosition());
+        SmartDashboard.putNumber("BL ABS Position", bl_motor.getAbsoluteSteeringPosition());
     }
 
     // Motor functions
