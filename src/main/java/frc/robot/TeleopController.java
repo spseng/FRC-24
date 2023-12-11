@@ -18,7 +18,7 @@ public class TeleopController {
     }
 
     public void teleopPeriodic(XboxController m_stick, Drivetrain drivetrain) {
-        double leftX = - m_stick.getLeftX();
+        double leftX = m_stick.getLeftX();
         double leftY = m_stick.getLeftY();
         double r = DRIVE_SPEED*Math.sqrt( Math.pow(leftX,2) + Math.pow(leftY,2) );
         double theta = getAngle(leftX,leftY);

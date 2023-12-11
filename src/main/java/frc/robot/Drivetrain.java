@@ -126,7 +126,14 @@ public class Drivetrain {
     }
 
     public void turn(double r, double directionFactor) {
-        steer(0.25);
-        drive(r * directionFactor);
+        br_motor.steer(-0.25);
+        fr_motor.steer(0.25);
+        bl_motor.steer(0.25);
+        fl_motor.steer(-0.25);
+
+        br_motor.drive(r * directionFactor);
+        fr_motor.drive(r * directionFactor);
+        bl_motor.drive(r * directionFactor);
+        fl_motor.drive(r * directionFactor);
     }
 }

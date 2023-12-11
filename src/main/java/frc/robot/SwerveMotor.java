@@ -22,8 +22,8 @@ public final class SwerveMotor {
     private final double offset;
     private final CANSparkMax steerMotor;
     private final CANSparkMax driveMotor;
-    private final RelativeEncoder driveEncoder;
-    private final RelativeEncoder steerEncoder;
+    // private final RelativeEncoder driveEncoder;
+    // private final RelativeEncoder steerEncoder;
     private final AbsoluteEncoder steerAbsoluteEncoder;
 
     private double prevAngle = 0;
@@ -34,16 +34,22 @@ public final class SwerveMotor {
         this.offset = offset;
         this.steerMotor = new CANSparkMax(steerPort,MotorType.kBrushless);
         this.driveMotor = new CANSparkMax(drivePort,MotorType.kBrushless);
-        this.steerEncoder = this.steerMotor.getEncoder();
-        this.driveEncoder = this.driveMotor.getEncoder();
+        // this.steerEncoder = this.steerMotor.getEncoder();
+        // this.driveEncoder = this.driveMotor.getEncoder();
         this.steerAbsoluteEncoder = this.steerMotor.getAbsoluteEncoder(Type.kDutyCycle);
     }
 
     public void calibrate() {
-        while (Math.abs(getSteeringPosition() - offset) > 0.1) {
-            drive(pidController.calculate(getSteeringPosition(), offset));
-        }
-        stopSteering();
+        // while (Math.abs(getAbsoluteSteeringPosition() - offset) > 0.1) {
+        //     steer(0.1 * pidController.calculate(getAbsoluteSteeringPosition(), offset));
+        // }
+        // this.steerEncoder.setPosition(0);
+        // stopSteering();
+            System.out.println("ABS offset: " + getAbsoluteSteeringPosition());
+            System.out.println("rel offset: " + getSteeringPosition());
+            this.steerMotor.getEncoder().setPosition((getAbsoluteSteeringPosition() * 2.375/2) + STEERING_CALIBRATION_OFFSET);
+            System.out.println("Setting offset to: " + getSteeringPosition());
+        // zeroPosition();
     }
 
     public void zeroPosition() {
@@ -92,13 +98,13 @@ public final class SwerveMotor {
    
     // Getters and Setters
     public double getSteeringPosition() {
-        return steerEncoder.getPosition()/2.375*2;
+        return steerMotor.getEncoder().getPosition()/2.375*2;
     }
     public double getAbsoluteSteeringPosition() {
         return steerAbsoluteEncoder.getPosition();
     }
     public SwerveModulePosition getSwervePosition(){
         return new SwerveModulePosition(
-                driveEncoder.getPosition(), new Rotation2d(getSteeringPosition()));
+                driveMotor.getEncoder().getPosition(), new Rotation2d(getSteeringPosition()));
     }
 }
