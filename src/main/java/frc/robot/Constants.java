@@ -24,25 +24,20 @@ public final class Constants {
       public static final int FL_DRIVE_CAN = 7;
       public static final int BL_DRIVE_CAN = 8;
 
-      // Steer offsets
-      // public static final double BR_STEER_OFFSET = 1.81;
-      // public static final double FR_STEER_OFFSET = 1.79;
-      // public static final double FL_STEER_OFFSET = 0.69;
-      // public static final double BL_STEER_OFFSET = 0.63;
 
-      
+      // Steering Offsets
       public static final double BR_STEER_OFFSET = 0.25;
       public static final double FR_STEER_OFFSET = 0.0;
       public static final double FL_STEER_OFFSET = -0.93;
       public static final double BL_STEER_OFFSET = 0.93;
-
       public static final double FULL_ROTATION = 2;
 
       // Driver Settings
       public static final double DRIVE_SPEED = 0.15; // Zero to one
+      public static final double TURN_SPEED = 0.15; // Zero to one
 
       // PID Constants
-      // PID values were carefully found through trial and error
+      // PID values will be carefully found through trial and error
       public static final double STEER_KP = 0.8;
       public static final double STEER_KI = 0.0005;
       public static final double STEER_KD = 0.00;

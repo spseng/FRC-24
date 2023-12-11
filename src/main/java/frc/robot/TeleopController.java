@@ -19,15 +19,22 @@ public class TeleopController {
         br_motor = new SwerveMotor(BR_STEER_CAN, BR_DRIVE_CAN, BR_STEER_OFFSET);
     }
     public void teleopPeriodic(XboxController m_stick) {
-        double x = - m_stick.getLeftX();
-        double y = m_stick.getLeftY();
-        double r = DRIVE_SPEED*Math.sqrt( Math.pow(x,2) + Math.pow(y,2) );
-        double theta = getAngle(x,y);
+        double leftX = - m_stick.getLeftX();
+        double leftY = m_stick.getLeftY();
+        double r = DRIVE_SPEED*Math.sqrt( Math.pow(leftX,2) + Math.pow(leftY,2) );
+        double theta = getAngle(leftX,leftY);
+
+        double rightX = m_stick.getRightX();
+        double turnSpeed = TURN_SPEED * rightX;
 
         if (r > DRIVE_SPEED/2) {
             steer(theta);
             drive(r);
-        }else 
+        } else
+        if (Math.abs(rightX) > TURN_SPEED/2) {
+            turn(turnSpeed, Math.signum(turnSpeed));
+            drive(rightX);
+        } else
         if (m_stick.getAButton()) {
             zeroSteering();
         } else
@@ -51,8 +58,6 @@ public class TeleopController {
         SmartDashboard.putNumber("BR Position", br_motor.getSteeringPosition());
         SmartDashboard.putNumber("FR Position", fr_motor.getSteeringPosition());
         SmartDashboard.putNumber("FL Position", fl_motor.getSteeringPosition());
-
-
         SmartDashboard.putNumber("BL Position", bl_motor.getSteeringPosition());
     }
 
@@ -83,6 +88,11 @@ public class TeleopController {
         fr_motor.drive(r);
         bl_motor.drive(r);
         fl_motor.drive(r);
+    }
+
+    private void turn(double r, double directionFactor) {
+        steer(0.25);
+        drive(r * directionFactor);
     }
 
     // Helper functions
