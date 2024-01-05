@@ -24,10 +24,11 @@ public class Drivetrain {
     private final Translation2d m_backLeftLocation = new Translation2d(-0.381, 0.381);
     private final Translation2d m_backRightLocation = new Translation2d(-0.381, -0.381);
 
-    private final SwerveMotor fl_motor;
-    private final SwerveMotor fr_motor;
-    private final SwerveMotor bl_motor;
     private final SwerveMotor br_motor;
+    private final SwerveMotor fr_motor;
+    private final SwerveMotor fl_motor;
+    private final SwerveMotor bl_motor;
+
 
     private final AnalogGyro m_gyro = new AnalogGyro(0);
 
@@ -42,18 +43,18 @@ public class Drivetrain {
     private final SwerveDriveOdometry m_odometry;
 
     public Drivetrain() {
-        fl_motor = new SwerveMotor(FL_STEER_CAN, FL_DRIVE_CAN, FL_STEER_OFFSET);
-        fr_motor = new SwerveMotor(FR_STEER_CAN, FR_DRIVE_CAN, FR_STEER_OFFSET);
-        bl_motor = new SwerveMotor(BL_STEER_CAN, BL_DRIVE_CAN, BL_STEER_OFFSET);
         br_motor = new SwerveMotor(BR_STEER_CAN, BR_DRIVE_CAN, BR_STEER_OFFSET);
+        fr_motor = new SwerveMotor(FR_STEER_CAN, FR_DRIVE_CAN, FR_STEER_OFFSET);
+        fl_motor = new SwerveMotor(FL_STEER_CAN, FL_DRIVE_CAN, FL_STEER_OFFSET);
+        bl_motor = new SwerveMotor(BL_STEER_CAN, BL_DRIVE_CAN, BL_STEER_OFFSET);
 
         m_odometry = new SwerveDriveOdometry(
                 m_kinematics, m_gyro.getRotation2d(),
                 new SwerveModulePosition[] {
-                        fl_motor.getSwervePosition(),
+                        br_motor.getSwervePosition(),
                         fr_motor.getSwervePosition(),
-                        bl_motor.getSwervePosition(),
-                        br_motor.getSwervePosition()
+                        fl_motor.getSwervePosition(),
+                        bl_motor.getSwervePosition()
                 }, new Pose2d(5.0, 13.5, new Rotation2d()));
 
         m_gyro.reset();
@@ -67,10 +68,10 @@ public class Drivetrain {
         m_odometry.update(
             m_gyro.getRotation2d(),
             new SwerveModulePosition[] {
-                    fl_motor.getSwervePosition(),
+                    br_motor.getSwervePosition(),
                     fr_motor.getSwervePosition(),
-                    bl_motor.getSwervePosition(),
-                    br_motor.getSwervePosition()
+                    fl_motor.getSwervePosition(),
+                    bl_motor.getSwervePosition()
             }
         );
     }

@@ -20,6 +20,7 @@ public final class SwerveMotor {
     // Instance Variables
     private final PIDController pidController = new PIDController(STEER_KP, STEER_KI, STEER_KD);
     private final double offset;
+    private double dynamicOffset = 0;
     private final CANSparkMax steerMotor;
     private final CANSparkMax driveMotor;
     // private final RelativeEncoder driveEncoder;
@@ -45,15 +46,17 @@ public final class SwerveMotor {
         // }
         // this.steerEncoder.setPosition(0);
         // stopSteering();
-            System.out.println("ABS offset: " + getAbsoluteSteeringPosition());
-            System.out.println("rel offset: " + getSteeringPosition());
-            this.steerMotor.getEncoder().setPosition((getAbsoluteSteeringPosition() * 2.375/2) + STEERING_CALIBRATION_OFFSET);
-            System.out.println("Setting offset to: " + getSteeringPosition());
+//            System.out.println("ABS offset: " + getAbsoluteSteeringPosition());
+//            System.out.println("rel offset: " + getSteeringPosition());
+//            this.steerMotor.getEncoder().setPosition((getAbsoluteSteeringPosition() * 2.375/2) + STEERING_CALIBRATION_OFFSET);
+//            System.out.println("Setting offset to: " + getSteeringPosition());
         // zeroPosition();
+
+        this.dynamicOffset = getAbsoluteSteeringPosition();
     }
 
     public void zeroPosition() {
-        steerMotor.set(pidController.calculate(getSteeringPosition(), offset));
+        steerMotor.set(pidController.calculate(getSteeringPosition(), this.getOffset()));
     }
 
     public void stopSteering() {
@@ -61,7 +64,7 @@ public final class SwerveMotor {
     }
 
     public void steer(double goalRotation){
-        double goalAngle = prevAngle + closestAngle(prevAngle, goalRotation + this.offset);
+        double goalAngle = prevAngle + closestAngle(prevAngle, goalRotation + this.getOffset());
 
         steerMotor.set(pidController.calculate(prevAngle, goalAngle));
         prevAngle = getSteeringPosition();
@@ -106,5 +109,9 @@ public final class SwerveMotor {
     public SwerveModulePosition getSwervePosition(){
         return new SwerveModulePosition(
                 driveMotor.getEncoder().getPosition(), new Rotation2d(getSteeringPosition()));
+    }
+
+    public double getOffset() {
+        return offset + dynamicOffset;
     }
 }
