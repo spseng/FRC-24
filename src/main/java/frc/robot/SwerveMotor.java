@@ -52,11 +52,16 @@ public final class SwerveMotor {
 //            System.out.println("Setting offset to: " + getSteeringPosition());
         // zeroPosition();
 
-        this.dynamicOffset = getAbsoluteSteeringPosition();
+        this.steerMotor.getEncoder().setPosition(0);
+        this.dynamicOffset = getAbsoluteSteeringPosition() * FULL_ROTATION;
     }
 
     public void zeroPosition() {
         steerMotor.set(pidController.calculate(getSteeringPosition(), this.getOffset()));
+    }
+
+    public void absZeroPosition() {
+        steerMotor.set(pidController.calculate(getAbsoluteSteeringPosition(), this.getOffset() + 1));
     }
 
     public void stopSteering() {
@@ -65,13 +70,14 @@ public final class SwerveMotor {
 
     public void steer(double goalRotation){
         double goalAngle = prevAngle + closestAngle(prevAngle, goalRotation + this.getOffset());
-
+        
         steerMotor.set(pidController.calculate(prevAngle, goalAngle));
         prevAngle = getSteeringPosition();
     }
 
     public void drive(double speed) {
-        driveMotor.set(speed * directionFactor);
+        // driveMotor.setInverted(inverted);
+        driveMotor.set(speed);
     }
 
     
@@ -80,7 +86,7 @@ public final class SwerveMotor {
     // This function is used to calculate the angle the wheel should be set to
     // based on the previous angle to determine which direction to turn
     // https://compendium.readthedocs.io/en/latest/tasks/drivetrains/swerve.html
-    private static double closestAngle(double previous, double goal)
+    private double closestAngle(double previous, double goal)
     {
         // get direction
         double dir = modulo(goal, FULL_ROTATION) - modulo(previous, FULL_ROTATION);
@@ -101,7 +107,7 @@ public final class SwerveMotor {
    
     // Getters and Setters
     public double getSteeringPosition() {
-        return steerMotor.getEncoder().getPosition()/2.375*2;
+        return steerMotor.getEncoder().getPosition() / RELATIVE_ENCODER_RATIO * FULL_ROTATION;
     }
     public double getAbsoluteSteeringPosition() {
         return steerAbsoluteEncoder.getPosition();
@@ -112,6 +118,16 @@ public final class SwerveMotor {
     }
 
     public double getOffset() {
-        return offset + dynamicOffset;
+        double totalOffset = (offset + dynamicOffset) % FULL_ROTATION;
+
+        // if(totalOffset > FULL_ROTATION/2){
+        //     return FULL_ROTATION - totalOffset;
+        // }else if(totalOffset < -FULL_ROTATION/2){
+        //     return FULL_ROTATION + totalOffset;
+        // }else{
+        //     return totalOffset;
+        // }
+
+        return totalOffset;
     }
 }

@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static frc.robot.Constants.*;
-import static frc.robot.Constants.BR_STEER_OFFSET;
 
 public class Drivetrain {
     public static final double kMaxSpeed = 3.0; // 3 meters per second
@@ -79,6 +78,11 @@ public class Drivetrain {
 
 
     public void updateShuffleboard() {
+        // SmartDashboard.putNumber("BR Position", br_motor.getSteeringPosition() - br_motor.getOffset());
+        // SmartDashboard.putNumber("FR Position", fr_motor.getSteeringPosition() - fr_motor.getOffset());
+        // SmartDashboard.putNumber("FL Position", fl_motor.getSteeringPosition() - fl_motor.getOffset());
+        // SmartDashboard.putNumber("BL Position", bl_motor.getSteeringPosition() - bl_motor.getOffset());
+        
         SmartDashboard.putNumber("BR Position", br_motor.getSteeringPosition());
         SmartDashboard.putNumber("FR Position", fr_motor.getSteeringPosition());
         SmartDashboard.putNumber("FL Position", fl_motor.getSteeringPosition());
@@ -88,6 +92,11 @@ public class Drivetrain {
         SmartDashboard.putNumber("FR ABS Position", fr_motor.getAbsoluteSteeringPosition());
         SmartDashboard.putNumber("FL ABS Position", fl_motor.getAbsoluteSteeringPosition());
         SmartDashboard.putNumber("BL ABS Position", bl_motor.getAbsoluteSteeringPosition());
+
+        SmartDashboard.putNumber("BR Offset", br_motor.getOffset());
+        SmartDashboard.putNumber("FR Offset", fr_motor.getOffset());
+        SmartDashboard.putNumber("FL Offset", fl_motor.getOffset());
+        SmartDashboard.putNumber("BL Offset", bl_motor.getOffset());
     }
 
     // Motor functions
@@ -103,6 +112,13 @@ public class Drivetrain {
         fr_motor.zeroPosition();
         bl_motor.zeroPosition();
         fl_motor.zeroPosition();
+    }
+
+    public void absZeroSteering(){
+        br_motor.absZeroPosition();
+        fr_motor.absZeroPosition();
+        bl_motor.absZeroPosition();
+        fl_motor.absZeroPosition();
     }
 
     public void stopSteering() {
@@ -126,15 +142,15 @@ public class Drivetrain {
         fl_motor.drive(r);
     }
 
-    public void turn(double r, double directionFactor) {
-        br_motor.steer(-0.25);
-        fr_motor.steer(0.25);
-        bl_motor.steer(0.25);
-        fl_motor.steer(-0.25);
+    public void turn(double r, double turnDirection) {
+        br_motor.steer(0.25);
+        fr_motor.steer(-0.25);
+        bl_motor.steer(-0.25);
+        fl_motor.steer(0.25);
 
-        br_motor.drive(r * directionFactor);
-        fr_motor.drive(r * directionFactor);
-        bl_motor.drive(r * directionFactor);
-        fl_motor.drive(r * directionFactor);
+        br_motor.drive(r * -turnDirection);
+        fr_motor.drive(r * -turnDirection);
+        bl_motor.drive(r * turnDirection);
+        fl_motor.drive(r * turnDirection);
     }
 }

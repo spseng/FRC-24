@@ -19,7 +19,7 @@ public class TeleopController {
 
     public void teleopPeriodic(XboxController m_stick, Drivetrain drivetrain) {
         double leftX = m_stick.getLeftX();
-        double leftY = m_stick.getLeftY();
+        double leftY = -m_stick.getLeftY();
         double r = DRIVE_SPEED*Math.sqrt( Math.pow(leftX,2) + Math.pow(leftY,2) );
         double theta = getAngle(leftX,leftY);
 
@@ -31,8 +31,7 @@ public class TeleopController {
             drivetrain.drive(r);
         } else
         if (Math.abs(rightX) > TURN_SPEED/2) {
-            drivetrain.turn(turnSpeed, Math.signum(turnSpeed));
-            drivetrain.drive(rightX);
+            drivetrain.turn(turnSpeed, Math.signum(rightX));
         } else
         if (m_stick.getAButton()) {
             drivetrain.zeroSteering();
@@ -42,6 +41,12 @@ public class TeleopController {
         } else
         if (m_stick.getBButton()) {
             drivetrain.steer(1);
+        } else
+        if (m_stick.getXButton()) {
+            drivetrain.absZeroSteering();
+        } else
+        if (m_stick.getRightBumperReleased()) {
+            drivetrain.calibrate();
         } else
         if(m_stick.getAButtonReleased() || m_stick.getBButtonReleased()){
             drivetrain.stopSteering();
@@ -56,6 +61,6 @@ public class TeleopController {
 
     // Helper functions
     public double getAngle(double x, double y) {
-        return (((Math.atan2(y, x))/Math.PI + 2.5) % 2);
+        return (((Math.atan2(y, -x))/Math.PI + 1.25*FULL_ROTATION) % FULL_ROTATION);
     }
 }
