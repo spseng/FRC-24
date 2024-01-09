@@ -19,8 +19,6 @@ public final class SwerveMotor {
     private double dynamicOffset = 0;
     private final CANSparkMax steerMotor;
     private final CANSparkMax driveMotor;
-    // private final RelativeEncoder driveEncoder;
-    // private final RelativeEncoder steerEncoder;
     private final AbsoluteEncoder steerAbsoluteEncoder;
 
     private double prevAngle = 0;
@@ -31,8 +29,7 @@ public final class SwerveMotor {
         this.offset = offset;
         this.steerMotor = new CANSparkMax(steerPort,MotorType.kBrushless);
         this.driveMotor = new CANSparkMax(drivePort,MotorType.kBrushless);
-        // this.steerEncoder = this.steerMotor.getEncoder();
-        // this.driveEncoder = this.driveMotor.getEncoder();
+
         this.steerAbsoluteEncoder = this.steerMotor.getAbsoluteEncoder(Type.kDutyCycle);
     }
 
@@ -58,7 +55,7 @@ public final class SwerveMotor {
 
     public void drive(double speed) {
         // driveMotor.setInverted(inverted);
-        driveMotor.set(speed);
+        driveMotor.set(speed * directionFactor);
     }
 
     
@@ -74,7 +71,7 @@ public final class SwerveMotor {
     private double closestAngle(double previous, double goal)
     {
         // get direction
-        double dir = modulo(goal, FULL_ROTATION) - modulo(previous, FULL_ROTATION);
+        double dir = nearestRotation(goal) - nearestRotation(previous);
         
         // If rotation is greater than 180 degrees, then rotate swerve in the other way
         if (Math.abs(dir) > FULL_ROTATION/2)
@@ -93,9 +90,9 @@ public final class SwerveMotor {
     }
 
     // For some reason the built-in modulo function didn't work...
-    private static double modulo(double a, double b)
+    private static double nearestRotation(double angle)
     {
-        return a - b * Math.floor(a / b);
+        return angle - FULL_ROTATION * Math.floor(angle / FULL_ROTATION);
     }
 
 
