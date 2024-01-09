@@ -21,16 +21,17 @@ public class TeleopController {
         double leftY = -m_stick.getLeftY();
         double theta = getAngle(leftX,leftY);
 
-        double leftR = Math.sqrt( Math.pow(leftX,2) + Math.pow(leftY,2) );
+        double r = (Math.sqrt( Math.pow(leftX,2) + Math.pow(leftY,2) ));
+        double leftR = r < JOYSTICK_DEAD_ZONE ? 0 : r;
         double driveSpeed = leftR * DRIVE_SPEED;
 
         double rightX = Math.abs(m_stick.getRightX()) < JOYSTICK_DEAD_ZONE ? 0 : m_stick.getRightX();
         double turnSpeed = TURN_SPEED * rightX;
 
-        boolean doFieldOrientedDriving = (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE);
+        boolean doFieldOrientedDriving = (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE); // TODO: This is inverted for testing
 
         if (leftR > JOYSTICK_DEAD_ZONE || Math.abs(rightX) > JOYSTICK_DEAD_ZONE) {
-            double turnRatio = rightX / (rightX + leftR); // Percent of total joystick movement dedicated to turning
+            double turnRatio = (rightX / (rightX + leftR)); // Percent of total joystick movement dedicated to turning
             drivetrain.move(turnRatio, theta, driveSpeed, turnSpeed, doFieldOrientedDriving);
         }else
         if (m_stick.getAButton()) {

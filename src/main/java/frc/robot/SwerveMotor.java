@@ -23,6 +23,7 @@ public final class SwerveMotor {
 
     private double prevAngle = 0;
     private double directionFactor = 1;
+    private boolean directionInverted = false;
 
 
     public SwerveMotor(int steerPort, int drivePort, double offset) {
@@ -80,12 +81,16 @@ public final class SwerveMotor {
         }
 
         // If rotation is greater than 90 degrees, then spin drive wheel in opposite direction
-        // TODO: Doesn't work because the direction factor keeps flipping back and forth
-        // if (Math.abs(dir) > FULL_ROTATION/4)
-        // {
-        //     dir = Math.signum(dir) * (FULL_ROTATION/2 - Math.abs(dir));
-        //     directionFactor *= -1;
-        // }
+        if (Math.abs(dir) > FULL_ROTATION/4)
+        {
+            dir = Math.signum(dir) * (FULL_ROTATION/2 - Math.abs(dir));
+            if (!directionInverted) {
+                directionInverted = true;
+                directionFactor *= -1;
+            }
+        }else {
+            directionInverted = false;
+        }
 
         return dir;
     }
@@ -99,7 +104,7 @@ public final class SwerveMotor {
 
     // Getters and Setters
     public double getOffset() {
-        return (offset + dynamicOffset) % FULL_ROTATION;
+        return nearestRotation(offset + dynamicOffset);
     }
     public double getSteeringPosition() {
         return steerMotor.getEncoder().getPosition() / RELATIVE_ENCODER_RATIO * FULL_ROTATION;

@@ -120,10 +120,10 @@ public class Drivetrain {
             theta += m_gyro.getRotation2d().getRadians();
         }
 
-        double br_angle = theta * driveRatio + 0.25 * turnRatio;
-        double fr_angle = theta * driveRatio - 0.25 * turnRatio;
-        double bl_angle = theta * driveRatio - 0.25 * turnRatio;
-        double fl_angle = theta * driveRatio + 0.25 * turnRatio;
+        double br_angle = theta * driveRatio + turnRatio;
+        double fr_angle = theta * driveRatio - turnRatio;
+        double bl_angle = theta * driveRatio - turnRatio;
+        double fl_angle = theta * driveRatio + turnRatio;
 
         double br_speed = driveSpeed * driveRatio - turnSpeed * turnRatio;
         double fr_speed = driveSpeed * driveRatio - turnSpeed * turnRatio;
