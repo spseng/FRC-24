@@ -9,9 +9,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.AnalogGyro;
 
-//import com.kauailabs.navx.frc.*;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+// import com.kauailibs.navx.frc.AHRS;
 
 import static frc.robot.Constants.*;
 
@@ -125,17 +125,21 @@ public class Drivetrain {
         double bl_angle = theta * driveRatio - 0.25 * turnRatio;
         double fl_angle = theta * driveRatio + 0.25 * turnRatio;
 
-        double combinedSpeed = driveSpeed + turnSpeed;
+        double br_speed = driveSpeed * driveRatio - turnSpeed * turnRatio;
+        double fr_speed = driveSpeed * driveRatio - turnSpeed * turnRatio;
+        double fl_speed = driveSpeed * driveRatio + turnSpeed * turnRatio;
+        double bl_speed = driveSpeed * driveRatio + turnSpeed * turnRatio;
+        
 
         br_motor.steer(br_angle);
         fr_motor.steer(fr_angle);
         bl_motor.steer(bl_angle);
         fl_motor.steer(fl_angle);
 
-        br_motor.drive(-combinedSpeed);
-        fr_motor.drive(-combinedSpeed);
-        bl_motor.drive(combinedSpeed);
-        fl_motor.drive(combinedSpeed);
+        br_motor.drive(br_speed);
+        fr_motor.drive(fr_speed);
+        bl_motor.drive(bl_speed);
+        fl_motor.drive(fl_speed);
     }
 
     public void calibrateSteering(){

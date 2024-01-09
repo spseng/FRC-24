@@ -24,10 +24,10 @@ public class TeleopController {
         double leftR = Math.sqrt( Math.pow(leftX,2) + Math.pow(leftY,2) );
         double driveSpeed = leftR * DRIVE_SPEED;
 
-        double rightX = m_stick.getRightX();
+        double rightX = Math.abs(m_stick.getRightX()) < JOYSTICK_DEAD_ZONE ? 0 : m_stick.getRightX();
         double turnSpeed = TURN_SPEED * rightX;
 
-        boolean doFieldOrientedDriving = !(m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE);
+        boolean doFieldOrientedDriving = (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE);
 
         if (leftR > JOYSTICK_DEAD_ZONE || Math.abs(rightX) > JOYSTICK_DEAD_ZONE) {
             double turnRatio = rightX / (rightX + leftR); // Percent of total joystick movement dedicated to turning
@@ -62,6 +62,6 @@ public class TeleopController {
 
     // Helper functions
     public double getAngle(double x, double y) {
-        return (((Math.atan2(y, -x))/Math.PI + 1.25*FULL_ROTATION) % FULL_ROTATION);
+        return (((Math.atan2(y, -x))/Math.PI + 1*FULL_ROTATION) % FULL_ROTATION);
     }
 }

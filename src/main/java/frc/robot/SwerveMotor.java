@@ -80,11 +80,12 @@ public final class SwerveMotor {
         }
 
         // If rotation is greater than 90 degrees, then spin drive wheel in opposite direction
-        if (Math.abs(dir) > FULL_ROTATION/4)
-        {
-            dir = Math.signum(dir) * (FULL_ROTATION/2 - Math.abs(dir));
-            directionFactor *= -1;
-        }
+        // TODO: Doesn't work because the direction factor keeps flipping back and forth
+        // if (Math.abs(dir) > FULL_ROTATION/4)
+        // {
+        //     dir = Math.signum(dir) * (FULL_ROTATION/2 - Math.abs(dir));
+        //     directionFactor *= -1;
+        // }
 
         return dir;
     }
