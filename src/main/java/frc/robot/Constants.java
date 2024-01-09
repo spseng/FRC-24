@@ -43,10 +43,23 @@ public final class Constants {
       // Driver Settings
       public static final double DRIVE_SPEED = 0.15; // Zero to one
       public static final double TURN_SPEED = 0.05; // Zero to one
+      public static final double JOYSTICK_DEAD_ZONE = 0.2;
+      public static final double TRIGGER_DEAD_ZONE = 0.2;
+
+      // TODO: Implement these:
+        public static final double MAX_SPEED = 0.5; // Zero to one
+        public static final double MAX_ACCELERATION = 0.5; // Zero to one
+        public static final double MAX_TURING_SPEED = 0.5; // Zero to one
+        public static final double MAX_TURNING_ACCELERATION = 0.5; // Zero to one
+
 
       // PID Constants
       // PID values will be carefully found through trial and error
       public static final double STEER_KP = 0.8;
       public static final double STEER_KI = 0.0005;
       public static final double STEER_KD = 0.00;
+
+      public static final double TURNING_KP = 0.8;
+      public static final double TURNING_KI = 0.0005;
+      public static final double TURNING_KD = 0.00;
 }

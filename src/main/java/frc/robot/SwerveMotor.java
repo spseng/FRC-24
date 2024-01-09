@@ -2,7 +2,6 @@ package frc.robot;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
@@ -11,9 +10,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 import static frc.robot.Constants.*;
-
-import javax.swing.plaf.synth.SynthStyle;
-
 
 public final class SwerveMotor {
 
@@ -41,27 +37,12 @@ public final class SwerveMotor {
     }
 
     public void calibrate() {
-        // while (Math.abs(getAbsoluteSteeringPosition() - offset) > 0.1) {
-        //     steer(0.1 * pidController.calculate(getAbsoluteSteeringPosition(), offset));
-        // }
-        // this.steerEncoder.setPosition(0);
-        // stopSteering();
-//            System.out.println("ABS offset: " + getAbsoluteSteeringPosition());
-//            System.out.println("rel offset: " + getSteeringPosition());
-//            this.steerMotor.getEncoder().setPosition((getAbsoluteSteeringPosition() * 2.375/2) + STEERING_CALIBRATION_OFFSET);
-//            System.out.println("Setting offset to: " + getSteeringPosition());
-        // zeroPosition();
-
         this.steerMotor.getEncoder().setPosition(0);
         this.dynamicOffset = getAbsoluteSteeringPosition() * FULL_ROTATION;
     }
 
     public void zeroPosition() {
         steerMotor.set(pidController.calculate(getSteeringPosition(), this.getOffset()));
-    }
-
-    public void absZeroPosition() {
-        steerMotor.set(pidController.calculate(getAbsoluteSteeringPosition(), this.getOffset() + 1));
     }
 
     public void stopSteering() {
@@ -85,49 +66,52 @@ public final class SwerveMotor {
 
     // This function is used to calculate the angle the wheel should be set to
     // based on the previous angle to determine which direction to turn
+
+    // If the wheel is turning more than 90 degrees, then the wheel should spin in the opposite direction
+    // and the drive wheel should spin in the opposite direction
+
     // https://compendium.readthedocs.io/en/latest/tasks/drivetrains/swerve.html
     private double closestAngle(double previous, double goal)
     {
         // get direction
         double dir = modulo(goal, FULL_ROTATION) - modulo(previous, FULL_ROTATION);
         
-        // goal mod 1 - prev mod 1
+        // If rotation is greater than 180 degrees, then rotate swerve in the other way
         if (Math.abs(dir) > FULL_ROTATION/2)
         {
             dir = -(Math.signum(dir) * FULL_ROTATION) + dir;
         }
 
+        // If rotation is greater than 90 degrees, then spin drive wheel in opposite direction
+        if (Math.abs(dir) > FULL_ROTATION/4)
+        {
+            dir = Math.signum(dir) * (FULL_ROTATION/2 - Math.abs(dir));
+            directionFactor *= -1;
+        }
+
         return dir;
     }
 
+    // For some reason the built-in modulo function didn't work...
     private static double modulo(double a, double b)
     {
         return a - b * Math.floor(a / b);
     }
-   
+
+
     // Getters and Setters
+    public double getOffset() {
+        return (offset + dynamicOffset) % FULL_ROTATION;
+    }
     public double getSteeringPosition() {
         return steerMotor.getEncoder().getPosition() / RELATIVE_ENCODER_RATIO * FULL_ROTATION;
     }
     public double getAbsoluteSteeringPosition() {
         return steerAbsoluteEncoder.getPosition();
     }
+
     public SwerveModulePosition getSwervePosition(){
         return new SwerveModulePosition(
                 driveMotor.getEncoder().getPosition(), new Rotation2d(getSteeringPosition()));
-    }
-
-    public double getOffset() {
-        double totalOffset = (offset + dynamicOffset) % FULL_ROTATION;
-
-        // if(totalOffset > FULL_ROTATION/2){
-        //     return FULL_ROTATION - totalOffset;
-        // }else if(totalOffset < -FULL_ROTATION/2){
-        //     return FULL_ROTATION + totalOffset;
-        // }else{
-        //     return totalOffset;
-        // }
-
-        return totalOffset;
     }
 }

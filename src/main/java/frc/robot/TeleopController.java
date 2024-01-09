@@ -1,7 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static frc.robot.Constants.*;
 
@@ -14,25 +13,26 @@ public class TeleopController {
 
     public void teleopInit(Drivetrain driveTrain) {
         // Calibrate relative encoders to match absolute encoders
-        driveTrain.calibrate();
+        driveTrain.calibrateSteering();
     }
 
     public void teleopPeriodic(XboxController m_stick, Drivetrain drivetrain) {
         double leftX = m_stick.getLeftX();
         double leftY = -m_stick.getLeftY();
-        double r = DRIVE_SPEED*Math.sqrt( Math.pow(leftX,2) + Math.pow(leftY,2) );
         double theta = getAngle(leftX,leftY);
+
+        double leftR = Math.sqrt( Math.pow(leftX,2) + Math.pow(leftY,2) );
+        double driveSpeed = leftR * DRIVE_SPEED;
 
         double rightX = m_stick.getRightX();
         double turnSpeed = TURN_SPEED * rightX;
 
-        if (r > DRIVE_SPEED/2) {
-            drivetrain.steer(theta);
-            drivetrain.drive(r);
-        } else
-        if (Math.abs(rightX) > TURN_SPEED/2) {
-            drivetrain.turn(turnSpeed, Math.signum(rightX));
-        } else
+        boolean doFieldOrientedDriving = !(m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE);
+
+        if (leftR > JOYSTICK_DEAD_ZONE || Math.abs(rightX) > JOYSTICK_DEAD_ZONE) {
+            double turnRatio = rightX / (rightX + leftR); // Percent of total joystick movement dedicated to turning
+            drivetrain.move(turnRatio, theta, driveSpeed, turnSpeed, doFieldOrientedDriving);
+        }else
         if (m_stick.getAButton()) {
             drivetrain.zeroSteering();
         } else
@@ -43,10 +43,10 @@ public class TeleopController {
             drivetrain.steer(1);
         } else
         if (m_stick.getXButton()) {
-            drivetrain.absZeroSteering();
+            drivetrain.pointStraight();
         } else
         if (m_stick.getRightBumperReleased()) {
-            drivetrain.calibrate();
+            drivetrain.calibrateSteering();
         } else
         if(m_stick.getAButtonReleased() || m_stick.getBButtonReleased()){
             drivetrain.stopSteering();
@@ -55,6 +55,7 @@ public class TeleopController {
             drivetrain.drive(0);
         }
 
+        drivetrain.periodic();
 
         drivetrain.updateShuffleboard();
     }

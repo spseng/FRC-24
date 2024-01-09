@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -7,21 +8,26 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.AnalogGyro;
+
+//import com.kauailabs.navx.frc.*;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static frc.robot.Constants.*;
 
 public class Drivetrain {
-    public static final double kMaxSpeed = 3.0; // 3 meters per second
-    public static final double kMaxAngularSpeed = Math.PI; // 1/2 rotation per second
 
+    // Locations for the swerve drive modules relative to the robot center (pretty sure it's based off CoM)
+    private final Translation2d br_location = new Translation2d(-0.381, -0.381); // Arbitrary values
+    private final Translation2d fr_location = new Translation2d(0.381, -0.381); // Arbitrary values
+    private final Translation2d fl_location = new Translation2d(0.381, 0.381); // Arbitrary values
+    private final Translation2d bl_location = new Translation2d(-0.381, 0.381); // Arbitrary values
 
+    // Creating my kinematics object using the module locations
+    private final SwerveDriveKinematics driveKinematics = new SwerveDriveKinematics(
+            fl_location, fr_location, bl_location, br_location
+    );
 
-    // Locations for the swerve drive modules relative to the robot center.
-    private final Translation2d m_frontLeftLocation = new Translation2d(0.381, 0.381);
-    private final Translation2d m_frontRightLocation = new Translation2d(0.381, -0.381);
-    private final Translation2d m_backLeftLocation = new Translation2d(-0.381, 0.381);
-    private final Translation2d m_backRightLocation = new Translation2d(-0.381, -0.381);
 
     private final SwerveMotor br_motor;
     private final SwerveMotor fr_motor;
@@ -29,17 +35,15 @@ public class Drivetrain {
     private final SwerveMotor bl_motor;
 
 
-    private final AnalogGyro m_gyro = new AnalogGyro(0);
-
-    // Creating my kinematics object using the module locations
-    private SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
-            m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation
-    );
+    // Turning
+    private final PIDController turningPIDController;
+    private final AnalogGyro m_gyro = new AnalogGyro(0); // Placeholder for the navX gyro
+//    private final AHRS gyro = new AHRS(SPI.Port.kMXP);  // navX gyro
 
     // Creating my odometry object from the kinematics object and the initial wheel positions.
 // Here, our starting pose is 5 meters along the long end of the field and in the
 // center of the field along the short end, facing the opposing alliance wall.
-    private final SwerveDriveOdometry m_odometry;
+    private final SwerveDriveOdometry odometry;
 
     public Drivetrain() {
         br_motor = new SwerveMotor(BR_STEER_CAN, BR_DRIVE_CAN, BR_STEER_OFFSET);
@@ -47,14 +51,17 @@ public class Drivetrain {
         fl_motor = new SwerveMotor(FL_STEER_CAN, FL_DRIVE_CAN, FL_STEER_OFFSET);
         bl_motor = new SwerveMotor(BL_STEER_CAN, BL_DRIVE_CAN, BL_STEER_OFFSET);
 
-        m_odometry = new SwerveDriveOdometry(
-                m_kinematics, m_gyro.getRotation2d(),
+        odometry = new SwerveDriveOdometry(
+                driveKinematics, m_gyro.getRotation2d(),
+//                driveKinematics, gyro.getYaw(), // Used with navX gyro
                 new SwerveModulePosition[] {
                         br_motor.getSwervePosition(),
                         fr_motor.getSwervePosition(),
                         fl_motor.getSwervePosition(),
                         bl_motor.getSwervePosition()
-                }, new Pose2d(5.0, 13.5, new Rotation2d()));
+                }, new Pose2d(0, 0, new Rotation2d()));
+
+        this.turningPIDController = new PIDController(TURNING_KP, TURNING_KI, TURNING_KD);
 
         m_gyro.reset();
     }
@@ -62,10 +69,11 @@ public class Drivetrain {
     public void periodic() {
         // Get the rotation of the robot from the gyro.
         var gyroAngle = m_gyro.getRotation2d();
+//        var gyroAngle = gyro.getYaw(); // Used with navX gyro
 
         // Update the pose
-        m_odometry.update(
-            m_gyro.getRotation2d(),
+        odometry.update(
+            gyroAngle,
             new SwerveModulePosition[] {
                     br_motor.getSwervePosition(),
                     fr_motor.getSwervePosition(),
@@ -97,10 +105,40 @@ public class Drivetrain {
         SmartDashboard.putNumber("FR Offset", fr_motor.getOffset());
         SmartDashboard.putNumber("FL Offset", fl_motor.getOffset());
         SmartDashboard.putNumber("BL Offset", bl_motor.getOffset());
+
+        SmartDashboard.putNumber("Odometry X", odometry.getPoseMeters().getX());
+        SmartDashboard.putNumber("Odometry Y", odometry.getPoseMeters().getY());
+        SmartDashboard.putNumber("Odometry Angle", odometry.getPoseMeters().getRotation().getDegrees());
     }
 
     // Motor functions
-    public void calibrate(){
+    public void move(double turnRatio, double inputTheta, double driveSpeed, double turnSpeed, boolean fieldRelative){
+        double driveRatio = 1 - turnRatio; // Percent of total joystick movement dedicated to driving
+        double theta = inputTheta;
+
+        if (fieldRelative) {
+            theta += m_gyro.getRotation2d().getRadians();
+        }
+
+        double br_angle = theta * driveRatio + 0.25 * turnRatio;
+        double fr_angle = theta * driveRatio - 0.25 * turnRatio;
+        double bl_angle = theta * driveRatio - 0.25 * turnRatio;
+        double fl_angle = theta * driveRatio + 0.25 * turnRatio;
+
+        double combinedSpeed = driveSpeed + turnSpeed;
+
+        br_motor.steer(br_angle);
+        fr_motor.steer(fr_angle);
+        bl_motor.steer(bl_angle);
+        fl_motor.steer(fl_angle);
+
+        br_motor.drive(-combinedSpeed);
+        fr_motor.drive(-combinedSpeed);
+        bl_motor.drive(combinedSpeed);
+        fl_motor.drive(combinedSpeed);
+    }
+
+    public void calibrateSteering(){
         br_motor.calibrate();
         fr_motor.calibrate();
         bl_motor.calibrate();
@@ -114,11 +152,12 @@ public class Drivetrain {
         fl_motor.zeroPosition();
     }
 
-    public void absZeroSteering(){
-        br_motor.absZeroPosition();
-        fr_motor.absZeroPosition();
-        bl_motor.absZeroPosition();
-        fl_motor.absZeroPosition();
+    public void pointStraight() {
+        double goalAngle = 0;
+        double currentAngle = (odometry.getPoseMeters().getRotation().getRadians()); // Module 2π?
+        double turnSpeed = turningPIDController.calculate(currentAngle, goalAngle);
+
+        turn(turnSpeed);
     }
 
     public void stopSteering() {
@@ -142,15 +181,15 @@ public class Drivetrain {
         fl_motor.drive(r);
     }
 
-    public void turn(double r, double turnDirection) {
+    public void turn(double r) {
         br_motor.steer(0.25);
         fr_motor.steer(-0.25);
         bl_motor.steer(-0.25);
         fl_motor.steer(0.25);
 
-        br_motor.drive(r * -turnDirection);
-        fr_motor.drive(r * -turnDirection);
-        bl_motor.drive(r * turnDirection);
-        fl_motor.drive(r * turnDirection);
+        br_motor.drive(r);
+        fr_motor.drive(r);
+        bl_motor.drive(r);
+        fl_motor.drive(r);
     }
 }
