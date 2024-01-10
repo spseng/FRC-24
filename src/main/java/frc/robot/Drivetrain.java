@@ -112,34 +112,42 @@ public class Drivetrain {
     }
 
     // Motor functions
-    public void move(double turnRatio, double inputTheta, double driveSpeed, double turnSpeed, boolean fieldRelative){
-        double driveRatio = 1 - turnRatio; // Percent of total joystick movement dedicated to driving
-        double theta = inputTheta;
+    public void move(double inputTheta, double driveSpeed, double turnSpeed, boolean fieldRelative) {
+        // Adjust theta for field orientation
+        double theta = fieldRelative ? inputTheta + m_gyro.getRotation2d().getRadians() : inputTheta;
 
-        if (fieldRelative) {
-            theta += m_gyro.getRotation2d().getRadians();
-        }
+        // Calculate the robot movement vector
+        double x = Math.cos(theta) * driveSpeed;
+        double y = Math.sin(theta) * driveSpeed;
 
-        double br_angle = theta * driveRatio + turnRatio;
-        double fr_angle = theta * driveRatio - turnRatio;
-        double bl_angle = theta * driveRatio - turnRatio;
-        double fl_angle = theta * driveRatio + turnRatio;
+        // Wheel vectors
+        double[] fl_wheel = calculateWheelVector(-1, 1, x, y, turnSpeed);
+        double[] fr_wheel = calculateWheelVector(1, 1, x, y, turnSpeed);
+        double[] bl_wheel = calculateWheelVector(-1, -1, x, y, turnSpeed);
+        double[] br_wheel = calculateWheelVector(1, -1, x, y, turnSpeed);
 
-        double br_speed = driveSpeed * driveRatio - turnSpeed * turnRatio;
-        double fr_speed = driveSpeed * driveRatio - turnSpeed * turnRatio;
-        double fl_speed = driveSpeed * driveRatio + turnSpeed * turnRatio;
-        double bl_speed = driveSpeed * driveRatio + turnSpeed * turnRatio;
-        
+        // Set wheel angles and speeds
+        fl_motor.steer(Math.atan2(fl_wheel[1], fl_wheel[0]));
+        fr_motor.steer(Math.atan2(fr_wheel[1], fr_wheel[0]));
+        bl_motor.steer(Math.atan2(bl_wheel[1], bl_wheel[0]));
+        br_motor.steer(Math.atan2(br_wheel[1], br_wheel[0]));
 
-        br_motor.steer(br_angle);
-        fr_motor.steer(fr_angle);
-        bl_motor.steer(bl_angle);
-        fl_motor.steer(fl_angle);
+        fl_motor.drive(Math.hypot(fl_wheel[0], fl_wheel[1]));
+        fr_motor.drive(Math.hypot(fr_wheel[0], fr_wheel[1]));
+        bl_motor.drive(Math.hypot(bl_wheel[0], bl_wheel[1]));
+        br_motor.drive(Math.hypot(br_wheel[0], br_wheel[1]));
+    }
 
-        br_motor.drive(br_speed);
-        fr_motor.drive(fr_speed);
-        bl_motor.drive(bl_speed);
-        fl_motor.drive(fl_speed);
+    private double[] calculateWheelVector(double wheelX, double wheelY, double x, double y, double turnSpeed) {
+        // Calculate the vector for the wheel position
+        double wheelPosX = turnSpeed * -wheelY;
+        double wheelPosY = turnSpeed * wheelX;
+
+        // Combine with the robot movement vector
+        double vx = x + wheelPosX;
+        double vy = y + wheelPosY;
+
+        return new double[]{vx, vy};
     }
 
     public void calibrateSteering(){
