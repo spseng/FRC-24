@@ -137,10 +137,19 @@ public class Drivetrain {
             fl_angle = theta;
             bl_angle = theta;
 
-            br_speed = driveSpeed + turnSpeed;
-            fr_speed = driveSpeed + turnSpeed;
-            fl_speed = driveSpeed - turnSpeed;
-            bl_speed = driveSpeed - turnSpeed;
+            double thetaRadians = theta * Math.PI * 2 / FULL_ROTATION;
+
+            if(fieldRelative) {
+//                br_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() + 3 * Math.PI/4);
+//                fr_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() - 3 * Math.PI/4);
+//                fl_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() - Math.PI/4);
+//                bl_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() + Math.PI/4);
+            }else {
+                br_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + 3 * Math.PI/4);
+                fr_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians - 3 * Math.PI/4);
+                fl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians - Math.PI/4);
+                bl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4);
+            }
         }
         
 
