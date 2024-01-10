@@ -112,8 +112,7 @@ public class Drivetrain {
     }
 
     // Motor functions
-    public void move(double turnRatio, double inputTheta, double driveSpeed, double turnSpeed, boolean fieldRelative){
-        double driveRatio = 1 - turnRatio; // Percent of total joystick movement dedicated to driving
+    public void move(double inputTheta, double driveSpeed, double turnSpeed, boolean fieldRelative){
         double theta = inputTheta;
 
         if (fieldRelative) {
