@@ -27,7 +27,7 @@ public class TeleopController {
         double rightX = Math.abs(m_stick.getRightX()) < JOYSTICK_DEAD_ZONE ? 0 : m_stick.getRightX();
         double turnSpeed = TURN_SPEED * rightX;
 
-        boolean doFieldOrientedDriving = (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE);
+        boolean doFieldOrientedDriving = !(m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE);
 
         // Check if either joystick is beyond the dead zone
         if (driveSpeed > 0 || Math.abs(turnSpeed) > 0) {

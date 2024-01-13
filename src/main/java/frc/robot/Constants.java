@@ -33,16 +33,16 @@ public final class Constants {
 
       public static final double BR_STEER_OFFSET =  0.5;
       public static final double FR_STEER_OFFSET =  1;
-      public static final double FL_STEER_OFFSET =  1;
+      public static final double FL_STEER_OFFSET =  0.8;
       public static final double BL_STEER_OFFSET =  0.5;
 
       public static final double FULL_ROTATION = 2;
       public static final double RELATIVE_ENCODER_RATIO = 5.825;
 
       // Driver Settings
-      public static final double DRIVE_SPEED = 0.25; // Zero to one
+      public static final double DRIVE_SPEED = 0.15; // Zero to one
       public static final double TURN_SPEED = 0.15; // Zero to one
-      public static final double TURN_SPEED_DRIVING = 1;
+      public static final double TURN_SPEED_DRIVING = 1.5;
       public static final double JOYSTICK_DEAD_ZONE = 0.1; // Zero to one
       public static final double TRIGGER_DEAD_ZONE = 0.2; // Zero to one
 

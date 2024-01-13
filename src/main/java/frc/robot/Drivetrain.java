@@ -2,6 +2,8 @@ package frc.robot;
 
 // import com.kauailabs.navx.frc.*;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -38,8 +40,8 @@ public class Drivetrain {
 
     // Turning
     private final PIDController turningPIDController;
-    private final AnalogGyro m_gyro = new AnalogGyro(0); // Placeholder for the navX gyro
-    // private final AHRS m_gyro = new AHRS();  // navX gyro
+    // private final AnalogGyro m_gyro = new AnalogGyro(0); // Placeholder for the navX gyro
+    private final AHRS m_gyro = new AHRS();  // navX gyro
 
     // Creating my odometry object from the kinematics object and the initial wheel positions.
 // Here, our starting pose is 5 meters along the long end of the field and in the
@@ -132,24 +134,39 @@ public class Drivetrain {
 
 
         if (driveSpeed != 0) {
-            br_angle = theta;
-            fr_angle = theta;
-            fl_angle = theta;
-            bl_angle = theta;
-
             double thetaRadians = theta * Math.PI * 2 / FULL_ROTATION + Math.PI/2;
-
+                        
             if(fieldRelative) {
-//                br_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() + 3 * Math.PI/4);
-//                fr_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() - 3 * Math.PI/4);
-//                fl_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() - Math.PI/4);
-//                bl_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() + Math.PI/4);
-            }else {
-                br_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + 3 * Math.PI/4) * TURN_SPEED_DRIVING;
-                fr_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians - 3 * Math.PI/4) * TURN_SPEED_DRIVING;
-                fl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4) * TURN_SPEED_DRIVING;
-                bl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4) * TURN_SPEED_DRIVING;
+                thetaRadians += m_gyro.getRotation2d().getRadians();
             }
+
+
+            // Normal turning
+            // br_angle = theta;
+            // fr_angle = theta;
+            // fl_angle = theta;
+            // bl_angle = theta;
+
+
+            double additionAngleOffset = Math.PI/2 + Math.PI/4;
+            
+            // Turning front wheels to turn
+            br_angle = theta + Math.max(0, Math.cos(thetaRadians - Math.PI   + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+            fr_angle = theta + Math.max(0, Math.cos(thetaRadians + Math.PI/2 + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+            fl_angle = theta + Math.max(0, Math.cos(thetaRadians             + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+            bl_angle = theta + Math.max(0, Math.cos(thetaRadians - Math.PI/2 + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+
+
+            br_speed = driveSpeed;
+            fr_speed = driveSpeed;
+            fl_speed = driveSpeed;
+            bl_speed = driveSpeed;
+
+            // Slow turning side. (doesn't work well)
+            // br_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + 3 * Math.PI/4) * TURN_SPEED_DRIVING;
+            // fr_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians - 3 * Math.PI/4) * TURN_SPEED_DRIVING;
+            // fl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4) * TURN_SPEED_DRIVING;
+            // bl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4) * TURN_SPEED_DRIVING;
         }
         
 
@@ -165,6 +182,8 @@ public class Drivetrain {
     }
 
     public void calibrateSteering(){
+        m_gyro.zeroYaw();
+
         br_motor.calibrate();
         fr_motor.calibrate();
         bl_motor.calibrate();
