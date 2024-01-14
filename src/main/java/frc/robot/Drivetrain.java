@@ -1,17 +1,20 @@
 package frc.robot;
 
+// import com.kauailabs.navx.frc.*;
+
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogGyro;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-// import com.kauailibs.navx.frc.AHRS;
 
 import static frc.robot.Constants.*;
 
@@ -37,13 +40,13 @@ public class Drivetrain {
 
     // Turning
     private final PIDController turningPIDController;
-    private final AnalogGyro m_gyro = new AnalogGyro(0); // Placeholder for the navX gyro
-//    private final AHRS gyro = new AHRS(SPI.Port.kMXP);  // navX gyro
+    // private final AnalogGyro m_gyro = new AnalogGyro(0); // Placeholder for the navX gyro
+    private final AHRS m_gyro = new AHRS();  // navX gyro
 
     // Creating my odometry object from the kinematics object and the initial wheel positions.
 // Here, our starting pose is 5 meters along the long end of the field and in the
 // center of the field along the short end, facing the opposing alliance wall.
-    private final SwerveDriveOdometry odometry;
+    // private final SwerveDriveOdometry odometry;
 
     public Drivetrain() {
         br_motor = new SwerveMotor(BR_STEER_CAN, BR_DRIVE_CAN, BR_STEER_OFFSET);
@@ -51,15 +54,15 @@ public class Drivetrain {
         fl_motor = new SwerveMotor(FL_STEER_CAN, FL_DRIVE_CAN, FL_STEER_OFFSET);
         bl_motor = new SwerveMotor(BL_STEER_CAN, BL_DRIVE_CAN, BL_STEER_OFFSET);
 
-        odometry = new SwerveDriveOdometry(
-                driveKinematics, m_gyro.getRotation2d(),
-//                driveKinematics, gyro.getYaw(), // Used with navX gyro
-                new SwerveModulePosition[] {
-                        br_motor.getSwervePosition(),
-                        fr_motor.getSwervePosition(),
-                        fl_motor.getSwervePosition(),
-                        bl_motor.getSwervePosition()
-                }, new Pose2d(0, 0, new Rotation2d()));
+//         odometry = new SwerveDriveOdometry(
+//                 driveKinematics, m_gyro.getRotation2d(),
+// //                driveKinematics, gyro.getYaw(), // Used with navX gyro
+//                 new SwerveModulePosition[] {
+//                         br_motor.getSwervePosition(),
+//                         fr_motor.getSwervePosition(),
+//                         fl_motor.getSwervePosition(),
+//                         bl_motor.getSwervePosition()
+//                 }, new Pose2d(0, 0, new Rotation2d()));
 
         this.turningPIDController = new PIDController(TURNING_KP, TURNING_KI, TURNING_KD);
 
@@ -72,15 +75,15 @@ public class Drivetrain {
 //        var gyroAngle = gyro.getYaw(); // Used with navX gyro
 
         // Update the pose
-        odometry.update(
-            gyroAngle,
-            new SwerveModulePosition[] {
-                    br_motor.getSwervePosition(),
-                    fr_motor.getSwervePosition(),
-                    fl_motor.getSwervePosition(),
-                    bl_motor.getSwervePosition()
-            }
-        );
+        // odometry.update(
+        //     gyroAngle,
+        //     new s[] {
+        //             br_motor.getSwervePosition(),
+        //             fr_motor.getSwervePosition(),
+        //             fl_motor.getSwervePosition(),
+        //             bl_motor.getSwervePosition()
+        //     }
+        // );
     }
 
 
@@ -106,9 +109,9 @@ public class Drivetrain {
         SmartDashboard.putNumber("FL Offset", fl_motor.getOffset());
         SmartDashboard.putNumber("BL Offset", bl_motor.getOffset());
 
-        SmartDashboard.putNumber("Odometry X", odometry.getPoseMeters().getX());
-        SmartDashboard.putNumber("Odometry Y", odometry.getPoseMeters().getY());
-        SmartDashboard.putNumber("Odometry Angle", odometry.getPoseMeters().getRotation().getDegrees());
+        // SmartDashboard.putNumber("Odometry X", odometry.getPoseMeters().getX());
+        // SmartDashboard.putNumber("Odometry Y", odometry.getPoseMeters().getY());
+        // SmartDashboard.putNumber("Odometry Angle", odometry.getPoseMeters().getRotation().getDegrees());
     }
 
     // Motor functions
@@ -116,39 +119,54 @@ public class Drivetrain {
         double theta = inputTheta;
 
         if (fieldRelative) {
-            theta += m_gyro.getRotation2d().getRadians();
+            theta += m_gyro.getRotation2d().getDegrees() / 360 * FULL_ROTATION;
         }
 
         double br_angle =  0.25;
-        double fr_angle = -0.25;
-        double bl_angle = -0.25;
+        double fr_angle =  -0.25;
         double fl_angle =  0.25;
+        double bl_angle =  -0.25;
 
         double br_speed = turnSpeed;
         double fr_speed = turnSpeed;
-        double fl_speed = turnSpeed;
-        double bl_speed = turnSpeed;
+        double fl_speed = -turnSpeed;
+        double bl_speed = -turnSpeed;
 
 
         if (driveSpeed != 0) {
-            br_angle = theta;
-            fr_angle = theta;
-            fl_angle = theta;
-            bl_angle = theta;
-
-            double thetaRadians = theta * Math.PI * 2 / FULL_ROTATION;
-
+            double thetaRadians = theta * Math.PI * 2 / FULL_ROTATION + Math.PI/2;
+                        
             if(fieldRelative) {
-//                br_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() + 3 * Math.PI/4);
-//                fr_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() - 3 * Math.PI/4);
-//                fl_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() - Math.PI/4);
-//                bl_speed = driveSpeed + turnSpeed * Math.cos(m_gyro.getRotation2d().getRadians() + Math.PI/4);
-            }else {
-                br_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + 3 * Math.PI/4);
-                fr_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians - 3 * Math.PI/4);
-                fl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians - Math.PI/4);
-                bl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4);
+                thetaRadians += m_gyro.getRotation2d().getRadians();
             }
+
+
+            // Normal turning
+            // br_angle = theta;
+            // fr_angle = theta;
+            // fl_angle = theta;
+            // bl_angle = theta;
+
+
+            double additionAngleOffset = Math.PI/2 + Math.PI/4;
+            
+            // Turning front wheels to turn
+            br_angle = theta + Math.max(0, Math.cos(thetaRadians - Math.PI   + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+            fr_angle = theta + Math.max(0, Math.cos(thetaRadians + Math.PI/2 + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+            fl_angle = theta + Math.max(0, Math.cos(thetaRadians             + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+            bl_angle = theta + Math.max(0, Math.cos(thetaRadians - Math.PI/2 + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+
+
+            br_speed = driveSpeed;
+            fr_speed = driveSpeed;
+            fl_speed = driveSpeed;
+            bl_speed = driveSpeed;
+
+            // Slow turning side. (doesn't work well)
+            // br_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + 3 * Math.PI/4) * TURN_SPEED_DRIVING;
+            // fr_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians - 3 * Math.PI/4) * TURN_SPEED_DRIVING;
+            // fl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4) * TURN_SPEED_DRIVING;
+            // bl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4) * TURN_SPEED_DRIVING;
         }
         
 
@@ -164,6 +182,8 @@ public class Drivetrain {
     }
 
     public void calibrateSteering(){
+        m_gyro.zeroYaw();
+
         br_motor.calibrate();
         fr_motor.calibrate();
         bl_motor.calibrate();
@@ -179,10 +199,11 @@ public class Drivetrain {
 
     public void pointStraight() {
         double goalAngle = 0;
-        double currentAngle = (odometry.getPoseMeters().getRotation().getRadians()); // Module 2π?
+        // double currentAngle = (odometry.getPoseMeters().getRotation().getRadians()); // Module 2π?
+        double currentAngle = m_gyro.getRotation2d().getDegrees() / 360 * FULL_ROTATION;
         double turnSpeed = turningPIDController.calculate(currentAngle, goalAngle);
 
-        turn(turnSpeed);
+        // turn(turnSpeed);
     }
 
     public void stopSteering() {
@@ -206,15 +227,15 @@ public class Drivetrain {
         fl_motor.drive(r);
     }
 
-    public void turn(double r) {
-        br_motor.steer(0.25);
-        fr_motor.steer(-0.25);
-        bl_motor.steer(-0.25);
-        fl_motor.steer(0.25);
+    // public void turn(double r) {
+    //     br_motor.steer(0.25);
+    //     fr_motor.steer(-0.25);
+    //     bl_motor.steer(-0.25);
+    //     fl_motor.steer(0.25);
 
-        br_motor.drive(r);
-        fr_motor.drive(r);
-        bl_motor.drive(r);
-        fl_motor.drive(r);
-    }
+    //     br_motor.drive(r);
+    //     fr_motor.drive(r);
+    //     bl_motor.drive(r);
+    //     fl_motor.drive(r);
+    // }
 }

@@ -6,8 +6,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
+// import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 import static frc.robot.Constants.*;
 
@@ -23,7 +22,7 @@ public final class SwerveMotor {
 
     private double prevAngle = 0;
     private double directionFactor = 1;
-    private boolean directionInverted = false;
+    // private boolean directionInverted = false;
 
 
     public SwerveMotor(int steerPort, int drivePort, double offset) {
@@ -81,16 +80,16 @@ public final class SwerveMotor {
         }
 
         // If rotation is greater than 90 degrees, then spin drive wheel in opposite direction
-        if (Math.abs(dir) > FULL_ROTATION/4)
-        {
-            dir = Math.signum(dir) * (FULL_ROTATION/2 - Math.abs(dir));
-            if (!directionInverted) {
-                directionInverted = true;
-                directionFactor *= -1;
-            }
-        }else {
-            directionInverted = false;
-        }
+        // if (Math.abs(dir) > FULL_ROTATION/4)
+        // {
+        //     dir = Math.signum(dir) * (FULL_ROTATION/2 - Math.abs(dir));
+        //     if (!directionInverted) {
+        //         directionInverted = true;
+        //         directionFactor *= -1;
+        //     }
+        // }else {
+        //     directionInverted = false;
+        // }
 
         return dir;
     }
@@ -113,8 +112,8 @@ public final class SwerveMotor {
         return steerAbsoluteEncoder.getPosition();
     }
 
-    public SwerveModulePosition getSwervePosition(){
-        return new SwerveModulePosition(
-                driveMotor.getEncoder().getPosition(), new Rotation2d(getSteeringPosition()));
-    }
+    // public SwerveModulePosition getSwervePosition(){
+    //     return new SwerveModulePosition(
+    //             driveMotor.getEncoder().getPosition(), new Rotation2d(getSteeringPosition()));
+    // }
 }

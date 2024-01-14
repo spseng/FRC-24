@@ -17,8 +17,8 @@ public class TeleopController {
     }
 
     public void teleopPeriodic(XboxController m_stick, Drivetrain drivetrain) {
-        double leftX = m_stick.getLeftX();
-        double leftY = -m_stick.getLeftY();
+        double leftX = -m_stick.getLeftX();
+        double leftY = m_stick.getLeftY();
         double theta = getAngle(leftX, leftY);
 
         double r = Math.sqrt(Math.pow(leftX, 2) + Math.pow(leftY, 2));
@@ -27,7 +27,7 @@ public class TeleopController {
         double rightX = Math.abs(m_stick.getRightX()) < JOYSTICK_DEAD_ZONE ? 0 : m_stick.getRightX();
         double turnSpeed = TURN_SPEED * rightX;
 
-        boolean doFieldOrientedDriving = (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE);
+        boolean doFieldOrientedDriving = !(m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE);
 
         // Check if either joystick is beyond the dead zone
         if (driveSpeed > 0 || Math.abs(turnSpeed) > 0) {
@@ -63,6 +63,6 @@ public class TeleopController {
 
     // Helper functions
     public double getAngle(double x, double y) {
-        return (((Math.atan2(y, -x))/Math.PI + 1*FULL_ROTATION) % FULL_ROTATION);
+        return (((Math.atan2(y, -x))/Math.PI + 0.25*FULL_ROTATION) % FULL_ROTATION);
     }
 }

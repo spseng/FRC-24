@@ -2,17 +2,17 @@
   "java.configuration.updateBuildConfiguration": "automatic",
   "java.server.launchMode": "Standard",
   "files.exclude": {
-    "**/.classpath": true,
-    "**/.DS_Store": true,
-    "**/.factorypath": true,
-    "**/.git": false,
+    "**/.git": true,
+    "**/.svn": true,
     "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "bin/": true,
+    "**/.classpath": true,
     "**/.project": true,
     "**/.settings": true,
-    "**/.svn": true,
-    "**/*~": true,
-    "**/CVS": true,
-    "bin/": true
+    "**/.factorypath": true,
+    "**/*~": true
   },
   "java.test.config": [
     {
@@ -25,6 +25,5 @@
       }
     },
   ],
-  "java.test.defaultConfig": "WPIlibUnitTests",
-  "githubPullRequests.remotes": []
+  "java.test.defaultConfig": "WPIlibUnitTests"
 }
