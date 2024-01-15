@@ -52,6 +52,10 @@ public final class Constants {
         public static final double MAX_TURING_SPEED = 0.5; // Zero to one
         public static final double MAX_TURNING_ACCELERATION = 0.5; // Zero to one
 
+      // Robot Physical Constants
+        public static final double WHEELBASE = 0.5; // Meters, distance between front and back
+        public static final double TRACKWIDTH = 0.5; // Meters, distance between left and right
+
 
       // PID Constants
       // PID values will be carefully found through trial and error

@@ -89,11 +89,6 @@ public class Drivetrain {
 
 
     public void updateShuffleboard() {
-        // SmartDashboard.putNumber("BR Position", br_motor.getSteeringPosition() - br_motor.getOffset());
-        // SmartDashboard.putNumber("FR Position", fr_motor.getSteeringPosition() - fr_motor.getOffset());
-        // SmartDashboard.putNumber("FL Position", fl_motor.getSteeringPosition() - fl_motor.getOffset());
-        // SmartDashboard.putNumber("BL Position", bl_motor.getSteeringPosition() - bl_motor.getOffset());
-        
         SmartDashboard.putNumber("BR Position", br_motor.getSteeringPosition());
         SmartDashboard.putNumber("FR Position", fr_motor.getSteeringPosition());
         SmartDashboard.putNumber("FL Position", fl_motor.getSteeringPosition());
@@ -115,61 +110,99 @@ public class Drivetrain {
     }
 
     // Motor functions
-    public void move(double inputTheta, double driveSpeed, double turnSpeed, boolean fieldRelative){
+//    public void move(double inputTheta, double driveSpeed, double turnSpeed, boolean fieldRelative){
+//        double theta = inputTheta;
+//
+//        if (fieldRelative) {
+//            theta += m_gyro.getRotation2d().getDegrees() / 360 * FULL_ROTATION;
+//        }
+//
+//        double br_angle =  0.25;
+//        double fr_angle =  -0.25;
+//        double fl_angle =  0.25;
+//        double bl_angle =  -0.25;
+//
+//        double br_speed = turnSpeed;
+//        double fr_speed = turnSpeed;
+//        double fl_speed = -turnSpeed;
+//        double bl_speed = -turnSpeed;
+//
+//
+//        if (driveSpeed != 0) {
+//            double thetaRadians = theta * Math.PI * 2 / FULL_ROTATION + Math.PI/2;
+//
+//            if(fieldRelative) {
+//                thetaRadians += m_gyro.getRotation2d().getRadians();
+//            }
+//
+//
+//            // Normal turning
+//            // br_angle = theta;
+//            // fr_angle = theta;
+//            // fl_angle = theta;
+//            // bl_angle = theta;
+//
+//
+//            // Turning Inverse Kinematics
+//            br_angle = theta + br_turning_offset;
+//            fr_angle = theta + fr_turning_offset;
+//            fl_angle = theta + fl_turning_offset;
+//            bl_angle = theta + bl_turning_offset;
+//
+//
+//            br_speed = driveSpeed;
+//            fr_speed = driveSpeed;
+//            fl_speed = driveSpeed;
+//            bl_speed = driveSpeed;
+//
+//            // Slow turning side. (doesn't work well)
+//            // br_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + 3 * Math.PI/4) * TURN_SPEED_DRIVING;
+//            // fr_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians - 3 * Math.PI/4) * TURN_SPEED_DRIVING;
+//            // fl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4) * TURN_SPEED_DRIVING;
+//            // bl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4) * TURN_SPEED_DRIVING;
+//        }
+//
+//
+//        br_motor.steer(br_angle);
+//        fr_motor.steer(fr_angle);
+//        bl_motor.steer(bl_angle);
+//        fl_motor.steer(fl_angle);
+//
+//        br_motor.drive(br_speed);
+//        fr_motor.drive(fr_speed);
+//        bl_motor.drive(bl_speed);
+//        fl_motor.drive(fl_speed);
+//    }
+
+
+    public void move(double inputTheta, double driveSpeed, double turnSpeed, boolean fieldRelative) {
         double theta = inputTheta;
 
         if (fieldRelative) {
             theta += m_gyro.getRotation2d().getDegrees() / 360 * FULL_ROTATION;
         }
 
-        double br_angle =  0.25;
-        double fr_angle =  -0.25;
-        double fl_angle =  0.25;
-        double bl_angle =  -0.25;
+        double thetaRadians = theta * Math.PI * 2 / FULL_ROTATION;
 
-        double br_speed = turnSpeed;
-        double fr_speed = turnSpeed;
-        double fl_speed = -turnSpeed;
-        double bl_speed = -turnSpeed;
+        double r = Math.hypot(WHEELBASE / 2, TRACKWIDTH / 2);
 
-
-        if (driveSpeed != 0) {
-            double thetaRadians = theta * Math.PI * 2 / FULL_ROTATION + Math.PI/2;
-                        
-            if(fieldRelative) {
-                thetaRadians += m_gyro.getRotation2d().getRadians();
-            }
+        double a = Math.sin(thetaRadians) * driveSpeed - turnSpeed * (TRACKWIDTH / 2) / r;
+        double b = Math.sin(thetaRadians) * driveSpeed + turnSpeed * (TRACKWIDTH / 2) / r;
+        double c = Math.cos(thetaRadians) * driveSpeed - turnSpeed * (WHEELBASE / 2) / r;
+        double d = Math.cos(thetaRadians) * driveSpeed + turnSpeed * (WHEELBASE / 2) / r;
 
 
-            // Normal turning
-            // br_angle = theta;
-            // fr_angle = theta;
-            // fl_angle = theta;
-            // bl_angle = theta;
+        double br_speed = Math.sqrt(b * b + c * c);
+        double fr_speed = Math.sqrt(b * b + d * d);
+        double fl_speed = Math.sqrt(a * a + d * d);
+        double bl_speed = Math.sqrt(a * a + c * c);
 
+        double br_angle = Math.atan2(b, c) * FULL_ROTATION / (2 * Math.PI);
+        double fr_angle = Math.atan2(b, d) * FULL_ROTATION / (2 * Math.PI);
+        double fl_angle = Math.atan2(a, d) * FULL_ROTATION / (2 * Math.PI);
+        double bl_angle = Math.atan2(a, c) * FULL_ROTATION / (2 * Math.PI);
 
-            double additionAngleOffset = Math.PI/2 + Math.PI/4;
-            
-            // Turning front wheels to turn
-            br_angle = theta + Math.max(0, Math.cos(thetaRadians - Math.PI   + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
-            fr_angle = theta + Math.max(0, Math.cos(thetaRadians + Math.PI/2 + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
-            fl_angle = theta + Math.max(0, Math.cos(thetaRadians             + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
-            bl_angle = theta + Math.max(0, Math.cos(thetaRadians - Math.PI/2 + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
-
-
-            br_speed = driveSpeed;
-            fr_speed = driveSpeed;
-            fl_speed = driveSpeed;
-            bl_speed = driveSpeed;
-
-            // Slow turning side. (doesn't work well)
-            // br_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + 3 * Math.PI/4) * TURN_SPEED_DRIVING;
-            // fr_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians - 3 * Math.PI/4) * TURN_SPEED_DRIVING;
-            // fl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4) * TURN_SPEED_DRIVING;
-            // bl_speed = driveSpeed + turnSpeed * Math.cos(thetaRadians + Math.PI/4) * TURN_SPEED_DRIVING;
-        }
-        
-
+        // Steer and drive each wheel.
         br_motor.steer(br_angle);
         fr_motor.steer(fr_angle);
         bl_motor.steer(bl_angle);
@@ -180,6 +213,7 @@ public class Drivetrain {
         bl_motor.drive(bl_speed);
         fl_motor.drive(fl_speed);
     }
+
 
     public void calibrateSteering(){
         m_gyro.zeroYaw();
