@@ -22,7 +22,8 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
   private XboxController m_stick;
-
+  private XboxController m_stick_2;
+  
   private TeleopController teleopController;
   private Drivetrain drivetrain;
 
@@ -37,8 +38,9 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
     m_stick = new XboxController(0);
+    m_stick_2 = new XboxController(1);
 
-    teleopController = new TeleopController();
+    teleopController = new TeleopController(false);
 
     drivetrain = new Drivetrain();
   }
@@ -93,6 +95,8 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
+    teleopController = new TeleopController(true);
+
     teleopController.teleopInit(drivetrain);
   }
   @Override
@@ -105,11 +109,16 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+
+    teleopController = new TeleopController(false);
+    teleopController.teleopInit(drivetrain);
   }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    teleopController.teleopPeriodic(m_stick_2, drivetrain);
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override

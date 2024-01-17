@@ -131,13 +131,20 @@ public class Drivetrain {
         if (driveSpeed != 0) {
             double thetaRadians = theta * Math.PI * 2 / FULL_ROTATION + Math.PI / 2;
 
-            double additionAngleOffset = Math.PI / 2 + Math.PI / 4;
-
+            double additionAngleOffset = Math.PI / 4;
+            // double additionAngleOffset = 0;
+            
             // Turning front wheels to turn
-            br_angle = theta + (Math.cos(thetaRadians - Math.PI + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
-            fr_angle = theta + (Math.cos(thetaRadians + Math.PI / 2 + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
-            fl_angle = theta + (Math.cos(thetaRadians + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
-            bl_angle = theta + (Math.cos(thetaRadians - Math.PI / 2 + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+            br_angle = theta - (Math.cos(-thetaRadians - Math.PI + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+            fr_angle = theta - (Math.cos(-thetaRadians + Math.PI / 2 + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+            fl_angle = theta - (Math.cos(-thetaRadians + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+            bl_angle = theta - (Math.cos(-thetaRadians - Math.PI / 2 + additionAngleOffset)) * turnSpeed * TURN_SPEED_DRIVING;
+            
+            // br_angle = theta;
+            // fr_angle = theta;
+            // fl_angle = theta;
+            // bl_angle = theta;
+            
 
             br_speed = driveSpeed;
             fr_speed = driveSpeed;
@@ -175,12 +182,16 @@ public class Drivetrain {
     }
 
     public void pointStraight() {
-        double goalAngle = 0;
+        pointStraight(0);
+    }
+
+     public void pointStraight(double direction) {
+        double goalAngle = direction;
         // double currentAngle = (odometry.getPoseMeters().getRotation().getRadians()); // Module 2π?
         double currentAngle = m_gyro.getRotation2d().getDegrees() / 360 * FULL_ROTATION;
         double turnSpeed = turningPIDController.calculate(currentAngle, goalAngle);
 
-        // turn(turnSpeed);
+        turn(turnSpeed);
     }
 
     public void stopSteering() {
@@ -204,15 +215,15 @@ public class Drivetrain {
         fl_motor.drive(r);
     }
 
-    // public void turn(double r) {
-    //     br_motor.steer(0.25);
-    //     fr_motor.steer(-0.25);
-    //     bl_motor.steer(-0.25);
-    //     fl_motor.steer(0.25);
+    public void turn(double r) {
+        br_motor.steer(0.25);
+        fr_motor.steer(-0.25);
+        bl_motor.steer(-0.25);
+        fl_motor.steer(0.25);
 
-    //     br_motor.drive(r);
-    //     fr_motor.drive(r);
-    //     bl_motor.drive(r);
-    //     fl_motor.drive(r);
-    // }
+        br_motor.drive(r);
+        fr_motor.drive(r);
+        bl_motor.drive(-r);
+        fl_motor.drive(-r);
+    }
 }

@@ -6,9 +6,10 @@ import static frc.robot.Constants.*;
 
 public class TeleopController {
     // Instance Variables
+    boolean joystickController = false;
 
-    public TeleopController() {
-
+    public TeleopController(boolean jsController) {
+        joystickController = jsController;
     }
 
     public void teleopInit(Drivetrain driveTrain) {
@@ -22,9 +23,14 @@ public class TeleopController {
         double theta = getAngle(leftX, leftY);
 
         double r = Math.sqrt(Math.pow(leftX, 2) + Math.pow(leftY, 2));
-        double driveSpeed = (r < JOYSTICK_DEAD_ZONE) ? 0 : r * DRIVE_SPEED;
+        double driveSpeed = (r < JOYSTICK_DEAD_ZONE) ? 0 : r * DRIVE_SPEED * (joystickController ? 1 : (m_stick.getRawAxis(3)*0.25 + 0.4));
 
-        double rightX = Math.abs(m_stick.getRightX()) < JOYSTICK_DEAD_ZONE ? 0 : m_stick.getRightX();
+        double rightX = joystickController ? 
+        Math.abs(m_stick.getRightX()) < JOYSTICK_DEAD_ZONE ? 0 : -m_stick.getRightX() :
+        Math.abs(m_stick.getRawAxis(2)) < JOYSTICK_DEAD_ZONE ? 0 : -m_stick.getRawAxis(2) * (m_stick.getRawAxis(3)*0.25 + 0.4);
+        // if(Math.abs(rightX) <= 0.05) {
+        //     rightX = Math.abs(m_stick.getAxisType(2)) < JOYSTICK_DEAD_ZONE ? 0 : m_stick.getAxisType(2);
+        // }
         double turnSpeed = TURN_SPEED * rightX;
 
         boolean doFieldOrientedDriving = !(m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE);
@@ -32,6 +38,8 @@ public class TeleopController {
         // Check if either joystick is beyond the dead zone
         if (driveSpeed > 0 || Math.abs(turnSpeed) > 0) {
             drivetrain.move(theta, driveSpeed, turnSpeed, doFieldOrientedDriving);
+        } else if (m_stick.getPOV() != -1) {
+            drivetrain.pointStraight(((double) m_stick.getPOV())/360.0*FULL_ROTATION);
         }
         else
         if (m_stick.getAButton()) {
