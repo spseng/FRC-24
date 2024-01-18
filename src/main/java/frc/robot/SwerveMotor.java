@@ -6,6 +6,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 // import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 import static frc.robot.Constants.*;
@@ -112,8 +115,8 @@ public final class SwerveMotor {
         return steerAbsoluteEncoder.getPosition();
     }
 
-    // public SwerveModulePosition getSwervePosition(){
-    //     return new SwerveModulePosition(
-    //             driveMotor.getEncoder().getPosition(), new Rotation2d(getSteeringPosition()));
-    // }
+     public SwerveModulePosition getSwervePosition(){
+         return new SwerveModulePosition(
+                 driveMotor.getEncoder().getPosition(), new Rotation2d(getSteeringPosition()/FULL_ROTATION * Math.PI));
+     }
 }
