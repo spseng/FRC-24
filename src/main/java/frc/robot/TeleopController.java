@@ -17,7 +17,7 @@ public class TeleopController {
         driveTrain.calibrateSteering();
     }
 
-    public void teleopPeriodic(XboxController m_stick, Drivetrain drivetrain) {
+    public void teleopPeriodic(XboxController m_stick, Drivetrain drivetrain, VisionController visionController) {
         double leftX = -m_stick.getLeftX();
         double leftY = m_stick.getLeftY();
         double leftAngle = getDriveAngle(leftX, leftY);
@@ -30,10 +30,8 @@ public class TeleopController {
         double rightR = Math.sqrt(Math.pow(rightX, 2) + Math.pow(rightY, 2));
         double rightAngle = getHeadingAngle(rightX, rightY);
 
-
         // Check if either joystick is beyond the dead zone
         if (driveSpeed > 0 || rightR > JOYSTICK_DEAD_ZONE) {
-//            drivetrain.move(driveSpeed, leftAngle, rightAngle, true); // Old move function
             drivetrain.move(leftX, leftY, rightAngle); // Using Odometry
         } else
         if (m_stick.getAButton()) {

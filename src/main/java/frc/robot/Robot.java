@@ -25,6 +25,7 @@ public class Robot extends TimedRobot {
   private XboxController m_stick_2;
   
   private TeleopController teleopController;
+  private VisionController visionController;
   private Drivetrain drivetrain;
 
   /**
@@ -41,6 +42,7 @@ public class Robot extends TimedRobot {
     m_stick_2 = new XboxController(1);
 
     teleopController = new TeleopController(false);
+    visionController = new VisionController();
 
     drivetrain = new Drivetrain();
   }
@@ -101,8 +103,8 @@ public class Robot extends TimedRobot {
   }
   @Override
   public void teleopPeriodic() {
-
-    teleopController.teleopPeriodic(m_stick, drivetrain);
+    visionController.periodic();
+    teleopController.teleopPeriodic(m_stick, drivetrain, visionController);
   }
 
   @Override
@@ -117,7 +119,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    teleopController.teleopPeriodic(m_stick_2, drivetrain);
+    visionController.periodic();
+    teleopController.teleopPeriodic(m_stick_2, drivetrain, visionController);
   }
 
   /** This function is called once when the robot is first started up. */
