@@ -133,7 +133,7 @@ public class TeleopController {
 
     // Helper functions
     public double getDriveAngle(double x, double y) {
-        return (((Math.atan2(y, -x))/Math.PI + 0.25*FULL_ROTATION) % FULL_ROTATION);
+        return (((Math.atan2(y, -x))/Math.PI + 0.0*FULL_ROTATION) % FULL_ROTATION);
     }
     public double getHeadingAngle(double x, double y) {
         return (((Math.atan2(y, -x))/Math.PI + 0.0*FULL_ROTATION) % FULL_ROTATION);

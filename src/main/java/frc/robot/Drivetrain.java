@@ -18,10 +18,10 @@ import static frc.robot.Constants.*;
 public class Drivetrain {
 
     // Locations for the swerve drive modules relative to the robot center (pretty sure it's based off CoM)
-    private final Translation2d br_location = new Translation2d(TRACKWIDTH/2,  -WHEELBASE/2);
-    private final Translation2d fr_location = new Translation2d(TRACKWIDTH/2,   WHEELBASE/2);
-    private final Translation2d fl_location = new Translation2d(-TRACKWIDTH/2,  WHEELBASE/2);
-    private final Translation2d bl_location = new Translation2d(-TRACKWIDTH/2, -WHEELBASE/2);
+    private final Translation2d fl_location = new Translation2d( TRACKWIDTH/2,  WHEELBASE/2);
+    private final Translation2d fr_location = new Translation2d( TRACKWIDTH/2, -WHEELBASE/2);
+    private final Translation2d bl_location = new Translation2d(-TRACKWIDTH/2,  WHEELBASE/2);
+    private final Translation2d br_location = new Translation2d(-TRACKWIDTH/2, -WHEELBASE/2);
 
     // Creating my kinematics object using the module locations
     private final SwerveDriveKinematics driveKinematics = new SwerveDriveKinematics(
@@ -100,10 +100,12 @@ public class Drivetrain {
 
 
     public void move(double driveX, double driveY, double heading) {
-        double gyroAngle = gyro.getRotation2d().getDegrees();
+        double gyroAngle = gyro.getRotation2d().getDegrees() / 360 * FULL_ROTATION;
         double turningSpeed = turningPIDController.calculate(gyroAngle, heading);
 
         ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, turningSpeed/FULL_ROTATION * 2 * Math.PI, gyro.getRotation2d());
+        // ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, 0.5, gyro.getRotation2d());
+        // ChassisSpeeds speeds = new ChassisSpeeds(driveY, driveX, 1);
 
         SwerveModuleState[] moduleStates = driveKinematics.toSwerveModuleStates(relativeSpeeds);
 
