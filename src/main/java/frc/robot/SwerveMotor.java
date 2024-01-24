@@ -25,6 +25,8 @@ public final class SwerveMotor {
 
     private double prevAngle = 0;
     private double directionFactor = 1;
+
+    private double latestDriveSpeed = 0;
     // private boolean directionInverted = false;
 
 
@@ -51,14 +53,16 @@ public final class SwerveMotor {
 
     public void steer(double goalRotation){
         double goalAngle = prevAngle + closestAngle(prevAngle, goalRotation + this.getOffset());
-        
         steerMotor.set(pidController.calculate(prevAngle, goalAngle));
+
         prevAngle = getSteeringPosition();
     }
 
     public void drive(double speed) {
         // driveMotor.setInverted(inverted);
         driveMotor.set(speed * directionFactor);
+
+        latestDriveSpeed = speed * directionFactor;
     }
 
     
@@ -119,4 +123,8 @@ public final class SwerveMotor {
          return new SwerveModulePosition(
                  driveMotor.getEncoder().getPosition(), new Rotation2d(getSteeringPosition()/FULL_ROTATION * Math.PI));
      }
+
+    public SwerveModuleState getSwerveModuleState(){
+        return new SwerveModuleState(latestDriveSpeed, new Rotation2d((prevAngle - getOffset())/FULL_ROTATION * Math.PI * 2));
+    }
 }

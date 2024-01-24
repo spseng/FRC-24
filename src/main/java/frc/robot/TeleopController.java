@@ -1,5 +1,8 @@
 package frc.robot;
 
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.XboxController;
 
 import static frc.robot.Constants.*;
@@ -8,8 +11,16 @@ public class TeleopController {
     // Instance Variables
     boolean joystickController = false;
 
+    double lastHeading = 0;
+
+    private final StructArrayPublisher<SwerveModuleState> publisherReal;
+    private final StructArrayPublisher<SwerveModuleState> publisherGoal;
+
     public TeleopController(boolean jsController) {
         joystickController = jsController;
+
+        publisherReal = NetworkTableInstance.getDefault().getStructArrayTopic("/SwerveStates", SwerveModuleState.struct).publish();
+        publisherGoal = NetworkTableInstance.getDefault().getStructArrayTopic("/SwerveStatesGoal", SwerveModuleState.struct).publish();
     }
 
     public void teleopInit(Drivetrain driveTrain) {
@@ -18,8 +29,8 @@ public class TeleopController {
     }
 
     public void teleopPeriodic(XboxController m_stick, Drivetrain drivetrain, VisionController visionController) {
-        double leftX = -m_stick.getLeftX();
-        double leftY = m_stick.getLeftY();
+        double leftX = Math.abs(m_stick.getLeftX()) < JOYSTICK_DEAD_ZONE ? 0 : m_stick.getLeftX();
+        double leftY = Math.abs(m_stick.getLeftY()) < JOYSTICK_DEAD_ZONE ? 0 : m_stick.getLeftY();
         double leftAngle = getDriveAngle(leftX, leftY);
 
         double leftR = Math.sqrt(Math.pow(leftX, 2) + Math.pow(leftY, 2));
@@ -30,10 +41,20 @@ public class TeleopController {
         double rightR = Math.sqrt(Math.pow(rightX, 2) + Math.pow(rightY, 2));
         double rightAngle = getHeadingAngle(rightX, rightY);
 
-        // Check if either joystick is beyond the dead zone
-        if (driveSpeed > 0 || rightR > JOYSTICK_DEAD_ZONE) {
-            drivetrain.move(leftX, leftY, rightAngle); // Using Odometry
-        } else
+        if (rightR > JOYSTICK_DEAD_ZONE) {
+           lastHeading = rightAngle;
+        }
+
+
+        drivetrain.move(leftX * DRIVE_SPEED, leftY * DRIVE_SPEED, lastHeading);
+
+        // // Check if either joystick is beyond the dead zone
+        // if (driveSpeed > 0) {
+        //     drivetrain.move(leftX, leftY, lastHeading); // Using Odometry
+        // } else
+        // if(rightR > JOYSTICK_DEAD_ZONE){
+            
+        // } else
         if (m_stick.getAButton()) {
             drivetrain.steer(0);
         } else
@@ -49,14 +70,14 @@ public class TeleopController {
         } else
         if(m_stick.getAButtonReleased() || m_stick.getBButtonReleased()){
             drivetrain.stopSteering();
-        } else {
-            drivetrain.stopSteering();
-            drivetrain.drive(0);
         }
 
         drivetrain.periodic();
 
         drivetrain.updateShuffleboard();
+
+        publisherGoal.set(drivetrain.getGoalSwerveModuleStates());
+        publisherReal.set(drivetrain.getRealSwerveModuleStates());
     }
 
     // Previous (working)
