@@ -40,7 +40,7 @@ public final class SwerveMotor {
 
     public void calibrate() {
         this.steerMotor.getEncoder().setPosition(0);
-        this.dynamicOffset = getAbsoluteSteeringPosition() * FULL_ROTATION;
+        this.dynamicOffset = getAbsoluteSteeringPosition();
     }
 
     public void zeroPosition() {
@@ -116,12 +116,12 @@ public final class SwerveMotor {
         return steerMotor.getEncoder().getPosition() / RELATIVE_ENCODER_RATIO * FULL_ROTATION;
     }
     public double getAbsoluteSteeringPosition() {
-        return steerAbsoluteEncoder.getPosition();
+        return steerAbsoluteEncoder.getPosition() / ABS_ENCODER_RATIO * FULL_ROTATION;
     }
 
      public SwerveModulePosition getSwervePosition(){
          return new SwerveModulePosition(
-                 driveMotor.getEncoder().getPosition(), new Rotation2d(getSteeringPosition()/FULL_ROTATION * Math.PI));
+                 driveMotor.getEncoder().getPosition(), new Rotation2d(getSteeringPosition()/FULL_ROTATION * Math.PI * 2));
      }
 
     public SwerveModuleState getSwerveModuleState(){

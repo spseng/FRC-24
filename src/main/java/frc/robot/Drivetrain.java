@@ -23,6 +23,11 @@ public class Drivetrain {
     private final Translation2d bl_location = new Translation2d(-TRACKWIDTH/2,  WHEELBASE/2);
     private final Translation2d br_location = new Translation2d(-TRACKWIDTH/2, -WHEELBASE/2);
 
+    // private final Translation2d fl_location = new Translation2d( 0.03,  WHEELBASE/2);
+    // private final Translation2d fr_location = new Translation2d( 0.03, -WHEELBASE/2);
+    // private final Translation2d bl_location = new Translation2d(-TRACKWIDTH + 0.03,  WHEELBASE/2);
+    // private final Translation2d br_location = new Translation2d(-TRACKWIDTH + 0.03, -WHEELBASE/2);
+
     // Creating my kinematics object using the module locations
     private final SwerveDriveKinematics driveKinematics = new SwerveDriveKinematics(
             fl_location, fr_location, bl_location, br_location
@@ -44,10 +49,10 @@ public class Drivetrain {
     private final AHRS gyro = new AHRS();  // navX gyro
 
     public Drivetrain() {
-        br_motor = new SwerveMotor(BR_STEER_CAN, BR_DRIVE_CAN, BR_STEER_OFFSET);
-        fr_motor = new SwerveMotor(FR_STEER_CAN, FR_DRIVE_CAN, FR_STEER_OFFSET);
         fl_motor = new SwerveMotor(FL_STEER_CAN, FL_DRIVE_CAN, FL_STEER_OFFSET);
+        fr_motor = new SwerveMotor(FR_STEER_CAN, FR_DRIVE_CAN, FR_STEER_OFFSET);
         bl_motor = new SwerveMotor(BL_STEER_CAN, BL_DRIVE_CAN, BL_STEER_OFFSET);
+        br_motor = new SwerveMotor(BR_STEER_CAN, BR_DRIVE_CAN, BR_STEER_OFFSET);
 
          odometry = new SwerveDriveOdometry(
                  driveKinematics, gyro.getRotation2d(),
@@ -70,8 +75,8 @@ public class Drivetrain {
         // Update the pose
         odometry.update(gyroAngle,
             new SwerveModulePosition[] {
-                    fl_motor.getSwervePosition(), fr_motor.getSwervePosition(),
-                    bl_motor.getSwervePosition(), br_motor.getSwervePosition()
+                fl_motor.getSwervePosition(), fr_motor.getSwervePosition(),
+                bl_motor.getSwervePosition(), br_motor.getSwervePosition()
             });
     }
 
@@ -83,15 +88,15 @@ public class Drivetrain {
         SmartDashboard.putNumber("FL Position", fl_motor.getSteeringPosition());
         SmartDashboard.putNumber("BL Position", bl_motor.getSteeringPosition());
 
-//        SmartDashboard.putNumber("BR ABS Position", br_motor.getAbsoluteSteeringPosition());
-//        SmartDashboard.putNumber("FR ABS Position", fr_motor.getAbsoluteSteeringPosition());
-//        SmartDashboard.putNumber("FL ABS Position", fl_motor.getAbsoluteSteeringPosition());
-//        SmartDashboard.putNumber("BL ABS Position", bl_motor.getAbsoluteSteeringPosition());
-//
-//        SmartDashboard.putNumber("BR Offset", br_motor.getOffset());
-//        SmartDashboard.putNumber("FR Offset", fr_motor.getOffset());
-//        SmartDashboard.putNumber("FL Offset", fl_motor.getOffset());
-//        SmartDashboard.putNumber("BL Offset", bl_motor.getOffset());
+    //    SmartDashboard.putNumber("BR ABS Position", br_motor.getAbsoluteSteeringPosition());
+    //    SmartDashboard.putNumber("FR ABS Position", fr_motor.getAbsoluteSteeringPosition());
+    //    SmartDashboard.putNumber("FL ABS Position", fl_motor.getAbsoluteSteeringPosition());
+    //    SmartDashboard.putNumber("BL ABS Position", bl_motor.getAbsoluteSteeringPosition());
+
+    //    SmartDashboard.putNumber("BR Offset", br_motor.getOffset());
+    //    SmartDashboard.putNumber("FR Offset", fr_motor.getOffset());
+    //    SmartDashboard.putNumber("FL Offset", fl_motor.getOffset());
+    //    SmartDashboard.putNumber("BL Offset", bl_motor.getOffset());
 
          SmartDashboard.putNumber("Odometry X", odometry.getPoseMeters().getX());
          SmartDashboard.putNumber("Odometry Y", odometry.getPoseMeters().getY());
@@ -100,10 +105,7 @@ public class Drivetrain {
 
 
     public void move(double driveX, double driveY, double heading) {
-        double gyroAngle = gyro.getRotation2d().getDegrees() / 360 * FULL_ROTATION;
-        double turningSpeed = turningPIDController.calculate(gyroAngle, heading);
-
-        ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, turningSpeed/FULL_ROTATION * 2 * Math.PI, gyro.getRotation2d());
+        ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, heading, gyro.getRotation2d());
         // ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, 0.5, gyro.getRotation2d());
         // ChassisSpeeds speeds = new ChassisSpeeds(driveY, driveX, 1);
 
@@ -140,7 +142,7 @@ public class Drivetrain {
         double gyroAngle = gyro.getRotation2d().getDegrees() / 360 * FULL_ROTATION;
         double turningSpeed = turningPIDController.calculate(gyroAngle, heading) / FULL_ROTATION * 2 * Math.PI;
 
-        Translation2d translation = new Translation2d(x, y);
+        Translation2d translation = new Translation2d(x - odometry.getPoseMeters().getX(), y - odometry.getPoseMeters().getY());
         SwerveModuleState[] moduleStates = driveKinematics.toSwerveModuleStates(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                         translation.getX(), translation.getY(), turningSpeed, gyro.getRotation2d()
