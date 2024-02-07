@@ -39,25 +39,25 @@ public final class Constants {
   public static final double BL_STEER_OFFSET =  1.25;
 
   public static final double FULL_ROTATION = 1; // 2
-  public static final double RELATIVE_ENCODER_RATIO = 46.5; //93/2
-  public static final double ABS_ENCODER_RATIO = 360; //93/2
+  public static final double RELATIVE_ENCODER_RATIO = 46.5; //93/2 I think default 
+  public static final double ABS_ENCODER_RATIO = 360; // CAN SPARK Default
   
   // Driver Settings
-  public static final double DRIVE_SPEED = 1.5; // Zero to one
-  public static final double TURN_SPEED = 3.3; // Zero to one
-  public static final double TURN_SPEED_DRIVING = 1;
+  public static final double DRIVE_SPEED = 0.1;
+  public static final double TURN_SPEED = 0.005; // Radians per update
   public static final double JOYSTICK_DEAD_ZONE = 0.1; // Zero to one
   public static final double TRIGGER_DEAD_ZONE = 0.2; // Zero to one
 
-  // TODO: Implement these:
-  public static final double MAX_SPEED = 2; // Zero to one
+  public static final double MIN_TURNING_SPEED = 0.0002; // Radians per second
+  public static final double MAX_TURING_SPEED = 0.2; // Radians per second
+
+  // NOT USED
   public static final double MAX_ACCELERATION = 0.5; // Zero to one
-  public static final double MAX_TURING_SPEED = 0.5; // Zero to one
   public static final double MAX_TURNING_ACCELERATION = 0.5; // Zero to one
 
   // Robot Physical Constants
-  public static final double WHEELBASE  = 0.5588; // Meters, distance between front and back
-  public static final double TRACKWIDTH = 0.5588; // Meters, distance between left and right
+  public static final double WHEELBASE  = 0.6985; // Meters, distance between front and back
+  public static final double TRACKWIDTH = 0.6223; // Meters, distance between left and right
 
 
   // PID Constants
@@ -67,7 +67,7 @@ public final class Constants {
   public static final double STEER_KD = 0.00;
 
   public static final double TURNING_KP = 1.4;
-  public static final double TURNING_KI = 0.002;
+  public static final double TURNING_KI = 0.000002;
   public static final double TURNING_KD = 0.7;
 
 }

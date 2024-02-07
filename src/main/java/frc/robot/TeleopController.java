@@ -1,8 +1,10 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.XboxController;
 
 import static frc.robot.Constants.*;
@@ -11,16 +13,18 @@ public class TeleopController {
     // Instance Variables
     boolean joystickController = false;
 
-    double lastHeading = 0;
+    double goalHeading = 0;
 
     private final StructArrayPublisher<SwerveModuleState> publisherReal;
     private final StructArrayPublisher<SwerveModuleState> publisherGoal;
+    private final StructPublisher<Pose2d> publisherPose;
 
     public TeleopController(boolean jsController) {
         joystickController = jsController;
 
         publisherReal = NetworkTableInstance.getDefault().getStructArrayTopic("/SwerveStates", SwerveModuleState.struct).publish();
         publisherGoal = NetworkTableInstance.getDefault().getStructArrayTopic("/SwerveStatesGoal", SwerveModuleState.struct).publish();
+        publisherPose = NetworkTableInstance.getDefault().getStructTopic("/RoboPose", Pose2d.struct).publish();
     }
 
     public void teleopInit(Drivetrain driveTrain) {
@@ -41,10 +45,14 @@ public class TeleopController {
         double rightR = Math.sqrt(Math.pow(rightX, 2) + Math.pow(rightY, 2));
         double rightAngle = getHeadingAngle(rightX, rightY);
 
+        if (rightR > JOYSTICK_DEAD_ZONE){
+            goalHeading += rightX * TURN_SPEED;
+            goalHeading = goalHeading % FULL_ROTATION;
+        }
 
         // // Check if either joystick is beyond the dead zone
         if (driveSpeed > 0) {
-            drivetrain.move(leftX, leftY, rightX*TURN_SPEED); // Using Odometry
+            drivetrain.move(leftX, leftY, goalHeading); // Using Odometry
         } else
         // if(rightR > JOYSTICK_DEAD_ZONE){
 
@@ -62,12 +70,13 @@ public class TeleopController {
         //     drivetrain.point(angle);
         }else
         if (m_stick.getRightBumperReleased()) {
+            goalHeading = 0;
             drivetrain.calibrateSteering();
         } else
         if(m_stick.getAButtonReleased() || m_stick.getBButtonReleased() || m_stick.getXButtonReleased()){
             drivetrain.stopSteering();
         } else {
-            drivetrain.move(0, 0, rightX * TURN_SPEED);
+            drivetrain.move(0, 0, goalHeading);
         }
 
         drivetrain.periodic();
@@ -76,6 +85,7 @@ public class TeleopController {
 
         publisherGoal.set(drivetrain.getGoalSwerveModuleStates());
         publisherReal.set(drivetrain.getRealSwerveModuleStates());
+        publisherPose.set(drivetrain.getPose());
     }
 
     // Previous (working)
