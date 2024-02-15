@@ -4,12 +4,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 // REV imports
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -28,6 +31,11 @@ public class Robot extends TimedRobot {
   private VisionController visionController;
   private Drivetrain drivetrain;
 
+  // private CameraSe/rver camera;
+
+
+  private DigitalInput button;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.d
@@ -37,6 +45,10 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    button = new DigitalInput(0);
+
+    CameraServer.startAutomaticCapture();
 
     m_stick = new XboxController(0);
     m_stick_2 = new XboxController(1);
@@ -100,11 +112,14 @@ public class Robot extends TimedRobot {
     teleopController = new TeleopController(true);
 
     teleopController.teleopInit(drivetrain);
+
   }
   @Override
   public void teleopPeriodic() {
     visionController.periodic();
     teleopController.teleopPeriodic(m_stick, drivetrain, visionController);
+
+    SmartDashboard.putBoolean("BUTTON", button.get());
   }
 
   @Override

@@ -40,9 +40,9 @@ public final class SwerveMotor {
 
     public void calibrate() {
         this.steerMotor.getEncoder().setPosition(0);
-        // this.driveMotor.getEncoder().setPosition(0);
+        this.driveMotor.getEncoder().setPosition(0);
         // latestDriveSpeed = 0;
-        prevAngle = 0;
+        // prevAngle = 0;
 
         this.dynamicOffset = getAbsoluteSteeringPosition();
     }
