@@ -16,8 +16,6 @@ public class TeleopController {
     // Instance Variables
     boolean joystickController = false;
 
-    double goalHeading = 0;
-
     // private final StructArrayPublisher<SwerveModuleState> publisherReal;
     // private final StructArrayPublisher<SwerveModuleState> publisherGoal;
     // private final StructPublisher<Pose2d> publisherPose;

@@ -18,28 +18,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import static frc.robot.Constants.*;
 
 public class Drivetrain {
-
-    // Locations for the swerve drive modules relative to the robot center of rotation
-    // private final Translation2d fl_location = new Translation2d( TRACKWIDTH,  WHEELBASE);
-    // private final Translation2d fr_location = new Translation2d( TRACKWIDTH/2, 0);
-    // private final Translation2d bl_location = new Translation2d( 0,  WHEELBASE/2);
-    // private final Translation2d br_location = new Translation2d( 0, 0);
-
-    // private final Translation2d fl_location = new Translation2d( -TRACKWIDTH/2,  -WHEELBASE/2);
-    // private final Translation2d fr_location = new Translation2d( -TRACKWIDTH/2, WHEELBASE/2);
-    // private final Translation2d bl_location = new Translation2d(TRACKWIDTH/2,  -WHEELBASE/2);
-    // private final Translation2d br_location = new Translation2d(TRACKWIDTH/2, WHEELBASE/2);
-
     
     private final Translation2d fl_location = new Translation2d( -TRACKWIDTH/2,  -WHEELBASE/2);
     private final Translation2d fr_location = new Translation2d( -TRACKWIDTH/2, WHEELBASE/2);
     private final Translation2d bl_location = new Translation2d(TRACKWIDTH/2,  -WHEELBASE/2);
     private final Translation2d br_location = new Translation2d(TRACKWIDTH/2, WHEELBASE/2);
-
-    // private final Translation2d fl_location = new Translation2d( 0.03,  WHEELBASE/2);
-    // private final Translation2d fr_location = new Translation2d( 0.03, -WHEELBASE/2);
-    // private final Translation2d bl_location = new Translation2d(-TRACKWIDTH + 0.03,  WHEELBASE/2);
-    // private final Translation2d br_location = new Translation2d(-TRACKWIDTH + 0.03, -WHEELBASE/2);
 
     private final DoublePublisher turningGoal;
     private final DoublePublisher turningReal;
@@ -49,9 +32,13 @@ public class Drivetrain {
             fl_location, fr_location, bl_location, br_location
     );
 
-     private final SwerveDriveOdometry odometry;
+    private final SwerveDriveOdometry odometry;
+
+    private final PhotonCamera camera = new PhotonCamera("photonvision");
 
     private SwerveModuleState[] previousStates;
+
+    private double goalHeading = 0;
 
     private final SwerveMotor br_motor;
     private final SwerveMotor fr_motor;
@@ -140,11 +127,10 @@ public class Drivetrain {
         return dir;
     }
 
-        // For some reason the built-in modulo function didn't work...
-        private static double nearestRotation(double angle) {
-            return angle - FULL_ROTATION * Math.floor(angle / FULL_ROTATION);
-        }
-
+    // For some reason the built-in modulo function didn't work...
+    private static double nearestRotation(double angle) {
+        return angle - FULL_ROTATION * Math.floor(angle / FULL_ROTATION);
+    }
 
 
     public void move(double driveX, double driveY, double goalHeading) {
@@ -205,6 +191,24 @@ public class Drivetrain {
         );
 
         move(moduleStates);
+    }
+
+    public void faceNearestAprilTag(){
+        // Vision-alignment mode
+        // Query the latest result from PhotonVision
+        var result = camera.getLatestResult();
+        double rotationSpeed = 0;
+
+        if (result.hasTargets()) {
+            // Calculate angular turn power
+            // -1.0 required to ensure positive PID controller effort _increases_ yaw
+            rotationSpeed = -turningPIDController.calculate(result.getBestTarget().getYaw(), 0);
+        } else {
+            // If we have no targets, stay still.
+            rotationSpeed = 0;
+        }
+
+        
     }
 
     public void calibrateSteering(){
