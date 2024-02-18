@@ -24,6 +24,12 @@ public final class Constants {
   public static final int FL_DRIVE_CAN = 7;
   public static final int BL_DRIVE_CAN = 8;
 
+  // Intake/Shooter IDs
+  public static final int INTAKE_MOTOR_CAN = 9;
+  public static final int SHOOTER_MOTOR_CAN = 10;
+
+  // Button IDs
+  public static final int SHOOTER_IS_LOADED_BUTTON = 0;
 
   // Steering Offsets
   // public static final double BR_STEER_OFFSET =  0;

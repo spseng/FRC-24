@@ -33,7 +33,7 @@ public class TeleopController {
         driveTrain.calibrateSteering();
     }
 
-    public void teleopPeriodic(XboxController m_stick, Drivetrain drivetrain, VisionController visionController) {
+    public void teleopPeriodic(XboxController m_stick, Drivetrain drivetrain, ShooterSystem shooterSystem, VisionController visionController) {
         // double leftX = Math.abs(m_stick.getLeftX()) < JOYSTICK_DEAD_ZONE ? 0 : -m_stick.getLeftX();
         // double leftY = Math.abs(m_stick.getLeftY()) < JOYSTICK_DEAD_ZONE ? 0 : -m_stick.getLeftY();
         // double leftAngle = getDriveAngle(leftX, leftY);
@@ -47,38 +47,39 @@ public class TeleopController {
         // double rightAngle = getHeadingAngle(rightX, rightY);
 
         // if (rightR > JOYSTICK_DEAD_ZONE){
-        //     goalHeading += rightX * TURN_SPEED;
+        //     drivetrain.rotate(rightX*TURN)
         //     // goalHeading = goalHeading % FULL_ROTATION;
         // }
 
         // // // Check if either joystick is beyond the dead zone
         // if (driveSpeed > 0) {
-        //     drivetrain.move(leftX, leftY, goalHeading); // Using Odometry
+        //     drivetrain.move(leftX, leftY); // Using Odometry
         // } else
         // // if(rightR > JOYSTICK_DEAD_ZONE){
 
         // // } else
-        // if (m_stick.getAButton()) {
-        //     drivetrain.steer(0);
-        // } else
+        if (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE) {
+            shooterSystem.intakeUnlessLoaded();
+        }else if(m_stick.getRightTriggerAxis() > TRIGGER_DEAD_ZONE) {
+            shooterSystem.shoot();
+        }
         // if (m_stick.getBButton()) {
-        //     goalHeading += FULL_ROTATION * 0.25;
+        //     drivetrain.rotate(FULL_ROTATION * 0.25 / TURN_SPEED);
         //     // goalHeading = goalHeading % FULL_ROTATION;
         // } else
         // if (m_stick.getXButton()) {
         //     drivetrain.pointStraight();
         // } else
         // if (m_stick.getYButton()){
-        //     drivetrain.moveTo(0, 0, 0);
+        //     drivetrain.setHeading(0);
+        //     drivetrain.moveTo(0, 0);
         // } else
         // if (m_stick.getRightBumperReleased()) {
         //     goalHeading = 0;
         //     drivetrain.calibrateSteering();
         // } else {
-        //     drivetrain.move(0, 0, goalHeading);
+        //     drivetrain.move(0, 0);
         // }
-
-        // drivetrain.periodic();
 
         // drivetrain.updateShuffleboard();
 

@@ -5,14 +5,12 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 // REV imports
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -30,11 +28,9 @@ public class Robot extends TimedRobot {
   private TeleopController teleopController;
   private VisionController visionController;
   private Drivetrain drivetrain;
+  private ShooterSystem shooterSystem;
 
   // private CameraSe/rver camera;
-
-
-  private DigitalInput button;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -46,8 +42,6 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    button = new DigitalInput(0);
-
     CameraServer.startAutomaticCapture();
 
     m_stick = new XboxController(0);
@@ -57,6 +51,7 @@ public class Robot extends TimedRobot {
     visionController = new VisionController();
 
     drivetrain = new Drivetrain();
+    shooterSystem = new ShooterSystem(Constants.INTAKE_MOTOR_CAN, Constants.SHOOTER_MOTOR_CAN, Constants.SHOOTER_IS_LOADED_BUTTON);
   }
 
   /**
@@ -117,16 +112,16 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     visionController.periodic();
-    teleopController.teleopPeriodic(m_stick, drivetrain, visionController);
-
-    SmartDashboard.putBoolean("BUTTON", button.get());
+    drivetrain.periodic();
+    shooterSystem.periodic(kDefaultPeriod);
+    teleopController.teleopPeriodic(m_stick, drivetrain, shooterSystem, visionController);
   }
-
+  
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-
+    
     teleopController = new TeleopController(false);
     teleopController.teleopInit(drivetrain);
   }
@@ -135,7 +130,9 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
     visionController.periodic();
-    teleopController.teleopPeriodic(m_stick_2, drivetrain, visionController);
+    drivetrain.periodic();
+    shooterSystem.periodic(kDefaultPeriod);
+    teleopController.teleopPeriodic(m_stick_2, drivetrain, shooterSystem, visionController);
   }
 
   /** This function is called once when the robot is first started up. */

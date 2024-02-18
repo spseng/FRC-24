@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
@@ -34,7 +33,7 @@ public class Drivetrain {
 
     private final SwerveDriveOdometry odometry;
 
-    private final PhotonCamera camera = new PhotonCamera("photonvision");
+    // private final PhotonCamera camera = new PhotonCamera("photonvision");
 
     private SwerveModuleState[] previousStates;
 
@@ -132,8 +131,16 @@ public class Drivetrain {
         return angle - FULL_ROTATION * Math.floor(angle / FULL_ROTATION);
     }
 
+    public void rotate(double byAmount) {
+        goalHeading += byAmount * TURN_SPEED;
+    }
 
-    public void move(double driveX, double driveY, double goalHeading) {
+    public void move(double driveX, double driveY, double heading) {
+        setHeading(heading);
+        move(driveX, driveY);
+    }
+
+    public void move(double driveX, double driveY) {
         double adjustedGyroAngle = gyro.getRotation2d().getDegrees() / 360.0 * FULL_ROTATION;
 
         double closestAngle = closestAngle(adjustedGyroAngle, goalHeading);
@@ -179,9 +186,10 @@ public class Drivetrain {
         br_motor.drive(br_speed);
     }
 
-    public void moveTo(double x, double y, double heading) {
+    public void moveTo(double x, double y, double endHeading) { // TODO: Make this move using PID
+        setHeading(endHeading);
         double gyroAngle = gyro.getRotation2d().getDegrees() / 360 * FULL_ROTATION;
-        double turningSpeed = turningPIDController.calculate(gyroAngle, heading) / FULL_ROTATION * 2 * Math.PI;
+        double turningSpeed = turningPIDController.calculate(gyroAngle, goalHeading) / FULL_ROTATION * 2 * Math.PI;
 
         Translation2d translation = new Translation2d(x - odometry.getPoseMeters().getX(), y - odometry.getPoseMeters().getY());
         SwerveModuleState[] moduleStates = driveKinematics.toSwerveModuleStates(
@@ -193,6 +201,8 @@ public class Drivetrain {
         move(moduleStates);
     }
 
+
+    /*
     public void faceNearestAprilTag(){
         // Vision-alignment mode
         // Query the latest result from PhotonVision
@@ -206,10 +216,9 @@ public class Drivetrain {
         } else {
             // If we have no targets, stay still.
             rotationSpeed = 0;
-        }
-
-        
+        }        
     }
+    */
 
     public void calibrateSteering(){
         // Zero the odometry
@@ -254,11 +263,8 @@ public class Drivetrain {
     }
 
     public void pointStraight() {
-        point(0);
-    }
-
-     public void point(double direction) {
-        move(0, 0, direction);
+        setHeading(0);
+        move(0, 0);
     }
 
     public void stopSteering() {
@@ -317,5 +323,9 @@ public class Drivetrain {
 
     public Pose2d getPose() {
         return odometry.getPoseMeters();
+    }
+
+    public void setHeading(double newHeading) {
+        goalHeading = newHeading;
     }
 }
