@@ -58,6 +58,8 @@ public final class Constants {
   public static final double MAX_TURING_SPEED = 0.5; // Radians per second
   public static final double MAX_DRIVE_SPEED = 0.5; // Radians per second
 
+  public static final double YAW_ROTATION_COEFFICENT = 0.5; // 
+
   // NOT USED
   public static final double MAX_ACCELERATION = 0.5; // Zero to one
   public static final double MAX_TURNING_ACCELERATION = 0.5; // Zero to one

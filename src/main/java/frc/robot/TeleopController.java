@@ -1,4 +1,5 @@
 package frc.robot;
+import static java.lang.Math.abs;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -62,6 +63,12 @@ public class TeleopController {
             shooterSystem.intakeUnlessLoaded();
         }else if(m_stick.getRightTriggerAxis() > TRIGGER_DEAD_ZONE) {
             shooterSystem.shoot();
+        } else if (m_stick.getBButton()) { // TODO: change m_stick.getBButoon() to button add left trigger or something like that or left bumbe
+            double currentYaw = visionController.getYaw();
+            var rotationAmount = (currentYaw) * YAW_ROTATION_COEFFICENT;
+            if (abs(currentYaw) > 0.1) {
+                drivetrain.rotate(rotationAmount);
+            }
         }
         // if (m_stick.getBButton()) {
         //     drivetrain.rotate(FULL_ROTATION * 0.25 / TURN_SPEED);
@@ -86,6 +93,10 @@ public class TeleopController {
         // publisherGoal.set(drivetrain.getGoalSwerveModuleStates());
         // publisherReal.set(drivetrain.getRealSwerveModuleStates());
         // publisherPose.set(drivetrain.getPose());
+
+
+
+
     }
 
     // Helper functions

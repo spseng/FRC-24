@@ -12,12 +12,13 @@ public class VisionController {
     private double x;
     private double y;
     private double area;
+    private double yaw;
 
     private NetworkTable table;
-
     private PhotonCamera camera = new PhotonCamera("photonvision");
 
     public void periodic() {
+        updateYaw()
         // This method will be called once per scheduler run
 
         // NetworkTableEntry tx = table.getEntry("tx");
@@ -34,11 +35,22 @@ public class VisionController {
         // SmartDashboard.putNumber("LimelightY", y);
         // SmartDashboard.putNumber("LimelightArea", area);
 
+
         var photonVisionLatestResult = camera.getLatestResult();
         SmartDashboard.putBoolean("Camera has Target", photonVisionLatestResult.hasTargets());
-        if(photonVisionLatestResult.hasTargets()){
-            SmartDashboard.putNumber("Photon Vision", photonVisionLatestResult.getBestTarget().getYaw());
+    
+    
+        if (photonVisionLatestResult.hasTargets()){
+            updateYaw(photonVisionLatestResult);
         }
+
+    
+    }
+
+    // PhotonVisionResult may need to be changed
+    public updateYaw(PhotonVisionResult photonVisionLatestResult) {
+        yaw = photonVisionLatestResult.getBestTarget().getYaw();
+        SmartDashboard.putNumber("Photon Vision Yaw", newYaw);
     }
 
     public VisionController() {
@@ -58,6 +70,10 @@ public class VisionController {
 
     public double getArea() {
         return area;
+    }
+
+    public double getYaw() {
+        return yaw;
     }
 
 }
