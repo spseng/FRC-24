@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 // REV imports
 
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.vision.VisionController;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to

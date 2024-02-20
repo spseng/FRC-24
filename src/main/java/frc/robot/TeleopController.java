@@ -1,15 +1,8 @@
 package frc.robot;
 import static java.lang.Math.abs;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.vision.VisionController;
 
 import static frc.robot.Constants.*;
 
@@ -63,11 +56,10 @@ public class TeleopController {
             shooterSystem.intakeUnlessLoaded();
         }else if(m_stick.getRightTriggerAxis() > TRIGGER_DEAD_ZONE) {
             shooterSystem.shoot();
-        } else if (m_stick.getBButton()) { // TODO: change m_stick.getBButoon() to button add left trigger or something like that or left bumbe
-            double currentYaw = visionController.getYaw();
-            var rotationAmount = (currentYaw) * YAW_ROTATION_COEFFICENT;
+        } else if (m_stick.getLeftBumper()) {
+            double currentYaw = visionController.getTargetRelativeYaw();
             if (abs(currentYaw) > 0.1) {
-                drivetrain.rotate(rotationAmount);
+                drivetrain.setYawHeadingOffset(currentYaw);
             }
         }
         // if (m_stick.getBButton()) {
@@ -88,15 +80,9 @@ public class TeleopController {
         //     drivetrain.move(0, 0);
         // }
 
-        // drivetrain.updateShuffleboard();
-
         // publisherGoal.set(drivetrain.getGoalSwerveModuleStates());
         // publisherReal.set(drivetrain.getRealSwerveModuleStates());
         // publisherPose.set(drivetrain.getPose());
-
-
-
-
     }
 
     // Helper functions

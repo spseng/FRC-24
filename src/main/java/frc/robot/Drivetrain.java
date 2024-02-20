@@ -38,6 +38,7 @@ public class Drivetrain {
     private SwerveModuleState[] previousStates;
 
     private double goalHeading = 0;
+    private double yawHeadingOffset = 0;
 
     private final SwerveMotor br_motor;
     private final SwerveMotor fr_motor;
@@ -86,26 +87,15 @@ public class Drivetrain {
                 fl_motor.getSwervePosition(), fr_motor.getSwervePosition(),
                 bl_motor.getSwervePosition(), br_motor.getSwervePosition()
             });
+
+        updateShuffleboard();
     }
-
-
 
     public void updateShuffleboard() {
         SmartDashboard.putNumber("FL Position", fl_motor.getSteeringPosition());
         SmartDashboard.putNumber("FR Position", fr_motor.getSteeringPosition());
         SmartDashboard.putNumber("BL Position", bl_motor.getSteeringPosition());
         SmartDashboard.putNumber("BR Position", br_motor.getSteeringPosition());
-
-    //    SmartDashboard.putNumber("BR ABS Position", br_motor.getAbsoluteSteeringPosition());
-    //    SmartDashboard.putNumber("FR ABS Position", fr_motor.getAbsoluteSteeringPosition());
-    //    SmartDashboard.putNumber("FL ABS Position", fl_motor.getAbsoluteSteeringPosition());
-    //    SmartDashboard.putNumber("BL ABS Position", bl_motor.getAbsoluteSteeringPosition());
-
-    //    SmartDashboard.putNumber("BR Offset", br_motor.getOffset());
-    //    SmartDashboard.putNumber("FR Offset", fr_motor.getOffset());
-    //    SmartDashboard.putNumber("FL Offset", fl_motor.getOffset());
-    //    SmartDashboard.putNumber("BL Offset", bl_motor.getOffset());
-
 
          SmartDashboard.putNumber("Odometry X", odometry.getPoseMeters().getX());
          SmartDashboard.putNumber("Odometry Y", odometry.getPoseMeters().getY());
@@ -126,9 +116,13 @@ public class Drivetrain {
         return dir;
     }
 
-    // For some reason the built-in modulo function didn't work...
+    // For some reason, the built-in modulo function didn't work...
     private static double nearestRotation(double angle) {
         return angle - FULL_ROTATION * Math.floor(angle / FULL_ROTATION);
+    }
+
+    public void setYawHeadingOffset(double offset) {
+        yawHeadingOffset = offset;
     }
 
     public void rotate(double byAmount) {
@@ -136,23 +130,24 @@ public class Drivetrain {
     }
 
     public void move(double driveX, double driveY, double heading) {
-        setHeading(heading);
+        setGoalHeading(heading);
         move(driveX, driveY);
     }
 
     public void move(double driveX, double driveY) {
         double adjustedGyroAngle = gyro.getRotation2d().getDegrees() / 360.0 * FULL_ROTATION;
 
-        double closestAngle = closestAngle(adjustedGyroAngle, goalHeading);
+        double closestAngle = closestAngle(adjustedGyroAngle, getGoalHeading());
 
-        // TODO: Make this PID
-        double heading = turningPIDController.calculate(closestAngle, 0);
-        heading = Math.abs(heading) > MIN_TURNING_SPEED ? Math.min(MAX_TURING_SPEED, Math.max(-MAX_TURING_SPEED, heading)) : 0;
+        double turningSpeed = turningPIDController.calculate(closestAngle, 0);
+        turningSpeed = Math.abs(turningSpeed) > MIN_TURNING_SPEED ? Math.min(MAX_TURING_SPEED, Math.max(-MAX_TURING_SPEED, turningSpeed)) : 0;
+
+
 
         turningReal.set(closestAngle);
         turningGoal.set(0);
 
-        ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, heading / FULL_ROTATION * Math.PI * 2, gyro.getRotation2d());
+        ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, turningSpeed / FULL_ROTATION * Math.PI * 2, gyro.getRotation2d());
         // ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, 0.5, gyro.getRotation2d());
         // ChassisSpeeds speeds = new ChassisSpeeds(driveY, driveX, 1);
 
@@ -186,11 +181,13 @@ public class Drivetrain {
         br_motor.drive(br_speed);
     }
 
-    public void moveTo(double x, double y, double endHeading) { // TODO: Make this move using PID
-        setHeading(endHeading);
+    // UNUSED
+    public void moveTo(double x, double y, double endHeading) {
+        setGoalHeading(endHeading);
         double gyroAngle = gyro.getRotation2d().getDegrees() / 360 * FULL_ROTATION;
-        double turningSpeed = turningPIDController.calculate(gyroAngle, goalHeading) / FULL_ROTATION * 2 * Math.PI;
+        double turningSpeed = turningPIDController.calculate(gyroAngle, getGoalHeading()) / FULL_ROTATION * 2 * Math.PI;
 
+        // TODO: Make this work with PID
         Translation2d translation = new Translation2d(x - odometry.getPoseMeters().getX(), y - odometry.getPoseMeters().getY());
         SwerveModuleState[] moduleStates = driveKinematics.toSwerveModuleStates(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -200,25 +197,6 @@ public class Drivetrain {
 
         move(moduleStates);
     }
-
-
-    /*
-    public void faceNearestAprilTag(){
-        // Vision-alignment mode
-        // Query the latest result from PhotonVision
-        var result = camera.getLatestResult();
-        double rotationSpeed = 0;
-
-        if (result.hasTargets()) {
-            // Calculate angular turn power
-            // -1.0 required to ensure positive PID controller effort _increases_ yaw
-            rotationSpeed = -turningPIDController.calculate(result.getBestTarget().getYaw(), 0);
-        } else {
-            // If we have no targets, stay still.
-            rotationSpeed = 0;
-        }        
-    }
-    */
 
     public void calibrateSteering(){
         // Zero the odometry
@@ -249,6 +227,9 @@ public class Drivetrain {
 
         // Zero the gyro
         gyro.zeroYaw();
+
+        setGoalHeading(0);
+        setYawHeadingOffset(0);
     }
 
     public SwerveModulePosition zeroPosition() {
@@ -263,7 +244,7 @@ public class Drivetrain {
     }
 
     public void pointStraight() {
-        setHeading(0);
+        setGoalHeading(0);
         move(0, 0);
     }
 
@@ -325,7 +306,11 @@ public class Drivetrain {
         return odometry.getPoseMeters();
     }
 
-    public void setHeading(double newHeading) {
+    public double getGoalHeading(){
+        return goalHeading + yawHeadingOffset;
+    }
+
+    public void setGoalHeading(double newHeading) {
         goalHeading = newHeading;
     }
 }
