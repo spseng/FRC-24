@@ -50,18 +50,6 @@ public class VisionController {
 
 
     // Getters and Setters
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public double getArea() {
-        return area;
-    }
-
     public double getTargetRelativeYaw() {
         return yaw;
     }
