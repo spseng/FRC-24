@@ -15,13 +15,14 @@ public class VisionController {
     private double yaw;
 
     private NetworkTable table;
+
+    // TODO: Make the cameras an arraylist of RobotCamera
     private RobotCamera camera = new RobotCamera("Camera", 0, 0, 0, 0, 0);
 
     private Pose3d measuredPose;
 
     public void periodic() {
         // This method will be called once per scheduler run
-
         var photonVisionLatestResult = camera.getLatestResult();
         SmartDashboard.putBoolean("Camera has Target", photonVisionLatestResult.hasTargets());
     
@@ -37,6 +38,11 @@ public class VisionController {
 
     public void updateShuffleboard() {
         SmartDashboard.putNumber("Yaw", yaw);
+
+        SmartDashboard.putNumber("Measured X", measuredPose.getTranslation().getX());
+        SmartDashboard.putNumber("Measured Y", measuredPose.getTranslation().getY());
+        SmartDashboard.putNumber("Measured Z", measuredPose.getTranslation().getZ());
+        SmartDashboard.putNumber("Measured Pitch", measuredPose.getRotation().getAngle());
     }
 
     // PhotonVisionResult may need to be changed
