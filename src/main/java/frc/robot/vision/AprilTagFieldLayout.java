@@ -1,9 +1,12 @@
 package frc.robot.vision;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class AprilTagFieldLayout {
@@ -50,6 +53,12 @@ public class AprilTagFieldLayout {
         Map.entry(15, new Pose3d(Units.inchesToMeters(182.73), Units.inchesToMeters(177.10), Units.inchesToMeters(52.00), new Rotation3d(Units.degreesToRadians(120), 0, 0))),
         Map.entry(16, new Pose3d(Units.inchesToMeters(182.73), Units.inchesToMeters(146.19), Units.inchesToMeters(52.00), new Rotation3d(Units.degreesToRadians(240), 0, 0)))
     );
+
+    public static final List<Pose2d> goalPositions = new ArrayList<>(List.of(
+        fieldPositions.get(4).toPose2d(),
+        fieldPositions.get(7).toPose2d()
+    ));
+
 
     public static Pose3d getTagPose(int fiducialId) {
         return fieldPositions.get(fiducialId);

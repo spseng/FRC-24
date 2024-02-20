@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.vision.VisionController;
 
+import static frc.robot.Constants.*;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -21,126 +23,154 @@ import frc.robot.vision.VisionController;
  */
 
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
-  private RobotContainer m_robotContainer;
-  private XboxController m_stick;
-  private XboxController m_stick_2;
-  
-  private TeleopController teleopController;
-  private VisionController visionController;
-  private Drivetrain drivetrain;
-  private ShooterSystem shooterSystem;
+    private Command m_autonomousCommand;
+    private RobotContainer m_robotContainer;
+    private XboxController m_stick;
+    private XboxController m_stick_2;
 
-  // private CameraSe/rver camera;
+    private TeleopController teleopController;
+    private VisionController visionController;
+    private Drivetrain drivetrain;
+    private ShooterSystem shooterSystem;
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.d
-   */
-  @Override
-  public void robotInit() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    // private CameraSe/rver camera;
 
-    CameraServer.startAutomaticCapture();
+    /**
+     * This function is run when the robot is first started up and should be used for any
+     * initialization code.d
+     */
+    @Override
+    public void robotInit() {
+        // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
+        // autonomous chooser on the dashboard.
+        m_robotContainer = new RobotContainer();
 
-    m_stick = new XboxController(0);
-    m_stick_2 = new XboxController(1);
+        CameraServer.startAutomaticCapture();
 
-    teleopController = new TeleopController(false);
-    visionController = new VisionController();
+        m_stick = new XboxController(0);
+        m_stick_2 = new XboxController(1);
 
-    drivetrain = new Drivetrain();
-    shooterSystem = new ShooterSystem(Constants.INTAKE_MOTOR_CAN, Constants.SHOOTER_MOTOR_CAN, Constants.SHOOTER_IS_LOADED_BUTTON);
-  }
+        teleopController = new TeleopController(false);
+        visionController = new VisionController();
 
-  /**
-   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
-   * that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
-   */
-  @Override
-  public void robotPeriodic() {
-    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-    // commands, running already-scheduled commands, removing finished or interrupted commands,
-    // and running subsystem periodic() methods.  This must be called from the robot's periodic
-    // block in order for anything in the Command-based framework to work.
-    CommandScheduler.getInstance().run();
-  }
-
-  /** This function is called once each time the robot enters Disabled mode. */
-  @Override
-  public void disabledInit() {}
-
-  @Override
-  public void disabledPeriodic() {}
-
-  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
-  @Override
-  public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
-  }
-  
-  /** This function is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {
-
-  }
-
-  @Override
-  public void teleopInit() {
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+        drivetrain = new Drivetrain();
+        shooterSystem = new ShooterSystem(
+                INTAKE_MOTOR_CAN,
+                LOADING_MOTOR_CAN,
+                SHOOTER_MOTOR_CAN,
+                ANGLE_ALIGNMENT_MOTOR_CAN,
+                SHOOTER_IS_LOADED_BUTTON_ID,
+                IS_LOWEST_ANGLE_BUTTON_ID,
+                IS_HIGHEST_ANGLE_BUTTON_ID
+        );
     }
 
-    teleopController = new TeleopController(true);
+    /**
+     * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
+     * that you want ran during disabled, autonomous, teleoperated and test.
+     *
+     * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+     * SmartDashboard integrated updating.
+     */
+    @Override
+    public void robotPeriodic() {
+        // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
+        // commands, running already-scheduled commands, removing finished or interrupted commands,
+        // and running subsystem periodic() methods.  This must be called from the robot's periodic
+        // block in order for anything in the Command-based framework to work.
+        CommandScheduler.getInstance().run();
+    }
 
-    teleopController.teleopInit(drivetrain);
+    /**
+     * This function is called once each time the robot enters Disabled mode.
+     */
+    @Override
+    public void disabledInit() {
+    }
 
-  }
-  @Override
-  public void teleopPeriodic() {
-    visionController.periodic();
-    drivetrain.periodic();
-    shooterSystem.periodic(kDefaultPeriod);
-    teleopController.teleopPeriodic(m_stick, drivetrain, shooterSystem, visionController);
-  }
-  
-  @Override
-  public void testInit() {
-    // Cancels all running commands at the start of test mode.
-    CommandScheduler.getInstance().cancelAll();
-    
-    teleopController = new TeleopController(false);
-    teleopController.teleopInit(drivetrain);
-  }
+    @Override
+    public void disabledPeriodic() {
+    }
 
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {
-    visionController.periodic();
-    drivetrain.periodic();
-    shooterSystem.periodic(kDefaultPeriod);
-    teleopController.teleopPeriodic(m_stick_2, drivetrain, shooterSystem, visionController);
-  }
+    /**
+     * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
+     */
+    @Override
+    public void autonomousInit() {
+        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-  /** This function is called once when the robot is first started up. */
-  @Override
-  public void simulationInit() {}
+        // schedule the autonomous command (example)
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.schedule();
+        }
+    }
 
-  /** This function is called periodically whilst in simulation. */
-  @Override
-  public void simulationPeriodic() {}
+    /**
+     * This function is called periodically during autonomous.
+     */
+    @Override
+    public void autonomousPeriodic() {
+
+    }
+
+    @Override
+    public void teleopInit() {
+        // This makes sure that the autonomous stops running when
+        // teleop starts running. If you want the autonomous to
+        // continue until interrupted by another command, remove
+        // this line or comment it out.
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.cancel();
+        }
+
+        teleopController = new TeleopController(true);
+
+        teleopController.teleopInit(drivetrain);
+
+        shooterSystem.calibrate();
+    }
+
+    @Override
+    public void teleopPeriodic() {
+        visionController.periodic();
+        drivetrain.periodic();
+        shooterSystem.periodic(kDefaultPeriod);
+        teleopController.teleopPeriodic(m_stick, drivetrain, shooterSystem, visionController);
+    }
+
+    @Override
+    public void testInit() {
+        // Cancels all running commands at the start of test mode.
+        CommandScheduler.getInstance().cancelAll();
+
+        teleopController = new TeleopController(false);
+        teleopController.teleopInit(drivetrain);
+
+        shooterSystem.calibrate();
+    }
+
+    /**
+     * This function is called periodically during test mode.
+     */
+    @Override
+    public void testPeriodic() {
+        visionController.periodic();
+        drivetrain.periodic();
+        shooterSystem.periodic(kDefaultPeriod);
+        teleopController.teleopPeriodic(m_stick_2, drivetrain, shooterSystem, visionController);
+    }
+
+    /**
+     * This function is called once when the robot is first started up.
+     */
+    @Override
+    public void simulationInit() {
+    }
+
+    /**
+     * This function is called periodically whilst in simulation.
+     */
+    @Override
+    public void simulationPeriodic() {
+    }
 }

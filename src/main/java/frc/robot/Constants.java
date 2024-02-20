@@ -26,10 +26,14 @@ public final class Constants {
 
   // Intake/Shooter IDs
   public static final int INTAKE_MOTOR_CAN = 9;
-  public static final int SHOOTER_MOTOR_CAN = 10;
+  public static final int LOADING_MOTOR_CAN = 10;
+  public static final int SHOOTER_MOTOR_CAN = 11;
+  public static final int ANGLE_ALIGNMENT_MOTOR_CAN = 12;
 
   // Button IDs
-  public static final int SHOOTER_IS_LOADED_BUTTON = 0;
+  public static final int SHOOTER_IS_LOADED_BUTTON_ID = 0;
+  public static final int IS_LOWEST_ANGLE_BUTTON_ID = 1;
+  public static final int IS_HIGHEST_ANGLE_BUTTON_ID = 2;
 
   // Steering Offsets
   // public static final double BR_STEER_OFFSET =  0;
@@ -78,5 +82,10 @@ public final class Constants {
   public static final double TURNING_KP = 8.0;
   public static final double TURNING_KI = 0.015;
   public static final double TURNING_KD = 0.08;
+
+
+  public static final double SHOOTING_ANGLE_KP = 0.08;
+  public static final double SHOOTING_ANGLE_KI = 0.0005;
+  public static final double SHOOTING_ANGLE_KD = 0.0008;
 
 }

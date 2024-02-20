@@ -125,6 +125,14 @@ public class Drivetrain {
         yawHeadingOffset = offset;
     }
 
+    public void pointTowards(Pose2d goal) {
+        Translation2d translation = goal.getTranslation().minus(odometry.getPoseMeters().getTranslation());
+//        Translation2d translation = new Translation2d(goal.getTranslation().getX() - odometry.getPoseMeters().getX(), goal.getTranslation().getY() - odometry.getPoseMeters().getY());
+        double angle = Math.atan2(translation.getY(), translation.getX()); // This is between -pi and pi
+        double adjustedAngle = angle / (2 * Math.PI) * FULL_ROTATION;
+        setGoalHeading(adjustedAngle);
+    }
+
     public void rotate(double byAmount) {
         goalHeading += byAmount * TURN_SPEED;
     }

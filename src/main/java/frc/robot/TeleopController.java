@@ -1,6 +1,8 @@
 package frc.robot;
+import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.vision.VisionController;
 
@@ -52,15 +54,24 @@ public class TeleopController {
         // // if(rightR > JOYSTICK_DEAD_ZONE){
 
         // // } else
-        if (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE) {
+        if (m_stick.getAButton()) {
             shooterSystem.intakeUnlessLoaded();
+        }else if(m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE) {
+            // Line up shot with goal
+            Pose2d nearestGoal = shooterSystem.getGoalGoal(drivetrain.getPose());
+            drivetrain.pointTowards(nearestGoal);
+            drivetrain.move(0, 0);
         }else if(m_stick.getRightTriggerAxis() > TRIGGER_DEAD_ZONE) {
-            shooterSystem.shoot();
+            shooterSystem.shoot(drivetrain.getPose());
+        }else if(m_stick.getRightBumper()) {
+            shooterSystem.rejectCurrentIntake();
         } else if (m_stick.getLeftBumper()) {
-            double currentYaw = visionController.getTargetRelativeYaw();
-            if (abs(currentYaw) > 0.1) {
-                drivetrain.setYawHeadingOffset(currentYaw);
+            double measuredYaw = visionController.getTargetRelativeYaw();
+            if (abs(measuredYaw) > 0.1) {
+                drivetrain.setYawHeadingOffset(measuredYaw);
             }
+        }else if (m_stick.getLeftBumperReleased()) {
+            drivetrain.setYawHeadingOffset(0);
         }
         // if (m_stick.getBButton()) {
         //     drivetrain.rotate(FULL_ROTATION * 0.25 / TURN_SPEED);
