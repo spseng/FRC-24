@@ -15,7 +15,7 @@ public class VisionController {
 
     private NetworkTable table;
 
-    private PhotonCamera camera = new PhotonCamera("photonvision");
+    private PhotonCamera camera = new PhotonCamera("Camera");
 
     public void periodic() {
         // This method will be called once per scheduler run
