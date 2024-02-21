@@ -5,6 +5,7 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -31,7 +32,8 @@ public class Drivetrain {
             fl_location, fr_location, bl_location, br_location
     );
 
-    private final SwerveDriveOdometry odometry;
+    // private final SwerveDriveOdometry odometry;
+    private final SwerveDrivePoseEstimator swervePoseEstimator;
 
     // private final PhotonCamera camera = new PhotonCamera("photonvision");
 
@@ -59,8 +61,18 @@ public class Drivetrain {
 
         gyro.reset();
 
-        odometry = new SwerveDriveOdometry(
-                 driveKinematics,
+        // odometry = new SwerveDriveOdometry(
+        //          driveKinematics,
+        //         gyro.getRotation2d(),
+        //          new SwerveModulePosition[] {
+        //                 fl_motor.getSwervePosition(),
+        //                 fr_motor.getSwervePosition(),
+        //                 bl_motor.getSwervePosition(),
+        //                 br_motor.getSwervePosition()
+        //          }, new Pose2d(0, 0, new Rotation2d(Math.PI)));
+
+        swervePoseEstimator = new SwerveDrivePoseEstimator(
+            driveKinematics,
                 gyro.getRotation2d(),
                  new SwerveModulePosition[] {
                         fl_motor.getSwervePosition(),
@@ -82,7 +94,7 @@ public class Drivetrain {
         var gyroAngle = gyro.getRotation2d();
 
         // Update the pose
-        odometry.update(gyroAngle,
+        swervePoseEstimator.update(gyroAngle,
             new SwerveModulePosition[] {
                 fl_motor.getSwervePosition(), fr_motor.getSwervePosition(),
                 bl_motor.getSwervePosition(), br_motor.getSwervePosition()
@@ -97,9 +109,9 @@ public class Drivetrain {
         SmartDashboard.putNumber("BL Position", bl_motor.getSteeringPosition());
         SmartDashboard.putNumber("BR Position", br_motor.getSteeringPosition());
 
-         SmartDashboard.putNumber("Odometry X", odometry.getPoseMeters().getX());
-         SmartDashboard.putNumber("Odometry Y", odometry.getPoseMeters().getY());
-         SmartDashboard.putNumber("Odometry Angle", odometry.getPoseMeters().getRotation().getDegrees());
+         SmartDashboard.putNumber("Odometry X", getPose().getX());
+         SmartDashboard.putNumber("Odometry Y", getPose().getY());
+         SmartDashboard.putNumber("Odometry Angle", getPose().getRotation().getDegrees());
     }
 
     private double closestAngle(double previous, double goal)
@@ -126,7 +138,7 @@ public class Drivetrain {
     }
 
     public void pointTowards(Pose2d goal) {
-        Translation2d translation = goal.getTranslation().minus(odometry.getPoseMeters().getTranslation());
+        Translation2d translation = goal.getTranslation().minus(getPose().getTranslation());
 //        Translation2d translation = new Translation2d(goal.getTranslation().getX() - odometry.getPoseMeters().getX(), goal.getTranslation().getY() - odometry.getPoseMeters().getY());
         double angle = Math.atan2(translation.getY(), translation.getX()); // This is between -pi and pi
         double adjustedAngle = angle / (2 * Math.PI) * FULL_ROTATION;
@@ -196,7 +208,7 @@ public class Drivetrain {
         double turningSpeed = turningPIDController.calculate(gyroAngle, getGoalHeading()) / FULL_ROTATION * 2 * Math.PI;
 
         // TODO: Make this work with PID
-        Translation2d translation = new Translation2d(x - odometry.getPoseMeters().getX(), y - odometry.getPoseMeters().getY());
+        Translation2d translation = new Translation2d(x - getPose().getX(), y - getPose().getY());
         SwerveModuleState[] moduleStates = driveKinematics.toSwerveModuleStates(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                         translation.getX(), translation.getY(), turningSpeed, gyro.getRotation2d()
@@ -208,7 +220,7 @@ public class Drivetrain {
 
     public void calibrateSteering(){
         // Zero the odometry
-        odometry.resetPosition(
+        swervePoseEstimator.resetPosition(
             Rotation2d.fromDegrees(0),
          new SwerveModulePosition[]{
             zeroPosition(),
@@ -289,6 +301,9 @@ public class Drivetrain {
         fl_motor.drive(-r);
     }
 
+    public SwerveDrivePoseEstimator getPoseEstimator() {
+        return swervePoseEstimator;
+    }
 
     public SwerveModuleState[] getGoalSwerveModuleStates(){
         return previousStates;
@@ -311,7 +326,8 @@ public class Drivetrain {
     }
 
     public Pose2d getPose() {
-        return odometry.getPoseMeters();
+        // return new Pose2d(3, 8, new Rotation2d());
+        return swervePoseEstimator.getEstimatedPosition();
     }
 
     public double getGoalHeading(){

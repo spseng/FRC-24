@@ -134,6 +134,8 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
         visionController.periodic();
         drivetrain.periodic();
+        visionController.updateDrivetrainPosition(drivetrain);
+
         shooterSystem.periodic(kDefaultPeriod);
         teleopController.teleopPeriodic(m_stick, drivetrain, shooterSystem, visionController);
     }
@@ -156,6 +158,8 @@ public class Robot extends TimedRobot {
     public void testPeriodic() {
         visionController.periodic();
         drivetrain.periodic();
+        visionController.updateDrivetrainPosition(drivetrain);
+
         shooterSystem.periodic(kDefaultPeriod);
         teleopController.teleopPeriodic(m_stick_2, drivetrain, shooterSystem, visionController);
     }
