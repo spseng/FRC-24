@@ -24,3 +24,4 @@ These values can be adjusted in the `Constants.java` file.
 https://www.desmos.com/calculator/r3rxvoxt9n
 https://www.desmos.com/calculator/ywheti8iuu
 https://www.desmos.com/calculator/60tbtn4s5y
+https://www.desmos.com/calculator/ertudwadc0
