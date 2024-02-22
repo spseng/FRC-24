@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.drive;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
@@ -117,10 +117,10 @@ public final class SwerveMotor {
         return nearestRotation(offset + dynamicOffset);
     }
     public double getSteeringPosition() {
-        return steerMotor.getEncoder().getPosition() / RELATIVE_ENCODER_RATIO * FULL_ROTATION;
+        return steerMotor.getEncoder().getPosition() / RELATIVE_ENCODER_CONVERSION * FULL_ROTATION;
     }
     public double getAbsoluteSteeringPosition() {
-        return steerAbsoluteEncoder.getPosition() / ABS_ENCODER_RATIO * FULL_ROTATION;
+        return steerAbsoluteEncoder.getPosition() / ABS_ENCODER_CONVERSION * FULL_ROTATION;
     }
 
      public SwerveModulePosition getSwervePosition(){

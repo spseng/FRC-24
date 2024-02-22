@@ -7,15 +7,15 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 public class RobotCamera {
-    private String name;
-    private double relativeX;
-    private double relativeY;
-    private double relativeZ;
-    private double relativePitch;
-    private double relativeYaw;
-    private double relativeRoll = 0;
+    private final String name;
+    private final double relativeX;
+    private final double relativeY;
+    private final double relativeZ;
+    private final double relativePitch;
+    private final double relativeYaw;
+    private final double relativeRoll = 0;
 
-    private PhotonCamera photonCamera;
+    private final PhotonCamera photonCamera;
 
     public RobotCamera(String cameraName, double x, double y, double z, double pitch, double yaw) {
         name = cameraName;
@@ -38,9 +38,4 @@ public class RobotCamera {
     public PhotonPipelineResult getLatestResult() {
         return photonCamera.getLatestResult();
     }
-
-    public double getRelativeX() {
-        return relativeX;
-    }
-
 }

@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.drive;
 
 // import com.kauailabs.navx.frc.*;
 
@@ -13,16 +13,17 @@ import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.vision.FieldLayout;
 
 
 import static frc.robot.Constants.*;
 
 public class Drivetrain {
-    
-    private final Translation2d fl_location = new Translation2d( -TRACKWIDTH/2,  -WHEELBASE/2);
-    private final Translation2d fr_location = new Translation2d( -TRACKWIDTH/2, WHEELBASE/2);
-    private final Translation2d bl_location = new Translation2d(TRACKWIDTH/2,  -WHEELBASE/2);
-    private final Translation2d br_location = new Translation2d(TRACKWIDTH/2, WHEELBASE/2);
+
+    private final Translation2d fl_location = new Translation2d(-TRACKWIDTH / 2, -WHEELBASE / 2);
+    private final Translation2d fr_location = new Translation2d(-TRACKWIDTH / 2, WHEELBASE / 2);
+    private final Translation2d bl_location = new Translation2d(TRACKWIDTH / 2, -WHEELBASE / 2);
+    private final Translation2d br_location = new Translation2d(TRACKWIDTH / 2, WHEELBASE / 2);
 
     private final DoublePublisher turningGoal;
     private final DoublePublisher turningReal;
@@ -50,6 +51,8 @@ public class Drivetrain {
 
     // Turning
     private final PIDController turningPIDController;
+    private final PIDController driveXPIDController;
+    private final PIDController driveYPIDController;
 
     private final AHRS gyro = new AHRS();  // navX gyro
 
@@ -72,16 +75,19 @@ public class Drivetrain {
         //          }, new Pose2d(0, 0, new Rotation2d(Math.PI)));
 
         swervePoseEstimator = new SwerveDrivePoseEstimator(
-            driveKinematics,
+                driveKinematics,
                 gyro.getRotation2d(),
-                 new SwerveModulePosition[] {
+                new SwerveModulePosition[]{
                         fl_motor.getSwervePosition(),
                         fr_motor.getSwervePosition(),
                         bl_motor.getSwervePosition(),
                         br_motor.getSwervePosition()
-                 }, new Pose2d(0, 0, new Rotation2d(Math.PI)));
+                }, new Pose2d(0, 0, new Rotation2d(Math.PI)));
 
         this.turningPIDController = new PIDController(TURNING_KP, TURNING_KI, TURNING_KD);
+
+        this.driveXPIDController = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD);
+        this.driveYPIDController = new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD);
 
         calibrateSteering();
 
@@ -95,10 +101,10 @@ public class Drivetrain {
 
         // Update the pose
         swervePoseEstimator.update(gyroAngle,
-            new SwerveModulePosition[] {
-                fl_motor.getSwervePosition(), fr_motor.getSwervePosition(),
-                bl_motor.getSwervePosition(), br_motor.getSwervePosition()
-            });
+                new SwerveModulePosition[]{
+                        fl_motor.getSwervePosition(), fr_motor.getSwervePosition(),
+                        bl_motor.getSwervePosition(), br_motor.getSwervePosition()
+                });
 
         updateShuffleboard();
     }
@@ -109,19 +115,17 @@ public class Drivetrain {
         SmartDashboard.putNumber("BL Position", bl_motor.getSteeringPosition());
         SmartDashboard.putNumber("BR Position", br_motor.getSteeringPosition());
 
-         SmartDashboard.putNumber("Odometry X", getPose().getX());
-         SmartDashboard.putNumber("Odometry Y", getPose().getY());
-         SmartDashboard.putNumber("Odometry Angle", getPose().getRotation().getDegrees());
+        SmartDashboard.putNumber("Odometry X", getPose().getX());
+        SmartDashboard.putNumber("Odometry Y", getPose().getY());
+        SmartDashboard.putNumber("Odometry Angle", getPose().getRotation().getDegrees());
     }
 
-    private double closestAngle(double previous, double goal)
-    {
+    private double closestAngle(double previous, double goal) {
         // get direction
         double dir = nearestRotation(goal) - nearestRotation(previous);
-        
+
         // If rotation is greater than 180 degrees, then rotate swerve in the other way
-        if (Math.abs(dir) > FULL_ROTATION/2)
-        {
+        if (Math.abs(dir) > FULL_ROTATION / 2) {
             dir = -(Math.signum(dir) * FULL_ROTATION) + dir;
         }
 
@@ -163,22 +167,19 @@ public class Drivetrain {
         turningSpeed = Math.abs(turningSpeed) > MIN_TURNING_SPEED ? Math.min(MAX_TURING_SPEED, Math.max(-MAX_TURING_SPEED, turningSpeed)) : 0;
 
 
-
         turningReal.set(closestAngle);
         turningGoal.set(0);
 
         ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, turningSpeed / FULL_ROTATION * Math.PI * 2, gyro.getRotation2d());
-        // ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, 0.5, gyro.getRotation2d());
-        // ChassisSpeeds speeds = new ChassisSpeeds(driveY, driveX, 1);
 
         SwerveModuleState[] moduleStates = driveKinematics.toSwerveModuleStates(relativeSpeeds);
-
-        previousStates = moduleStates;
 
         move(moduleStates);
     }
 
     private void move(SwerveModuleState[] moduleStates) {
+        previousStates = moduleStates;
+
         double fl_angle = moduleStates[0].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
         double fr_angle = moduleStates[1].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
         double bl_angle = moduleStates[2].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
@@ -189,7 +190,7 @@ public class Drivetrain {
         double fr_speed = moduleStates[1].speedMetersPerSecond * DRIVE_SPEED;
         double bl_speed = moduleStates[2].speedMetersPerSecond * DRIVE_SPEED;
         double br_speed = moduleStates[3].speedMetersPerSecond * DRIVE_SPEED;
-        
+
         fl_motor.steer(fl_angle);
         fr_motor.steer(fr_angle);
         bl_motor.steer(bl_angle);
@@ -201,45 +202,53 @@ public class Drivetrain {
         br_motor.drive(br_speed);
     }
 
-    // UNUSED
-    public void moveTo(double x, double y, double endHeading) {
+    public boolean moveTo(String nearestLocationCalled){
+        return switch (nearestLocationCalled) {
+            case "amp" -> moveTo(getPose().nearest(FieldLayout.ampLocations));
+            case "shoot" -> moveTo(getPose().nearest(FieldLayout.shootingLocations));
+//            case "collection" -> moveTo(3, 2, 90); // This requires us to know which of the three slots to go to.
+            default -> false;
+        };
+    }
+
+    public boolean moveTo(Pose2d goal) {
+        return moveTo(goal.getX(), goal.getY(), goal.getRotation().getDegrees());
+    }
+
+    public boolean moveTo(double x, double y, double angle) {
+        double endHeading = angle / 360 * FULL_ROTATION;
         setGoalHeading(endHeading);
+
         double gyroAngle = gyro.getRotation2d().getDegrees() / 360 * FULL_ROTATION;
         double turningSpeed = turningPIDController.calculate(gyroAngle, getGoalHeading()) / FULL_ROTATION * 2 * Math.PI;
 
-        // TODO: Make this work with PID
-        Translation2d translation = new Translation2d(x - getPose().getX(), y - getPose().getY());
-        SwerveModuleState[] moduleStates = driveKinematics.toSwerveModuleStates(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                        translation.getX(), translation.getY(), turningSpeed, gyro.getRotation2d()
-                )
-        );
+        Pose2d currentPose = getPose();
+        Translation2d translation = new Translation2d(x - currentPose.getX(), y - currentPose.getY());
 
+        // Drive PID Controller towards endpoint
+        double driveXSpeed = driveXPIDController.calculate(translation.getX(), 0);
+        double driveYSpeed = driveYPIDController.calculate(translation.getY(), 0);
+
+        ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveYSpeed, driveXSpeed, turningSpeed, gyro.getRotation2d());
+        SwerveModuleState[] moduleStates = driveKinematics.toSwerveModuleStates(relativeSpeeds);
         move(moduleStates);
+
+        return translation.getNorm() < AUTON_POSITION_MAX_ERROR && Math.abs(gyroAngle - getGoalHeading()) < AUTON_POSITION_MAX_ERROR;
     }
 
-    public void calibrateSteering(){
+    public void calibrateSteering() {
         // Zero the odometry
         swervePoseEstimator.resetPosition(
-            Rotation2d.fromDegrees(0),
-         new SwerveModulePosition[]{
-            zeroPosition(),
-            zeroPosition(),
-            zeroPosition(),
-            zeroPosition()
-        }, new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
+                Rotation2d.fromDegrees(0),
+                new SwerveModulePosition[]{
+                        zeroPosition(),
+                        zeroPosition(),
+                        zeroPosition(),
+                        zeroPosition()
+                }, new Pose2d(0, 0, Rotation2d.fromDegrees(0))
+        );
 
-        // // Zero the odometry
-        // odometry.resetPosition(
-        //     gyro.getRotation2d(),
-        //  new SwerveModulePosition[]{
-        //     fl_motor.getSwervePosition(),
-        //     fr_motor.getSwervePosition(),
-        //     bl_motor.getSwervePosition(),
-        //     br_motor.getSwervePosition()
-        // }, new Pose2d(1, 1, Rotation2d.fromDegrees(0)));
-
-     // Calibrate the relative encoders to match absolute encoders
+        // Calibrate the relative encoders to match absolute encoders
         br_motor.calibrate();
         fr_motor.calibrate();
         bl_motor.calibrate();
@@ -256,72 +265,25 @@ public class Drivetrain {
         return new SwerveModulePosition(0, Rotation2d.fromDegrees(0));
     }
 
-    public void zeroSteering() {
-        br_motor.zeroPosition();
-        fr_motor.zeroPosition();
-        bl_motor.zeroPosition();
-        fl_motor.zeroPosition();
-    }
-
     public void pointStraight() {
         setGoalHeading(0);
         move(0, 0);
-    }
-
-    public void stopSteering() {
-        br_motor.stopSteering();
-        fr_motor.stopSteering();
-        bl_motor.stopSteering();
-        fl_motor.stopSteering();
-    }
-
-    public void steer(double theta) {
-        br_motor.steer(theta);
-        fr_motor.steer(theta);
-        bl_motor.steer(theta);
-        fl_motor.steer(theta);
-    }
-
-    public void drive(double r) {
-        br_motor.drive(r);
-        fr_motor.drive(r);
-        bl_motor.drive(r);
-        fl_motor.drive(r);
-    }
-
-    public void turn(double r) {
-        br_motor.steer(0.25);
-        fr_motor.steer(-0.25);
-        bl_motor.steer(-0.25);
-        fl_motor.steer(0.25);
-
-        br_motor.drive(r);
-        fr_motor.drive(r);
-        bl_motor.drive(-r);
-        fl_motor.drive(-r);
     }
 
     public SwerveDrivePoseEstimator getPoseEstimator() {
         return swervePoseEstimator;
     }
 
-    public SwerveModuleState[] getGoalSwerveModuleStates(){
+    public SwerveModuleState[] getGoalSwerveModuleStates() {
         return previousStates;
-        
-        // return new SwerveModuleState[] {
-        //     fl_motor.getSwerveState(),
-        //     fr_motor.getSwerveState(),
-        //     bl_motor.getSwerveState(),
-        //     br_motor.getSwerveState()
-        // };
     }
 
-    public SwerveModuleState[] getRealSwerveModuleStates(){        
-        return new SwerveModuleState[] {
-            fl_motor.getSwerveModuleState(),
-            fr_motor.getSwerveModuleState(),
-            bl_motor.getSwerveModuleState(),
-            br_motor.getSwerveModuleState()
+    public SwerveModuleState[] getRealSwerveModuleStates() {
+        return new SwerveModuleState[]{
+                fl_motor.getSwerveModuleState(),
+                fr_motor.getSwerveModuleState(),
+                bl_motor.getSwerveModuleState(),
+                br_motor.getSwerveModuleState()
         };
     }
 
@@ -330,7 +292,7 @@ public class Drivetrain {
         return swervePoseEstimator.getEstimatedPosition();
     }
 
-    public double getGoalHeading(){
+    public double getGoalHeading() {
         return goalHeading + yawHeadingOffset;
     }
 

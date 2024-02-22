@@ -7,9 +7,8 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.vision.AprilTagFieldLayout;
+import frc.robot.vision.FieldLayout;
 
 import static frc.robot.Constants.*;
 
@@ -36,7 +35,9 @@ public class ShooterSystem {
 
 
     private boolean isShooting = false;
+    private boolean finishedShooting = false; // TODO: Find better way to tell if auton shot is done
 //    private boolean isCalibrating = false;
+    private double goalRotation = 0.0;
     private double goalAngle = 0.0;
 
     private final DigitalInput isLoadedButton;
@@ -45,8 +46,6 @@ public class ShooterSystem {
     private final DigitalInput isHighestAngleButton;
 
     public ShooterSystem(int intakeMotorCAN, int loadingMotorCAN, int shooterMotorCAN, int angleAlignmentMotorCAN, int isLoadedButtonChannel, int isLowestAngleButtonChannel, int isHighestAngleButtonChannel) {
-        // intakeMotor = new Spark(intakeMotorChannel);
-        // shooterMotor = new Spark(shooterMotorChannel);
         intakeMotor = new CANSparkMax(intakeMotorCAN, MotorType.kBrushless);
         loadingMotor = new CANSparkMax(loadingMotorCAN, MotorType.kBrushless);
         shooterMotor = new CANSparkMax(shooterMotorCAN, MotorType.kBrushless);
@@ -65,7 +64,7 @@ public class ShooterSystem {
         SmartDashboard.putBoolean("Is Highest", isHighestAngle());
 
         SmartDashboard.putNumber("Angle", angleEncoder.getPosition());
-        SmartDashboard.putNumber("Goal Angle", goalAngle);
+        SmartDashboard.putNumber("Goal Angle", goalRotation);
     }
 
     public void calibrate(){
@@ -73,12 +72,15 @@ public class ShooterSystem {
             angleAlignmentMotor.stopMotor();
             angleEncoder.setPosition(0);
         }
-        setAngle(0);
+        setRotation(0);
     }
 
-
     public void setAngle(double angle){
-        goalAngle = Math.max(angle, 0);
+        setRotation(angle*SHOOTER_ANGLE_CONVERSION - SHOOTER_RESTING_ANGLE);
+    }
+
+    public void setRotation(double angle){
+        goalRotation = Math.max(angle, 0);
     }
 
     public void intakeUnlessLoaded(){
@@ -105,45 +107,79 @@ public class ShooterSystem {
         shootDelayCounter = 0.0;
     }
 
-    public Pose2d getGoalGoal(Pose2d fromPosition){
-        // Page 4 of https://firstfrc.blob.core.windows.net/frc2024/FieldAssets/2024LayoutMarkingDiagram.pdf
-        // Return either tag id #4 if red or #7 if blue alliance
-        return fromPosition.nearest(AprilTagFieldLayout.goalPositions);
-//        return AprilTagFieldLayout.getTagPose(4);
-//        return AprilTagFieldLayout.getTagPose(7);
+    public void shootAmp(){
+        setAngle(AMP_SCORING_ANGLE);
+        shooterMotor.set(1.0);
+        isShooting = true;
+        shootDelayCounter = 0.0;
     }
 
     // Calculate the distance and shoot with appropriate speed regardless of alignment
     public void shoot(Pose2d fromPose){
-        double distance = fromPose.getTranslation().getNorm();
-        SmartDashboard.putNumber("Shot from", distance);
+        double horizontalDistance = fromPose.getTranslation().getNorm();
+        SmartDashboard.putNumber("Shot from", horizontalDistance);
 
-        double speed = 0.0;
+        double speed = 1.0;
 
         // TODO: Replace this with a continuous function
         // TODO: Test these rough values
-        if(distance < 1.0){
-            speed = 0.5;
-        } else if(distance < 2.0){
-            speed = 0.6;
-        } else if(distance < 3.0){
-            speed = 0.7;
-        } else if(distance < 4.0){
-            speed = 0.8;
-        } else if(distance < 5.0){
-            speed = 0.9;
-        } else {
-            speed = 1.0;
-        }
+//        if(horizontalDistance < 1.0){
+//            speed = 0.5;
+//        } else if(horizontalDistance < 2.0){
+//            speed = 0.6;
+//        } else if(horizontalDistance < 3.0){
+//            speed = 0.7;
+//        } else if(horizontalDistance < 4.0){
+//            speed = 0.8;
+//        } else if(horizontalDistance < 5.0){
+//            speed = 0.9;
+//        } else {
+//            speed = 1.0;
+//        }
 
 
+        double exitVelocity = speed * SHOOTER_EXIT_VELOCITY; // TODO: Calculate exit velocity using the speed variable
+        double angle = getAngle(horizontalDistance, exitVelocity);
 
+        setAngle(angle);
         shooterMotor.set(speed);
         isShooting = true;
     }
 
+    private static double getAngle(double horizontalDistance, double exitVelocity) {
+        double verticalDistance = GOAL_HEIGHT - ROBOT_SHOOTER_HEIGHT; // TODO: Make sure this value is accurate
+        double totalDistance = Math.sqrt(Math.pow(horizontalDistance, 2) + Math.pow(verticalDistance, 2));
+
+        // Calculate the angle using these values
+        double estimatedTime = totalDistance / exitVelocity;
+        double approximatedLinearGoal = verticalDistance + GRAVITY * Math.pow(estimatedTime, 2);
+
+        // Shoot an angle pointed directly at the approximatedLinearGoal
+        return Math.toDegrees(Math.atan(approximatedLinearGoal / horizontalDistance));
+    }
+
+    public boolean autonShoot(Pose2d pose) {
+        if(!isShooting) {
+            shoot(pose);
+        } else return finishedShooting;
+
+        return false;
+    }
+
+    public boolean autonShootAmp() {
+        if(!isShooting) {
+            shootAmp();
+        } else {
+            return finishedShooting;
+        }
+
+        return false;
+    }
+
     public void periodic(double dt) {
-        if (isShooting) {
+        finishedShooting = false;
+
+        if (isShooting && Math.abs(getAngle() - goalAngle) < SHOOTING_ANGLE_ERROR) {
             if (shootDelayCounter < shootDelay) {
                 shootDelayCounter += dt;
                 shooterMotor.set(1.0);
@@ -155,28 +191,32 @@ public class ShooterSystem {
                 loadingMotor.stopMotor();
                 shooterMotor.stopMotor();
                 isShooting = false;
+                finishedShooting = true;
             }
         }
 
-        double angleMoveSpeed = anglePIDController.calculate(angleEncoder.getPosition(), goalAngle);
+        double angleMoveSpeed = anglePIDController.calculate(angleEncoder.getPosition(), goalRotation);
         angleAlignmentMotor.set(angleMoveSpeed);
 
         if(isLowestAngle()){
             angleAlignmentMotor.stopMotor();
             angleEncoder.setPosition(0);
 
-            if (goalAngle < 0) {
-                setAngle(0);
+            if (goalRotation < 0) {
+                setRotation(0);
             }
         }
 
         if(isHighestAngle()){
-            goalAngle = Math.min(goalAngle, angleEncoder.getPosition());
+            goalRotation = Math.min(goalRotation, angleEncoder.getPosition());
         }
 
         updateShuffleboard();
     }
 
+    public double getAngle(){
+        return angleEncoder.getPosition() / SHOOTER_ANGLE_CONVERSION + SHOOTER_RESTING_ANGLE;
+    }
 
     public boolean isLoaded(){
         return !isLoadedButton.get();

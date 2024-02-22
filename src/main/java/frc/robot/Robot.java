@@ -11,7 +11,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 // REV imports
 
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.vision.VisionController;
+import frc.robot.drive.Drivetrain;
+import frc.robot.vision.VisionSystem;
 
 import static frc.robot.Constants.*;
 
@@ -28,8 +29,9 @@ public class Robot extends TimedRobot {
     private XboxController m_stick;
     private XboxController m_stick_2;
 
+    private AutonomousController autonomousController;
     private TeleopController teleopController;
-    private VisionController visionController;
+    private VisionSystem visionSystem;
     private Drivetrain drivetrain;
     private ShooterSystem shooterSystem;
 
@@ -51,7 +53,7 @@ public class Robot extends TimedRobot {
         m_stick_2 = new XboxController(1);
 
         teleopController = new TeleopController(false);
-        visionController = new VisionController();
+        visionSystem = new VisionSystem();
 
         drivetrain = new Drivetrain();
         shooterSystem = new ShooterSystem(
@@ -97,12 +99,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-        // schedule the autonomous command (example)
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.schedule();
-        }
+        autonomousController.init();
+        shooterSystem.calibrate();
     }
 
     /**
@@ -110,34 +108,29 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousPeriodic() {
+        visionSystem.periodic();
+        drivetrain.periodic();
+        visionSystem.updateDrivetrainPosition(drivetrain);
 
+        shooterSystem.periodic(kDefaultPeriod);
+        autonomousController.periodic(drivetrain, shooterSystem, visionSystem);
     }
 
     @Override
     public void teleopInit() {
-        // This makes sure that the autonomous stops running when
-        // teleop starts running. If you want the autonomous to
-        // continue until interrupted by another command, remove
-        // this line or comment it out.
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.cancel();
-        }
-
         teleopController = new TeleopController(true);
-
-        teleopController.teleopInit(drivetrain);
-
+        teleopController.init(drivetrain);
         shooterSystem.calibrate();
     }
 
     @Override
     public void teleopPeriodic() {
-        visionController.periodic();
+        visionSystem.periodic();
         drivetrain.periodic();
-        visionController.updateDrivetrainPosition(drivetrain);
+        visionSystem.updateDrivetrainPosition(drivetrain);
 
         shooterSystem.periodic(kDefaultPeriod);
-        teleopController.teleopPeriodic(m_stick, drivetrain, shooterSystem, visionController);
+        teleopController.periodic(m_stick, drivetrain, shooterSystem, visionSystem);
     }
 
     @Override
@@ -146,7 +139,7 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().cancelAll();
 
         teleopController = new TeleopController(false);
-        teleopController.teleopInit(drivetrain);
+        teleopController.init(drivetrain);
 
         shooterSystem.calibrate();
     }
@@ -156,12 +149,12 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
-        visionController.periodic();
+        visionSystem.periodic();
         drivetrain.periodic();
-        visionController.updateDrivetrainPosition(drivetrain);
+        visionSystem.updateDrivetrainPosition(drivetrain);
 
         shooterSystem.periodic(kDefaultPeriod);
-        teleopController.teleopPeriodic(m_stick_2, drivetrain, shooterSystem, visionController);
+        teleopController.periodic(m_stick_2, drivetrain, shooterSystem, visionSystem);
     }
 
     /**

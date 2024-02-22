@@ -1,20 +1,18 @@
 package frc.robot.vision;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import frc.robot.Drivetrain;
+import frc.robot.drive.Drivetrain;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 
-public class VisionController {
+public class VisionSystem {
     private double yaw;
 
     // TODO: Make the cameras an arraylist of RobotCamera
-    private RobotCamera camera = new RobotCamera("Camera", 0, 0, 0, 0, 0);
+    private final RobotCamera camera = new RobotCamera("Camera", 0, 0, 0, 0, 0);
 
     private Pose3d measuredPose;
 
@@ -27,7 +25,7 @@ public class VisionController {
             var target = photonVisionLatestResult.getBestTarget();
             updateYaw(target);
 
-            measuredPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), AprilTagFieldLayout.getTagPose(target.getFiducialId()), camera.getRelativeTransform());
+            measuredPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), FieldLayout.getTagPose(target.getFiducialId()), camera.getRelativeTransform());
         }
 
         updateShuffleboard();
@@ -43,7 +41,7 @@ public class VisionController {
             // TODO: Maybe use bestTarget.getPoseAmbiguity() to know when to use the vision or skip it
 
             var camToTargetTrans = bestTarget.getBestCameraToTarget();
-            Pose3d targetPosition = AprilTagFieldLayout.getTagPose(bestTarget.getFiducialId());
+            Pose3d targetPosition = FieldLayout.getTagPose(bestTarget.getFiducialId());
             var camPose = targetPosition.transformBy(camToTargetTrans.inverse());
             drivetrain.getPoseEstimator().addVisionMeasurement(
                     camPose.transformBy(camera.getRelativeTransform()).toPose2d(), imageCaptureTime);

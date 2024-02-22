@@ -1,16 +1,14 @@
 package frc.robot.vision;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class AprilTagFieldLayout {
-    public static final double TAG_SIZE = 0.1524; // 6 inches
+public class FieldLayout {
+//    public static final double TAG_SIZE = 0.1524; // 6 inches
 
     // Copied from https://firstfrc.blob.core.windows.net/frc2024/FieldAssets/2024LayoutMarkingDiagram.pdf
     // (page 4)
@@ -54,10 +52,27 @@ public class AprilTagFieldLayout {
         Map.entry(16, new Pose3d(Units.inchesToMeters(182.73), Units.inchesToMeters(146.19), Units.inchesToMeters(52.00), new Rotation3d(Units.degreesToRadians(240), 0, 0)))
     );
 
+    public static final List<Pose2d> ampLocations = new ArrayList<>(List.of(
+        fieldPositions.get(5).toPose2d().transformBy(new Transform2d(0,0.65, new Rotation2d())),
+        fieldPositions.get(6).toPose2d().transformBy(new Transform2d(0,0.65, new Rotation2d()))
+    ));
+
+    // Convenient places to shoot from
+    public static final List<Pose2d> shootingLocations = new ArrayList<>(List.of(
+        fieldPositions.get(4).toPose2d().transformBy(new Transform2d(2.5, 0, new Rotation2d())),
+        fieldPositions.get(7).toPose2d().transformBy(new Transform2d(-2.5, 0, new Rotation2d()))
+    ));
+
     public static final List<Pose2d> goalPositions = new ArrayList<>(List.of(
         fieldPositions.get(4).toPose2d(),
         fieldPositions.get(7).toPose2d()
     ));
+
+    public static Pose2d getGoalGoal(Pose2d fromPosition){
+        // Page 4 of https://firstfrc.blob.core.windows.net/frc2024/FieldAssets/2024LayoutMarkingDiagram.pdf
+        // Return either tag id #4 if red or #7 if blue alliance
+        return fromPosition.nearest(goalPositions);
+    }
 
 
     public static Pose3d getTagPose(int fiducialId) {
