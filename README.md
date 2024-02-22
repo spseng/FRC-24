@@ -20,3 +20,7 @@ To get started, make sure you have calibrated the zero offsets for the absolute 
 It is possible that this project will not work for your robot right out of the box. Various things like the CAN IDs, PIDF gains, chassis configuration, etc. must be determined for your own robot!
 
 These values can be adjusted in the `Constants.java` file.
+
+https://www.desmos.com/calculator/r3rxvoxt9n
+https://www.desmos.com/calculator/ywheti8iuu
+https://www.desmos.com/calculator/60tbtn4s5y
