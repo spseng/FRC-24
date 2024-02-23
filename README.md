@@ -21,9 +21,4 @@ It is possible that this project will not work for your robot right out of the b
 
 These values can be adjusted in the `Constants.java` file.
 
-https://www.desmos.com/calculator/owt6krzv7z
-https://www.desmos.com/calculator/8jpdmz5ntx
-https://www.desmos.com/calculator/op7pt0j9f9
-https://www.desmos.com/calculator/wom9olnksy
-https://www.desmos.com/calculator/yisopj2ux6
-v=\frac{d\sqrt{-g}\sqrt{\left(\frac{(2d+p)^{2}(h_{0}-h_{g})^{2}}{d^{2}(d+p)^{2}}+1\right)}}{\sqrt{2}\sqrt{\left(\frac{d(h_{g}-h_{0})}{d+p}\right)}}
+Projectile Motion Graph: https://www.desmos.com/calculator/liywmbkr3n
