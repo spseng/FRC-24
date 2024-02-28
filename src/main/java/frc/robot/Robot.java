@@ -61,6 +61,7 @@ public class Robot extends TimedRobot {
                 LOADING_MOTOR_CAN,
                 SHOOTER_MOTOR_CAN,
                 ANGLE_ALIGNMENT_MOTOR_CAN,
+                ANGLE_ALIGNMENT_ENCODER_CAN,
                 SHOOTER_IS_LOADED_BUTTON_ID,
                 IS_LOWEST_ANGLE_BUTTON_ID,
                 IS_HIGHEST_ANGLE_BUTTON_ID

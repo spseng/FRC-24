@@ -8,14 +8,14 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.vision.FieldLayout;
+
+import com.ctre.phoenix.sensors.CANCoder;
+
 
 import static frc.robot.Constants.*;
 
 public class ShooterSystem {
 
-
-    
     // CANVenom intakeMotor = new CANVenom()
     // private final Spark intakeMotor;
     // private final Spark shooterMotor;
@@ -24,7 +24,9 @@ public class ShooterSystem {
     private final CANSparkMax loadingMotor;
     private final CANSparkMax shooterMotor;
     private final CANSparkMax angleAlignmentMotor;
-    private final RelativeEncoder angleEncoder;
+//    private final RelativeEncoder angleEncoder;
+    private final CANCoder angleEncoder;
+
 
     private final PIDController anglePIDController = new PIDController(SHOOTING_ANGLE_KP, SHOOTING_ANGLE_KI, SHOOTING_ANGLE_KD);
 
@@ -45,12 +47,12 @@ public class ShooterSystem {
     private final DigitalInput isLowestAngleButton;
     private final DigitalInput isHighestAngleButton;
 
-    public ShooterSystem(int intakeMotorCAN, int loadingMotorCAN, int shooterMotorCAN, int angleAlignmentMotorCAN, int isLoadedButtonChannel, int isLowestAngleButtonChannel, int isHighestAngleButtonChannel) {
+    public ShooterSystem(int intakeMotorCAN, int loadingMotorCAN, int shooterMotorCAN, int angleAlignmentMotorCAN, int angleAlignmentEncoderCAN, int isLoadedButtonChannel, int isLowestAngleButtonChannel, int isHighestAngleButtonChannel) {
         intakeMotor = new CANSparkMax(intakeMotorCAN, MotorType.kBrushless);
         loadingMotor = new CANSparkMax(loadingMotorCAN, MotorType.kBrushless);
         shooterMotor = new CANSparkMax(shooterMotorCAN, MotorType.kBrushless);
         angleAlignmentMotor = new CANSparkMax(angleAlignmentMotorCAN, MotorType.kBrushless);
-        angleEncoder = angleAlignmentMotor.getEncoder();
+        angleEncoder = new CANCoder(angleAlignmentEncoderCAN);
 
         isLoadedButton = new DigitalInput(isLoadedButtonChannel);
         isLowestAngleButton = new DigitalInput(isLowestAngleButtonChannel);
@@ -70,7 +72,7 @@ public class ShooterSystem {
     public void calibrate(){
         if(isLowestAngle()){
             angleAlignmentMotor.stopMotor();
-            angleEncoder.setPosition(0);
+            angleEncoder.set(0);
         }
         setRotation(0);
     }
@@ -114,8 +116,61 @@ public class ShooterSystem {
         shootDelayCounter = 0.0;
     }
 
-    // Calculate the distance and shoot with appropriate speed regardless of alignment
     public void shoot(Pose2d fromPose){
+        double calculatedAngle = calculateAngle(fromPose);
+        setAngle(calculatedAngle);
+        shooterMotor.set(calculateSpeed(calculatedAngle, fromPose));
+        isShooting = true;
+        shootDelayCounter = 0.0;
+    }
+
+    public void lineUpAngle(Pose2d fromPose){
+        double angle = calculateAngle(fromPose);
+        setAngle(angle);
+    }
+
+    public double calculateAngle(Pose2d fromPose){
+        // Constants
+        double g = -9.81; // Gravity (m/s^2)
+        double h0 = ROBOT_SHOOTER_HEIGHT; // Shooter height (m)
+        double hg = GOAL_HEIGHT; // Goal height (m)
+
+        // Calculate horizontal distance from the robot to the goal
+        double d = fromPose.getTranslation().getNorm(); // Horizontal distance (m)
+
+        // Dynamic Horizontal Score Offset
+        double p = d / 2; // A chosen offset, can be adjusted based on empirical data
+
+        // Calculate angle of launch
+        double angleRadians = Math.atan((-2 * d * h0 + 2 * d * hg - h0 * p + hg * p) / (Math.pow(d, 2) + d * p));
+        return Math.toDegrees(angleRadians); // Convert to degrees
+    }
+
+
+    public double calculateSpeed(double atAngle, Pose2d fromPose){
+        // Constants
+        double g = -9.81; // Gravity (m/s^2)
+        double h0 = ROBOT_SHOOTER_HEIGHT; // Shooter height (m)
+        double hg = GOAL_HEIGHT; // Goal height (m)
+
+        // Calculate horizontal distance from the robot to the goal
+        double d = fromPose.getTranslation().getNorm(); // Horizontal distance (m)
+        double angleRadians = Math.toRadians(atAngle); // Convert angle to radians
+
+        // Use the formula for launch speed derived from projectile motion equations
+        double launchSpeed = (d * Math.sqrt(-g / 2) * sec(angleRadians)) /
+                Math.sqrt(-(hg - d * Math.tan(angleRadians) - h0));
+
+        return launchSpeed;
+    }
+
+    // Helper method to calculate secant, as Java Math does not directly provide it
+    private double sec(double angleRadians) {
+        return 1 / Math.cos(angleRadians);
+    }
+
+    // Calculate the distance and shoot with appropriate speed regardless of alignment
+    public void shootEstimate(Pose2d fromPose){
         double horizontalDistance = fromPose.getTranslation().getNorm();
         SmartDashboard.putNumber("Shot from", horizontalDistance);
 
@@ -139,14 +194,14 @@ public class ShooterSystem {
 
 
         double exitVelocity = speed * SHOOTER_EXIT_VELOCITY; // TODO: Calculate exit velocity using the speed variable
-        double angle = getAngle(horizontalDistance, exitVelocity);
+        double angle = getEstimatedShootingAngle(horizontalDistance, exitVelocity);
 
         setAngle(angle);
         shooterMotor.set(speed);
         isShooting = true;
     }
 
-    private static double getAngle(double horizontalDistance, double exitVelocity) {
+    private static double getEstimatedShootingAngle(double horizontalDistance, double exitVelocity) {
         double verticalDistance = GOAL_HEIGHT - ROBOT_SHOOTER_HEIGHT; // TODO: Make sure this value is accurate
         double totalDistance = Math.sqrt(Math.pow(horizontalDistance, 2) + Math.pow(verticalDistance, 2));
 
@@ -195,7 +250,7 @@ public class ShooterSystem {
             }
         }
 
-        double angleMoveSpeed = anglePIDController.calculate(angleEncoder.getPosition(), goalRotation);
+        double angleMoveSpeed = anglePIDController.calculate(getAngle(), goalRotation);
         angleAlignmentMotor.set(angleMoveSpeed);
 
         if(isLowestAngle()){
@@ -216,6 +271,10 @@ public class ShooterSystem {
 
     public double getAngle(){
         return angleEncoder.getPosition() / SHOOTER_ANGLE_CONVERSION + SHOOTER_RESTING_ANGLE;
+    }
+
+    public void setLaunchSpeed(double speed){
+        shooterMotor.set(speed * LAUNCH_SPEED_CONVERSION);
     }
 
     public boolean isLoaded(){

@@ -158,6 +158,11 @@ public class Drivetrain {
         move(driveX, driveY);
     }
 
+
+    public void move(){
+        move(0, 0);
+    }
+
     public void move(double driveX, double driveY) {
         double adjustedGyroAngle = gyro.getRotation2d().getDegrees() / 360.0 * FULL_ROTATION;
 
@@ -233,7 +238,7 @@ public class Drivetrain {
         SwerveModuleState[] moduleStates = driveKinematics.toSwerveModuleStates(relativeSpeeds);
         move(moduleStates);
 
-        return translation.getNorm() < AUTON_POSITION_MAX_ERROR && Math.abs(gyroAngle - getGoalHeading()) < AUTON_POSITION_MAX_ERROR;
+        return translation.getNorm() < AUTONOMOUS_POSITION_MAX_ERROR && Math.abs(gyroAngle - getGoalHeading()) < AUTONOMOUS_POSITION_MAX_ERROR;
     }
 
     public void calibrateSteering() {

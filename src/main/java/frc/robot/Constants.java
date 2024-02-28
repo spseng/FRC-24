@@ -29,6 +29,7 @@ public final class Constants {
     public static final int LOADING_MOTOR_CAN = 10;
     public static final int SHOOTER_MOTOR_CAN = 11;
     public static final int ANGLE_ALIGNMENT_MOTOR_CAN = 12;
+    public static final int ANGLE_ALIGNMENT_ENCODER_CAN = 13;
 
     // Button IDs
     public static final int SHOOTER_IS_LOADED_BUTTON_ID = 0;
@@ -46,10 +47,11 @@ public final class Constants {
     public static final double RELATIVE_ENCODER_CONVERSION = 46.5; //93/2 I think default
     public static final double ABS_ENCODER_CONVERSION = 360; // CAN SPARK Default
     public static final double SHOOTER_ANGLE_CONVERSION = 360; // Ratio between encoder and angle of shooter // TODO: Needs to be measured
+    public static final double LAUNCH_SPEED_CONVERSION = 3; // Ratio between encoder and angle of shooter // TODO: Needs to be measured
     public static final double SHOOTING_ANGLE_ERROR = 3; // Degrees
 
     // Autonomous Constants
-    public static final double AUTON_POSITION_MAX_ERROR = 0.04; // Meters
+    public static final double AUTONOMOUS_POSITION_MAX_ERROR = 0.04; // Meters
 
     // Driver Settings
     public static final double DRIVE_SPEED = 0.2;
