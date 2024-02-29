@@ -108,7 +108,7 @@ public class ShooterSystem {
 
     public void rotateAngle(double amount) {
         if((amount > 0 && !isHighestAngle()) || (amount < 0 && !isLowestAngle())) {
-            goalRotation += amount/SHOOTER_ANGLE_CONVERSION;
+            goalRotation += amount * SHOOTER_ANGLE_CONVERSION;
         }
     }
 
@@ -257,7 +257,7 @@ public class ShooterSystem {
     public void periodic(double dt) {
         finishedShooting = false;
 
-        if (isShooting && Math.abs(getAngle() - goalRotation/SHOOTER_ANGLE_CONVERSION) < SHOOTING_ANGLE_ERROR) {
+        if (isShooting && Math.abs(getAngle() - getGoalAngle()) < SHOOTING_ANGLE_ERROR) {
             if (shootDelayCounter < shootDelay) {
                 shootDelayCounter += dt;
                 shooterMotor.set(1.0);
@@ -301,6 +301,10 @@ public class ShooterSystem {
 
     public double getAngle(){
         return angleEncoder.getPosition() / SHOOTER_ANGLE_CONVERSION + SHOOTER_RESTING_ANGLE;
+    }
+
+    public double getGoalAngle(){
+        return goalRotation / SHOOTER_ANGLE_CONVERSION + SHOOTER_RESTING_ANGLE;
     }
 
     public void setLaunchSpeed(double speed){
