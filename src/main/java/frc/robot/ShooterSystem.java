@@ -9,7 +9,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.sensors.*;
 
 
 import static frc.robot.Constants.*;
@@ -23,10 +24,11 @@ public class ShooterSystem {
     private final CANSparkMax intakeMotor;
     private final CANSparkMax loadingMotor;
     private final CANSparkMax shooterMotor;
-    private final CANSparkMax angleAlignmentMotor;
-//    private final RelativeEncoder angleEncoder;
-    private final CANCoder angleEncoder;
+    // private final CANSparkMax angleAlignmentMotor;
 
+//    private final RelativeEncoder angleEncoder;
+    private final WPI_CANCoder angleEncoder;
+    private final WPI_TalonFX angleAlignmentMotor;
 
     private final PIDController anglePIDController = new PIDController(SHOOTING_ANGLE_KP, SHOOTING_ANGLE_KI, SHOOTING_ANGLE_KD);
 
@@ -40,19 +42,23 @@ public class ShooterSystem {
     private boolean finishedShooting = false; // TODO: Find better way to tell if auton shot is done
 //    private boolean isCalibrating = false;
     private double goalRotation = 0.0;
-    private double goalAngle = 0.0;
 
     private final DigitalInput isLoadedButton;
-
     private final DigitalInput isLowestAngleButton;
     private final DigitalInput isHighestAngleButton;
 
     public ShooterSystem(int intakeMotorCAN, int loadingMotorCAN, int shooterMotorCAN, int angleAlignmentMotorCAN, int angleAlignmentEncoderCAN, int isLoadedButtonChannel, int isLowestAngleButtonChannel, int isHighestAngleButtonChannel) {
         intakeMotor = new CANSparkMax(intakeMotorCAN, MotorType.kBrushless);
+        intakeMotor.setInverted(true);
+
         loadingMotor = new CANSparkMax(loadingMotorCAN, MotorType.kBrushless);
+        loadingMotor.setInverted(true);
+
         shooterMotor = new CANSparkMax(shooterMotorCAN, MotorType.kBrushless);
-        angleAlignmentMotor = new CANSparkMax(angleAlignmentMotorCAN, MotorType.kBrushless);
-        angleEncoder = new CANCoder(angleAlignmentEncoderCAN);
+        // angleAlignmentMotor = new CANSparkMax(angleAlignmentMotorCAN, MotorType.kBrushless);
+        angleEncoder = new WPI_CANCoder(angleAlignmentEncoderCAN);
+        angleAlignmentMotor = new WPI_TalonFX(angleAlignmentMotorCAN);
+        // angleEncoder = angleAlignmentMotor.getEncoder();
 
         isLoadedButton = new DigitalInput(isLoadedButtonChannel);
         isLowestAngleButton = new DigitalInput(isLowestAngleButtonChannel);
@@ -67,12 +73,14 @@ public class ShooterSystem {
 
         SmartDashboard.putNumber("Angle", angleEncoder.getPosition());
         SmartDashboard.putNumber("Goal Angle", goalRotation);
+
+        SmartDashboard.putNumber("Shooter Counter", shootDelayCounter);
     }
 
     public void calibrate(){
         if(isLowestAngle()){
             angleAlignmentMotor.stopMotor();
-            angleEncoder.set(0);
+            // angleEncoder.setPosition(AUTONOMOUS_POSITION_MAX_ERROR)(0);
         }
         setRotation(0);
     }
@@ -87,9 +95,10 @@ public class ShooterSystem {
 
     public void intakeUnlessLoaded(){
         if(!isLoaded()){
-            intakeMotor.set(0.3);
-            loadingMotor.set(0.3);
-            shooterMotor.set(-0.05);
+            System.out.println("Spinning the things");
+            intakeMotor.set(INTAKE_SPEED);
+            loadingMotor.set(LOADING_SPEED);
+            shooterMotor.set(-INTAKE_SPEED);
         } else {
             intakeMotor.stopMotor();
             loadingMotor.stopMotor();
@@ -97,21 +106,35 @@ public class ShooterSystem {
         }
     }
 
+    public void rotateAngle(double amount) {
+        if((amount > 0 && !isHighestAngle()) || (amount < 0 && !isLowestAngle())) {
+            goalRotation += amount/SHOOTER_ANGLE_CONVERSION;
+        }
+    }
+
     public void rejectCurrentIntake(){
-        intakeMotor.set(-0.3);
-        loadingMotor.set(-0.3);
-        shooterMotor.set(-0.3);
+        intakeMotor.set(-INTAKE_SPEED);
+        loadingMotor.set(-LOADING_SPEED);
+        shooterMotor.set(-INTAKE_SPEED);
+    }
+
+    public void stopIntake() {
+        if(!isShooting){
+            intakeMotor.stopMotor();
+            loadingMotor.stopMotor();
+            shooterMotor.stopMotor();
+        }
     }
 
     public void shootMaxSpeed(){
-        shooterMotor.set(1.0);
+        shooterMotor.set(SHOOT_STATIC_SPEED);
         isShooting = true;
         shootDelayCounter = 0.0;
     }
 
     public void shootAmp(){
         setAngle(AMP_SCORING_ANGLE);
-        shooterMotor.set(1.0);
+        shooterMotor.set(SHOOT_STATIC_SPEED);
         isShooting = true;
         shootDelayCounter = 0.0;
     }
@@ -234,7 +257,7 @@ public class ShooterSystem {
     public void periodic(double dt) {
         finishedShooting = false;
 
-        if (isShooting && Math.abs(getAngle() - goalAngle) < SHOOTING_ANGLE_ERROR) {
+        if (isShooting && Math.abs(getAngle() - goalRotation/SHOOTER_ANGLE_CONVERSION) < SHOOTING_ANGLE_ERROR) {
             if (shootDelayCounter < shootDelay) {
                 shootDelayCounter += dt;
                 shooterMotor.set(1.0);
@@ -242,28 +265,35 @@ public class ShooterSystem {
                 shootDelayCounter += dt;
                 loadingMotor.set(0.5);
             } else {
+                System.out.println("Finished Shooting");
                 intakeMotor.stopMotor();
                 loadingMotor.stopMotor();
                 shooterMotor.stopMotor();
                 isShooting = false;
                 finishedShooting = true;
             }
+        } else {
+            if(isLoaded()) {
+                shooterMotor.stopMotor();
+                intakeMotor.stopMotor();
+                loadingMotor.stopMotor();
+            }
         }
-
-        double angleMoveSpeed = anglePIDController.calculate(getAngle(), goalRotation);
-        angleAlignmentMotor.set(angleMoveSpeed);
 
         if(isLowestAngle()){
             angleAlignmentMotor.stopMotor();
-            angleEncoder.setPosition(0);
+            // angleEncoder.setPosition(0);
 
             if (goalRotation < 0) {
                 setRotation(0);
             }
+        }else if(isHighestAngle()){
+            goalRotation = Math.min(goalRotation, angleEncoder.getPosition());
         }
 
-        if(isHighestAngle()){
-            goalRotation = Math.min(goalRotation, angleEncoder.getPosition());
+        double angleMoveSpeed = anglePIDController.calculate(getAngle(), goalRotation);
+        if((angleMoveSpeed > 0 && !isHighestAngle()) || (angleMoveSpeed < 0 && !isLowestAngle())) {
+            angleAlignmentMotor.set(-angleMoveSpeed/40);
         }
 
         updateShuffleboard();
@@ -278,6 +308,7 @@ public class ShooterSystem {
     }
 
     public boolean isLoaded(){
+        // return false;
         return !isLoadedButton.get();
     }
 

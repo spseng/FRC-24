@@ -71,23 +71,22 @@ public class TeleopController {
         if (m_stick.getAButton()) {
             shooterSystem.intakeUnlessLoaded();
         }else if(m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE) {
-
-            // Line up shot with goal
-            Pose2d robotPose = drivetrain.getPose();
-            Pose2d nearestGoal = FieldLayout.getGoalGoal(robotPose);
-            drivetrain.pointTowards(nearestGoal);
-            shooterSystem.lineUpAngle(robotPose);
-
-            drivetrain.move();
+            shooterSystem.setAngle(0);
+            shooterSystem.intakeUnlessLoaded();
         }else if(m_stick.getRightTriggerAxis() > TRIGGER_DEAD_ZONE) {
-            shooterSystem.shoot(drivetrain.getPose());
+            // Line up shot with goal
+            // Pose2d robotPose = drivetrain.getPose();
+            // Pose2d nearestGoal = FieldLayout.getGoalGoal(robotPose);
+            // drivetrain.pointTowards(nearestGoal);
+            // shooterSystem.lineUpAngle(robotPose);
+
+            // drivetrain.move();
+
+            shooterSystem.shootMaxSpeed();
         }else if(m_stick.getLeftBumper()) {
             shooterSystem.rejectCurrentIntake();
-        } else if (m_stick.getLeftBumper()) { // Points towards nearest april tag // Testing
-            double measuredYaw = visionSystem.getTargetRelativeYaw();
-            if (abs(measuredYaw) > 0.1) {
-                drivetrain.setYawHeadingOffset(measuredYaw);
-            }
+        } else if (m_stick.getRightBumper()) {
+            shooterSystem.shoot(drivetrain.getPose());
         }else if (m_stick.getLeftBumperReleased()) {
             drivetrain.setYawHeadingOffset(0);
         }else if (m_stick.getBButton()) {
@@ -98,6 +97,16 @@ public class TeleopController {
             drivetrain.moveTo("amp");
         } else {
             drivetrain.move();
+        }
+
+        if(m_stick.getPOV() == 0){
+            shooterSystem.rotateAngle(-100);
+        }else if(m_stick.getPOV() == 180){
+            shooterSystem.rotateAngle(100);
+        } 
+
+        if(m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE){
+            shooterSystem.stopIntake();
         }
 
 //         publisherGoal.set(drivetrain.getGoalSwerveModuleStates());

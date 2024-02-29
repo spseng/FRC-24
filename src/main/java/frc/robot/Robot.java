@@ -66,6 +66,8 @@ public class Robot extends TimedRobot {
                 IS_LOWEST_ANGLE_BUTTON_ID,
                 IS_HIGHEST_ANGLE_BUTTON_ID
         );
+
+        autonomousController = new AutonomousController();
     }
 
     /**
