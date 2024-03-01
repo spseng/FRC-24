@@ -55,6 +55,7 @@ public class ShooterSystem {
         loadingMotor.setInverted(true);
 
         shooterMotor = new CANSparkMax(shooterMotorCAN, MotorType.kBrushless);
+        shooterMotor.setInverted(true);
         // angleAlignmentMotor = new CANSparkMax(angleAlignmentMotorCAN, MotorType.kBrushless);
         angleEncoder = new WPI_CANCoder(angleAlignmentEncoderCAN);
         angleAlignmentMotor = new WPI_TalonFX(angleAlignmentMotorCAN);
@@ -71,8 +72,8 @@ public class ShooterSystem {
         SmartDashboard.putBoolean("Is Lowest", isLowestAngle());
         SmartDashboard.putBoolean("Is Highest", isHighestAngle());
 
-        SmartDashboard.putNumber("Angle", angleEncoder.getPosition());
-        SmartDashboard.putNumber("Goal Angle", goalRotation);
+        SmartDashboard.putNumber("Angle", getAngle());
+        SmartDashboard.putNumber("Goal Angle", getGoalAngle());
 
         SmartDashboard.putNumber("Shooter Counter", shootDelayCounter);
     }
@@ -98,7 +99,7 @@ public class ShooterSystem {
             System.out.println("Spinning the things");
             intakeMotor.set(INTAKE_SPEED);
             loadingMotor.set(LOADING_SPEED);
-            shooterMotor.set(-INTAKE_SPEED);
+            // shooterMotor.set(-INTAKE_SPEED/50);
         } else {
             intakeMotor.stopMotor();
             loadingMotor.stopMotor();
@@ -115,7 +116,7 @@ public class ShooterSystem {
     public void rejectCurrentIntake(){
         intakeMotor.set(-INTAKE_SPEED);
         loadingMotor.set(-LOADING_SPEED);
-        shooterMotor.set(-INTAKE_SPEED);
+        shooterMotor.set(-INTAKE_SPEED/4);
     }
 
     public void stopIntake() {
@@ -124,6 +125,11 @@ public class ShooterSystem {
             loadingMotor.stopMotor();
             shooterMotor.stopMotor();
         }
+    }
+
+    public void stopAngleAlignment(){
+        angleAlignmentMotor.stopMotor();
+        setRotation(0);
     }
 
     public void shootMaxSpeed(){
@@ -257,13 +263,14 @@ public class ShooterSystem {
     public void periodic(double dt) {
         finishedShooting = false;
 
+        System.out.println(Math.abs(getAngle() - getGoalAngle()));
         if (isShooting && Math.abs(getAngle() - getGoalAngle()) < SHOOTING_ANGLE_ERROR) {
             if (shootDelayCounter < shootDelay) {
                 shootDelayCounter += dt;
-                shooterMotor.set(1.0);
+                shooterMotor.set(SHOOT_STATIC_SPEED);
             } else if (shootDelayCounter < shootEndDelay) {
                 shootDelayCounter += dt;
-                loadingMotor.set(0.5);
+                loadingMotor.set(SHOOT_STATIC_SPEED/2);
             } else {
                 System.out.println("Finished Shooting");
                 intakeMotor.stopMotor();
@@ -293,7 +300,7 @@ public class ShooterSystem {
 
         double angleMoveSpeed = anglePIDController.calculate(getAngle(), goalRotation);
         if((angleMoveSpeed > 0 && !isHighestAngle()) || (angleMoveSpeed < 0 && !isLowestAngle())) {
-            angleAlignmentMotor.set(-angleMoveSpeed/40);
+            angleAlignmentMotor.set(angleMoveSpeed/40);
         }
 
         updateShuffleboard();
@@ -305,10 +312,6 @@ public class ShooterSystem {
 
     public double getGoalAngle(){
         return goalRotation / SHOOTER_ANGLE_CONVERSION + SHOOTER_RESTING_ANGLE;
-    }
-
-    public void setLaunchSpeed(double speed){
-        shooterMotor.set(speed * LAUNCH_SPEED_CONVERSION);
     }
 
     public boolean isLoaded(){

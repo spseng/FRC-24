@@ -67,9 +67,8 @@ public class TeleopController {
          // Check if either joystick is beyond the dead zone
          if (driveSpeed > 0) {
              drivetrain.move(leftX, leftY); // Using Odometry
-         } else
-        if (m_stick.getAButton()) {
-            shooterSystem.intakeUnlessLoaded();
+        //99 else if (m_stick.getAButton()) {
+        //     shooterSystem.intakeUnlessLoaded();
         }else if(m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE) {
             shooterSystem.setAngle(0);
             shooterSystem.intakeUnlessLoaded();
@@ -84,7 +83,8 @@ public class TeleopController {
 
             shooterSystem.shootMaxSpeed();
         }else if(m_stick.getLeftBumper()) {
-            shooterSystem.rejectCurrentIntake();
+            // shooterSystem.rejectCurrentIntake();
+            // shooterSystem.rejectCurrentIntake();
         } else if (m_stick.getRightBumper()) {
             shooterSystem.shoot(drivetrain.getPose());
         }else if (m_stick.getLeftBumperReleased()) {
@@ -92,18 +92,21 @@ public class TeleopController {
         }else if (m_stick.getBButton()) {
              drivetrain.rotate(FULL_ROTATION * 0.25 / TURN_SPEED);
         } else if (m_stick.getYButton()) {
-            drivetrain.moveTo(0, 0, 0);
+            drivetrain.calibrateSteering();
         } else if(m_stick.getBButton()){
             drivetrain.moveTo("amp");
         } else {
             drivetrain.move();
         }
 
+        if (m_stick.getAButton()){
+            shooterSystem.stopAngleAlignment();
+        }else 
         if(m_stick.getPOV() == 0){
             shooterSystem.rotateAngle(-100);
         }else if(m_stick.getPOV() == 180){
             shooterSystem.rotateAngle(100);
-        } 
+        }
 
         if(m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE){
             shooterSystem.stopIntake();

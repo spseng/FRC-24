@@ -60,9 +60,9 @@ public final class Constants {
     public static final double TRIGGER_DEAD_ZONE = 0.2; // Zero to one
 
     // Intake and Shooting Settings
-    public static final double INTAKE_SPEED  = 0.25;
-    public static final double LOADING_SPEED = 0.10;
-    public static final double SHOOT_STATIC_SPEED = 1;
+    public static final double INTAKE_SPEED  = 0.75;
+    public static final double LOADING_SPEED = 0.40;
+    public static final double SHOOT_STATIC_SPEED = 0.4;
 
     // Swerve Module Constants
     public static final double MIN_TURNING_SPEED = 0.05; // Radians per second
