@@ -95,8 +95,7 @@ public class ShooterSystem {
     }
 
     public void intakeUnlessLoaded(){
-        if(!isLoaded()){
-            System.out.println("Spinning the things");
+        if(!isLoaded() && isLowestAngle()){
             intakeMotor.set(INTAKE_SPEED);
             loadingMotor.set(LOADING_SPEED);
             // shooterMotor.set(-INTAKE_SPEED/50);
@@ -114,9 +113,9 @@ public class ShooterSystem {
     }
 
     public void rejectCurrentIntake(){
-        intakeMotor.set(-INTAKE_SPEED);
-        loadingMotor.set(-LOADING_SPEED);
-        shooterMotor.set(-INTAKE_SPEED/4);
+        intakeMotor.set(-0.5);
+        loadingMotor.set(-0.5);
+        shooterMotor.set(-0.5);
     }
 
     public void stopIntake() {
@@ -196,50 +195,6 @@ public class ShooterSystem {
     // Helper method to calculate secant, as Java Math does not directly provide it
     private double sec(double angleRadians) {
         return 1 / Math.cos(angleRadians);
-    }
-
-    // Calculate the distance and shoot with appropriate speed regardless of alignment
-    public void shootEstimate(Pose2d fromPose){
-        double horizontalDistance = fromPose.getTranslation().getNorm();
-        SmartDashboard.putNumber("Shot from", horizontalDistance);
-
-        double speed = 1.0;
-
-        // TODO: Replace this with a continuous function
-        // TODO: Test these rough values
-//        if(horizontalDistance < 1.0){
-//            speed = 0.5;
-//        } else if(horizontalDistance < 2.0){
-//            speed = 0.6;
-//        } else if(horizontalDistance < 3.0){
-//            speed = 0.7;
-//        } else if(horizontalDistance < 4.0){
-//            speed = 0.8;
-//        } else if(horizontalDistance < 5.0){
-//            speed = 0.9;
-//        } else {
-//            speed = 1.0;
-//        }
-
-
-        double exitVelocity = speed * SHOOTER_EXIT_VELOCITY; // TODO: Calculate exit velocity using the speed variable
-        double angle = getEstimatedShootingAngle(horizontalDistance, exitVelocity);
-
-        setAngle(angle);
-        shooterMotor.set(speed);
-        isShooting = true;
-    }
-
-    private static double getEstimatedShootingAngle(double horizontalDistance, double exitVelocity) {
-        double verticalDistance = GOAL_HEIGHT - ROBOT_SHOOTER_HEIGHT; // TODO: Make sure this value is accurate
-        double totalDistance = Math.sqrt(Math.pow(horizontalDistance, 2) + Math.pow(verticalDistance, 2));
-
-        // Calculate the angle using these values
-        double estimatedTime = totalDistance / exitVelocity;
-        double approximatedLinearGoal = verticalDistance + GRAVITY * Math.pow(estimatedTime, 2);
-
-        // Shoot an angle pointed directly at the approximatedLinearGoal
-        return Math.toDegrees(Math.atan(approximatedLinearGoal / horizontalDistance));
     }
 
     public boolean autonShoot(Pose2d pose) {
