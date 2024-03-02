@@ -1,6 +1,6 @@
 package frc.robot.drive;
 
-// import com.kauailabs.navx.frc.*;
+/// x import com.kauailabs.navx.frc.*;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -47,6 +47,8 @@ public class Drivetrain {
     private final SwerveMotor fr_motor;
     private final SwerveMotor fl_motor;
     private final SwerveMotor bl_motor;
+
+    private double rotationAmount = 0;
 
 
     // Turning
@@ -106,6 +108,8 @@ public class Drivetrain {
                         bl_motor.getSwervePosition(), br_motor.getSwervePosition()
                 });
 
+
+
         updateShuffleboard();
     }
 
@@ -150,7 +154,8 @@ public class Drivetrain {
     }
 
     public void rotate(double byAmount) {
-        goalHeading += byAmount * TURN_SPEED;
+        rotationAmount = byAmount * TURN_SPEED;
+        // goalHeading += byAmount * TURN_SPEED;
     }
 
     public void move(double driveX, double driveY, double heading) {
@@ -171,11 +176,11 @@ public class Drivetrain {
         double turningSpeed = turningPIDController.calculate(closestAngle, 0);
         turningSpeed = Math.abs(turningSpeed) > MIN_TURNING_SPEED ? Math.min(MAX_TURING_SPEED, Math.max(-MAX_TURING_SPEED, turningSpeed)) : 0;
 
-
         turningReal.set(closestAngle);
         turningGoal.set(0);
 
-        ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, turningSpeed / FULL_ROTATION * Math.PI * 2, gyro.getRotation2d());
+        // ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, turningSpeed / FULL_ROTATION * Math.PI * 2, gyro.getRotation2d());
+        ChassisSpeeds relativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, driveX, rotationAmount / FULL_ROTATION * Math.PI * 2, gyro.getRotation2d());
 
         SwerveModuleState[] moduleStates = driveKinematics.toSwerveModuleStates(relativeSpeeds);
 

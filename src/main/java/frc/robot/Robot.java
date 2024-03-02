@@ -104,6 +104,7 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         autonomousController.init();
         shooterSystem.calibrate();
+        drivetrain.calibrateSteering();
     }
 
     /**
@@ -156,8 +157,9 @@ public class Robot extends TimedRobot {
         drivetrain.periodic();
         visionSystem.updateDrivetrainPosition(drivetrain);
 
-        shooterSystem.periodic(kDefaultPeriod);
-        teleopController.periodic(m_stick_2, drivetrain, shooterSystem, visionSystem);
+        // shooterSystem.periodic(kDefaultPeriod);
+        // teleopController.periodic(m_stick_2, drivetrain, shooterSystem, visionSystem);
+        shooterSystem.spinAngle();
     }
 
     /**

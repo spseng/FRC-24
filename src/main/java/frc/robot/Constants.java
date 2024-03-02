@@ -54,15 +54,15 @@ public final class Constants {
     public static final double AUTONOMOUS_POSITION_MAX_ERROR = 0.04; // Meters
 
     // Driver Settings
-    public static final double DRIVE_SPEED = 0.2;
-    public static final double TURN_SPEED = 0.005; // Radians per update
+    public static final double DRIVE_SPEED = 0.575;
+    public static final double TURN_SPEED = 0.09; // Radians per update
     public static final double JOYSTICK_DEAD_ZONE = 0.1; // Zero to one
     public static final double TRIGGER_DEAD_ZONE = 0.2; // Zero to one
 
     // Intake and Shooting Settings
-    public static final double INTAKE_SPEED  = 0.75;
-    public static final double LOADING_SPEED = 0.40;
-    public static final double SHOOT_STATIC_SPEED = 0.4;
+    public static final double INTAKE_SPEED  = 0.80;
+    public static final double LOADING_SPEED = 0.65;
+    public static final double SHOOT_STATIC_SPEED = 1;
 
     // Swerve Module Constants
     public static final double MIN_TURNING_SPEED = 0.05; // Radians per second
@@ -82,18 +82,18 @@ public final class Constants {
 
     // PID Constants
     // Steering PID
-    public static final double STEER_KP = 0.8;
-    public static final double STEER_KI = 0.0005;
-    public static final double STEER_KD = 0.00;
+    public static final double STEER_KP = 1.8;
+    public static final double STEER_KI = 0.0;
+    public static final double STEER_KD = 0.05;
 
     // Turning PID
-    public static final double TURNING_KP = 8.0;
-    public static final double TURNING_KI = 0.015;
-    public static final double TURNING_KD = 0.08;
+    public static final double TURNING_KP = 2.0;
+    public static final double TURNING_KI = 0.0015;
+    public static final double TURNING_KD = .2;
 
     // Autonomous Drive PID
-    public static final double DRIVE_KP = 0.8;
-    public static final double DRIVE_KI = 0.0005;
+    public static final double DRIVE_KP = 0.2;
+    public static final double DRIVE_KI = 0.0;
     public static final double DRIVE_KD = 0.00;
 
     // Shooter Angle Alignment PID

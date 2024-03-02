@@ -32,20 +32,19 @@ public class VisionSystem {
     }
 
     public void updateDrivetrainPosition(Drivetrain drivetrain) {
+        // var res = camera.getLatestResult();
+        // if (res.hasTargets()) {
+        //     var imageCaptureTime = res.getTimestampSeconds();
+        //     var bestTarget = res.getBestTarget();
 
-        var res = camera.getLatestResult();
-        if (res.hasTargets()) {
-            var imageCaptureTime = res.getTimestampSeconds();
-            var bestTarget = res.getBestTarget();
+        //     // TODO: Maybe use bestTarget.getPoseAmbiguity() to know when to use the vision or skip it
 
-            // TODO: Maybe use bestTarget.getPoseAmbiguity() to know when to use the vision or skip it
-
-            var camToTargetTrans = bestTarget.getBestCameraToTarget();
-            Pose3d targetPosition = FieldLayout.getTagPose(bestTarget.getFiducialId());
-            var camPose = targetPosition.transformBy(camToTargetTrans.inverse());
-            drivetrain.getPoseEstimator().addVisionMeasurement(
-                    camPose.transformBy(camera.getRelativeTransform()).toPose2d(), imageCaptureTime);
-        }
+        //     var camToTargetTrans = bestTarget.getBestCameraToTarget();
+        //     Pose3d targetPosition = FieldLayout.getTagPose(bestTarget.getFiducialId());
+        //     var camPose = targetPosition.transformBy(camToTargetTrans.inverse());
+        //     drivetrain.getPoseEstimator().addVisionMeasurement(
+        //             camPose.transformBy(camera.getRelativeTransform()).toPose2d(), imageCaptureTime);
+        // }
     }
 
     public void updateShuffleboard() {

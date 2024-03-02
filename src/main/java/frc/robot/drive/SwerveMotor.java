@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 // import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 import static frc.robot.Constants.*;
 
@@ -29,6 +31,9 @@ public final class SwerveMotor {
     private double latestDriveSpeed = 0;
     // private boolean directionInverted = false;
 
+    private final DoublePublisher steeringReal;
+    private final DoublePublisher steeringGoal;
+
 
     public SwerveMotor(int steerPort, int drivePort, double offset) {
         this.offset = offset;
@@ -36,6 +41,9 @@ public final class SwerveMotor {
         this.driveMotor = new CANSparkMax(drivePort,MotorType.kBrushless);
 
         this.steerAbsoluteEncoder = this.steerMotor.getAbsoluteEncoder(Type.kDutyCycle);
+    
+        this.steeringReal = NetworkTableInstance.getDefault().getDoubleTopic("/steeringReal" + steerPort).publish();
+        this.steeringGoal = NetworkTableInstance.getDefault().getDoubleTopic("/steeringGoal" + steerPort).publish();
     }
 
     public void calibrate() {
@@ -58,6 +66,9 @@ public final class SwerveMotor {
     public void steer(double goalRotation){
         double goalAngle = prevAngle + closestAngle(prevAngle, goalRotation + this.getOffset());
         steerMotor.set(pidController.calculate(prevAngle, goalAngle));
+
+        steeringGoal.set(goalAngle);
+        steeringReal.set(prevAngle);
 
         prevAngle = getSteeringPosition();
     }
