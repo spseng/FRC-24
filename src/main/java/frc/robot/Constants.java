@@ -75,6 +75,7 @@ public final class Constants {
     public static final double SHOOTER_EXIT_VELOCITY = 8.0; // Meters per second
     public static final double ROBOT_SHOOTER_HEIGHT = 1; // Meters
     public static final double AMP_SCORING_ANGLE = -20; // Degrees
+    public static final double ARM_INTAKE_ANGLE = 0; // degreees
 
     // Field Constants
     public static final double GRAVITY = 9.81; // Meters per second per second
@@ -88,7 +89,7 @@ public final class Constants {
 
     // Turning PID
     public static final double TURNING_KP = 2.0;
-    public static final double TURNING_KI = 0.0015;
+    public static final double TURNING_KI = 0.000;
     public static final double TURNING_KD = .2;
 
     // Autonomous Drive PID
@@ -100,4 +101,8 @@ public final class Constants {
     public static final double SHOOTING_ANGLE_KP = 0.08;
     public static final double SHOOTING_ANGLE_KI = 0.0005;
     public static final double SHOOTING_ANGLE_KD = 0.0008;
+// shooter PID
+    public static final double SHOOTER_KP = 6.0;
+    public static final double SHOOTER_KI = 0.000;
+    public static final double SHOOTER_KD = 0.6;
 }

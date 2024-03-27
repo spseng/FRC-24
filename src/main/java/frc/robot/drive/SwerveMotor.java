@@ -2,6 +2,8 @@ package frc.robot.drive;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
@@ -12,6 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 // import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.Constants;
 
 import static frc.robot.Constants.*;
 
@@ -78,6 +81,10 @@ public final class SwerveMotor {
         driveMotor.set(speed * directionFactor);
 
         latestDriveSpeed = speed * directionFactor;
+    }
+    public void setModuleState(SwerveModuleState state){
+        drive(state.speedMetersPerSecond * Constants.DRIVE_SPEED);
+        steer(state.angle.getRadians() / (2 * Math.PI) * Constants.FULL_ROTATION);
     }
 
     

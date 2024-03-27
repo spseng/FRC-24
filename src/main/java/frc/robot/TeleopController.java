@@ -8,6 +8,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Commands.SetArmAngleAmp;
+import frc.robot.Commands.SetArmAngleIntake;
+import frc.robot.Commands.Shoot;
 import frc.robot.drive.Drivetrain;
 import frc.robot.vision.FieldLayout;
 import frc.robot.vision.VisionSystem;
@@ -18,6 +21,7 @@ public class TeleopController {
     // Instance Variables
     boolean joystickController = false;
     boolean isLeftTriggerActive = false;
+    
 
     private final StructArrayPublisher<SwerveModuleState> publisherReal;
     private final StructArrayPublisher<SwerveModuleState> publisherGoal;
@@ -57,7 +61,7 @@ public class TeleopController {
         DPad Up:
      */
 
-    public void periodic(XboxController m_stick, Drivetrain drivetrain, ShooterSystem shooterSystem, VisionSystem visionSystem) {
+    public void periodic(XboxController m_stick, Drivetrain drivetrain, ShooterSystem shooterSystem) {
         double leftX = Math.abs(m_stick.getLeftX()) < JOYSTICK_DEAD_ZONE ? 0 : -m_stick.getLeftX();
         double leftY = Math.abs(m_stick.getLeftY()) < JOYSTICK_DEAD_ZONE ? 0 : -m_stick.getLeftY();
 
@@ -79,22 +83,15 @@ public class TeleopController {
         if (driveSpeed > 0) {
             drivetrain.move(leftX, leftY);
         }  else if (m_stick.getRightTriggerAxis() > TRIGGER_DEAD_ZONE) {
-            // Line up shot with goal
-            // Pose2d robotPose = drivetrain.getPose();
-            // Pose2d nearestGoal = FieldLayout.getGoalGoal(robotPose);
-            // drivetrain.pointTowards(nearestGoal);
-            // shooterSystem.lineUpAngle(robotPose);
-
-            // drivetrain.move();
-
-            shooterSystem.shootMaxSpeed();
+            
+           new Shoot(shooterSystem);
         } else {
             drivetrain.move();
         }
         
         if (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE) {
             if(!isLeftTriggerActive){
-                shooterSystem.setAngle(0);
+                shooterSystem.setArmAngle(0);
                 shooterSystem.intakeUnlessLoaded();
             }
             isLeftTriggerActive = true;
@@ -108,13 +105,13 @@ public class TeleopController {
         if (m_stick.getLeftBumper()) {
             shooterSystem.rejectCurrentIntake();
         } else if (m_stick.getRightBumper()) {
-            shooterSystem.shootMaxSpeed();
+            new SetArmAngleAmp(shooterSystem);
         } else if (m_stick.getBButton()) {
-            drivetrain.rotate(FULL_ROTATION * 0.25 / TURN_SPEED);
+           new SetArmAngleIntake(shooterSystem);
         } else if (m_stick.getXButton()) {
             drivetrain.calibrateSteering();
         } else if (m_stick.getYButton()) {
-            shooterSystem.setAngle(10);
+            shooterSystem.setArmAngle(10);
         }
 
         if (m_stick.getAButton()) {

@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.*;
-
+import com.fasterxml.jackson.databind.AnnotationIntrospector.ReferenceProperty.Type;
 
 import static frc.robot.Constants.*;
 
@@ -27,11 +27,13 @@ public class ShooterSystem {
     private final CANSparkMax shooterMotor;
     private final CANSparkMax angleAlignmentMotor;
 
-   private final RelativeEncoder angleEncoder;
+    private final CANCoder angleEncoder;
+    
     // private final WPI_CANCoder angleEncoder;
     // private final WPI_TalonFX angleAlignmentMotor;
 
     private final PIDController anglePIDController = new PIDController(SHOOTING_ANGLE_KP, SHOOTING_ANGLE_KI, SHOOTING_ANGLE_KD);
+    private final PIDController _shooterController = new PIDController(SHOOTER_KP, SHOOTER_KI, SHOOTER_KD);
 
 
     private double shootEndDelay = 0.6;
@@ -58,9 +60,10 @@ public class ShooterSystem {
         shooterMotor = new CANSparkMax(shooterMotorCAN, MotorType.kBrushless);
         shooterMotor.setInverted(true);
 
+
         angleAlignmentMotor = new CANSparkMax(angleAlignmentMotorCAN, MotorType.kBrushed);
         // angleEncoder = angleAlignmentMotor.getEncoder();
-        angleEncoder = angleAlignmentMotor.getAlternateEncoder(AlternateEncoderType.kQuadrature, 4096);
+        angleEncoder = new CANCoder(0);
         // angleEncoder = new WPI_CANCoder(angleAlignmentEncoderCAN);
         // angleAlignmentMotor = new WPI_TalonFX(angleAlignmentMotorCAN);
 
@@ -89,7 +92,7 @@ public class ShooterSystem {
         setRotation(0);
     }
 
-    public void setAngle(double angle){
+    public void setArmAngle(double angle){
         setRotation(angle*SHOOTER_ANGLE_CONVERSION - SHOOTER_RESTING_ANGLE);
     }
 
@@ -142,21 +145,22 @@ public class ShooterSystem {
     }
 
     public void shootMaxSpeed(){
+
         shooterMotor.set(SHOOT_STATIC_SPEED);
         isShooting = true;
         shootDelayCounter = 0.0;
     }
 
     public void shootAmp(){
-        setAngle(AMP_SCORING_ANGLE);
+        setArmAngle(AMP_SCORING_ANGLE);
         shooterMotor.set(SHOOT_STATIC_SPEED);
         isShooting = true;
         shootDelayCounter = 0.0;
     }
 
-    public void shoot(Pose2d fromPose){
+    public void shootPose(Pose2d fromPose){
         double calculatedAngle = calculateAngle(fromPose);
-        setAngle(calculatedAngle);
+        setArmAngle(calculatedAngle);
         shooterMotor.set(calculateSpeed(calculatedAngle, fromPose));
         isShooting = true;
         shootDelayCounter = 0.0;
@@ -164,7 +168,7 @@ public class ShooterSystem {
 
     public void lineUpAngle(Pose2d fromPose){
         double angle = calculateAngle(fromPose);
-        setAngle(angle);
+        setArmAngle(angle);
     }
 
     public double calculateAngle(Pose2d fromPose){
@@ -209,7 +213,7 @@ public class ShooterSystem {
 
     public boolean autonShoot(Pose2d pose) {
         if(!isShooting) {
-            shoot(pose);
+            shootPose(pose);
         } else return finishedShooting;
 
         return false;
@@ -287,7 +291,9 @@ public class ShooterSystem {
     public boolean isLowestAngle(){
         return !isLowestAngleButton.get();
     }
-
+    public void setToAmp(){
+        setArmAngle(AMP_SCORING_ANGLE);
+    }
     public boolean isHighestAngle(){
         return !isHighestAngleButton.get();
     }

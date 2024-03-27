@@ -189,27 +189,31 @@ public class Drivetrain {
 
     private void move(SwerveModuleState[] moduleStates) {
         previousStates = moduleStates;
+        var frontLeftoptimized = SwerveModuleState.optimize(moduleStates[0], new Rotation2d(fl_motor.getSteeringPosition()));
+        var frontRightoptimized = SwerveModuleState.optimize(moduleStates[1], new Rotation2d(fr_motor.getSteeringPosition()));
+        var backLeftoptimized = SwerveModuleState.optimize(moduleStates[2], new Rotation2d(bl_motor.getSteeringPosition()));
+        var backRightoptimized = SwerveModuleState.optimize(moduleStates[3], new Rotation2d(br_motor.getSteeringPosition()));
 
-        double fl_angle = moduleStates[0].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
-        double fr_angle = moduleStates[1].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
-        double bl_angle = moduleStates[2].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
-        double br_angle = moduleStates[3].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
+        // double fl_angle = moduleStates[0].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
+        // double fr_angle = moduleStates[1].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
+        // double bl_angle = moduleStates[2].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
+        // double br_angle = moduleStates[3].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
 
-        // double fl_speed = Math.max(moduleStates[0].speedMetersPerSecond * DRIVE_SPEED, -MAX_DRIVE_SPEED);
-        double fl_speed = moduleStates[0].speedMetersPerSecond * DRIVE_SPEED;
-        double fr_speed = moduleStates[1].speedMetersPerSecond * DRIVE_SPEED;
-        double bl_speed = moduleStates[2].speedMetersPerSecond * DRIVE_SPEED;
-        double br_speed = moduleStates[3].speedMetersPerSecond * DRIVE_SPEED;
+        // // double fl_speed = Math.max(moduleStates[0].speedMetersPerSecond * DRIVE_SPEED, -MAX_DRIVE_SPEED);
+        // double fl_speed = moduleStates[0].speedMetersPerSecond * DRIVE_SPEED;
+        // double fr_speed = moduleStates[1].speedMetersPerSecond * DRIVE_SPEED;
+        // double bl_speed = moduleStates[2].speedMetersPerSecond * DRIVE_SPEED;
+        // double br_speed = moduleStates[3].speedMetersPerSecond * DRIVE_SPEED;
 
-        fl_motor.steer(fl_angle);
-        fr_motor.steer(fr_angle);
-        bl_motor.steer(bl_angle);
-        br_motor.steer(br_angle);
+        fl_motor.setModuleState(frontLeftoptimized);
+        fr_motor.setModuleState(frontRightoptimized);
+        bl_motor.setModuleState(backLeftoptimized);      
+        br_motor.setModuleState(backRightoptimized);
 
-        fl_motor.drive(fl_speed);
-        fr_motor.drive(fr_speed);
-        bl_motor.drive(bl_speed);
-        br_motor.drive(br_speed);
+        // fl_motor.drive(fl_speed);
+        // fr_motor.drive(fr_speed);
+        // bl_motor.drive(bl_speed);
+        // br_motor.drive(br_speed);
     }
 
     public boolean moveTo(String nearestLocationCalled){

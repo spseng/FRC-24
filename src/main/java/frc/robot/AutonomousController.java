@@ -17,7 +17,7 @@ public class AutonomousController {
         counter = 0;
     }
 
-    public void periodic(Drivetrain drivetrain, ShooterSystem shooterSystem, VisionSystem visionSystem) {
+    public void periodic(Drivetrain drivetrain, ShooterSystem shooterSystem) {
         if(startPosition == null){
             startPosition = drivetrain.getPose();
         }

@@ -31,7 +31,7 @@ public class Robot extends TimedRobot {
 
     private AutonomousController autonomousController;
     private TeleopController teleopController;
-    private VisionSystem visionSystem;
+    //private VisionSystem visionSystem;
     private Drivetrain drivetrain;
     private ShooterSystem shooterSystem;
 
@@ -53,7 +53,7 @@ public class Robot extends TimedRobot {
         m_stick_2 = new XboxController(1);
 
         teleopController = new TeleopController(false);
-        visionSystem = new VisionSystem();
+        //visionSystem = new VisionSystem();
 
         drivetrain = new Drivetrain();
         shooterSystem = new ShooterSystem(
@@ -112,12 +112,12 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousPeriodic() {
-        visionSystem.periodic();
+        //visionSystem.periodic();
         drivetrain.periodic();
-        visionSystem.updateDrivetrainPosition(drivetrain);
+       //visionSystem.updateDrivetrainPosition(drivetrain);
 
         shooterSystem.periodic(kDefaultPeriod);
-        autonomousController.periodic(drivetrain, shooterSystem, visionSystem);
+        autonomousController.periodic(drivetrain, shooterSystem);
     }
 
     @Override
@@ -129,12 +129,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
-        visionSystem.periodic();
+       // visionSystem.periodic();
         drivetrain.periodic();
-        visionSystem.updateDrivetrainPosition(drivetrain);
+       // visionSystem.updateDrivetrainPosition(drivetrain);
 
         shooterSystem.periodic(kDefaultPeriod);
-        teleopController.periodic(m_stick, drivetrain, shooterSystem, visionSystem);
+        teleopController.periodic(m_stick, drivetrain, shooterSystem);
     }
 
     @Override
@@ -153,9 +153,9 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
-        visionSystem.periodic();
+       // visionSystem.periodic();
         drivetrain.periodic();
-        visionSystem.updateDrivetrainPosition(drivetrain);
+        //visionSystem.updateDrivetrainPosition(drivetrain);
 
         // shooterSystem.periodic(kDefaultPeriod);
         // teleopController.periodic(m_stick_2, drivetrain, shooterSystem, visionSystem);
