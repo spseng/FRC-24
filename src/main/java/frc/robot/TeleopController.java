@@ -94,7 +94,7 @@ public class TeleopController {
         
         if (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE) {
             if(!isLeftTriggerActive){
-                shooterSystem.setAngle(0);
+                shooterSystem.setArmAngle(0);
                 shooterSystem.intakeUnlessLoaded();
             }
             isLeftTriggerActive = true;
@@ -110,11 +110,11 @@ public class TeleopController {
         } else if (m_stick.getRightBumper()) {
             shooterSystem.shootMaxSpeed();
         } else if (m_stick.getBButton()) {
-            drivetrain.rotate(FULL_ROTATION * 0.25 / TURN_SPEED);
+           shooterSystem.setToAmp();
         } else if (m_stick.getXButton()) {
             drivetrain.calibrateSteering();
         } else if (m_stick.getYButton()) {
-            shooterSystem.setAngle(10);
+            shooterSystem.setArmAngle(10);
         }
 
         if (m_stick.getAButton()) {
