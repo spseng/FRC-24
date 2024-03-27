@@ -75,6 +75,7 @@ public final class Constants {
     public static final double SHOOTER_EXIT_VELOCITY = 8.0; // Meters per second
     public static final double ROBOT_SHOOTER_HEIGHT = 1; // Meters
     public static final double AMP_SCORING_ANGLE = -20; // Degrees
+    public static final double ARM_INTAKE_ANGLE = 0; // degreees
 
     // Field Constants
     public static final double GRAVITY = 9.81; // Meters per second per second

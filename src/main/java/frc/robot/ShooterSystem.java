@@ -158,7 +158,7 @@ public class ShooterSystem {
         shootDelayCounter = 0.0;
     }
 
-    public void shoot(Pose2d fromPose){
+    public void shootPose(Pose2d fromPose){
         double calculatedAngle = calculateAngle(fromPose);
         setArmAngle(calculatedAngle);
         shooterMotor.set(calculateSpeed(calculatedAngle, fromPose));
@@ -213,7 +213,7 @@ public class ShooterSystem {
 
     public boolean autonShoot(Pose2d pose) {
         if(!isShooting) {
-            shoot(pose);
+            shootPose(pose);
         } else return finishedShooting;
 
         return false;

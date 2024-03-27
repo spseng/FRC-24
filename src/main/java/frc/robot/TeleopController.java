@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Commands.Shoot;
 import frc.robot.drive.Drivetrain;
 import frc.robot.vision.FieldLayout;
 import frc.robot.vision.VisionSystem;
@@ -18,6 +19,7 @@ public class TeleopController {
     // Instance Variables
     boolean joystickController = false;
     boolean isLeftTriggerActive = false;
+    
 
     private final StructArrayPublisher<SwerveModuleState> publisherReal;
     private final StructArrayPublisher<SwerveModuleState> publisherGoal;
@@ -57,7 +59,7 @@ public class TeleopController {
         DPad Up:
      */
 
-    public void periodic(XboxController m_stick, Drivetrain drivetrain, ShooterSystem shooterSystem, VisionSystem visionSystem) {
+    public void periodic(XboxController m_stick, Drivetrain drivetrain, ShooterSystem shooterSystem) {
         double leftX = Math.abs(m_stick.getLeftX()) < JOYSTICK_DEAD_ZONE ? 0 : -m_stick.getLeftX();
         double leftY = Math.abs(m_stick.getLeftY()) < JOYSTICK_DEAD_ZONE ? 0 : -m_stick.getLeftY();
 
@@ -79,15 +81,8 @@ public class TeleopController {
         if (driveSpeed > 0) {
             drivetrain.move(leftX, leftY);
         }  else if (m_stick.getRightTriggerAxis() > TRIGGER_DEAD_ZONE) {
-            // Line up shot with goal
-            // Pose2d robotPose = drivetrain.getPose();
-            // Pose2d nearestGoal = FieldLayout.getGoalGoal(robotPose);
-            // drivetrain.pointTowards(nearestGoal);
-            // shooterSystem.lineUpAngle(robotPose);
-
-            // drivetrain.move();
-
-            shooterSystem.shootMaxSpeed();
+            
+           new Shoot(shooterSystem);
         } else {
             drivetrain.move();
         }
