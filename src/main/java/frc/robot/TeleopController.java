@@ -8,6 +8,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Commands.SetArmAngleAmp;
+import frc.robot.Commands.SetArmAngleIntake;
 import frc.robot.Commands.Shoot;
 import frc.robot.drive.Drivetrain;
 import frc.robot.vision.FieldLayout;
@@ -103,9 +105,9 @@ public class TeleopController {
         if (m_stick.getLeftBumper()) {
             shooterSystem.rejectCurrentIntake();
         } else if (m_stick.getRightBumper()) {
-            shooterSystem.shootMaxSpeed();
+            new SetArmAngleAmp(shooterSystem);
         } else if (m_stick.getBButton()) {
-           shooterSystem.setToAmp();
+           new SetArmAngleIntake(shooterSystem);
         } else if (m_stick.getXButton()) {
             drivetrain.calibrateSteering();
         } else if (m_stick.getYButton()) {
