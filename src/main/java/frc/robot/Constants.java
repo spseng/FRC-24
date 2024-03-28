@@ -59,10 +59,11 @@ public final class Constants {
     public static final double TURN_SPEED = 0.19; // Radians per update
     public static final double JOYSTICK_DEAD_ZONE = 0.1; // Zero to one
     public static final double TRIGGER_DEAD_ZONE = 0.2; // Zero to one
+    public static final double MANUAL_ARM_MOVE_SPEED = 0.0075;
 
     // Intake and Shooting Settings
     public static final double INTAKE_SPEED  = 0.80;
-    public static final double LOADING_SPEED = 0.65;
+    public static final double LOADING_SPEED = 0.45;
     public static final double SHOOT_STATIC_SPEED = 1;
 
     // Swerve Module Constants
@@ -77,6 +78,7 @@ public final class Constants {
     public static final double ROBOT_SHOOTER_HEIGHT = 1; // Meters
     public static final double AMP_SCORING_ANGLE = -0.308; // Rads
     public static final double ARM_INTAKE_ANGLE = 0.232; // Rad
+    public static final double ARM_MAX_ANGLE = -0.423; // TODO change this to what it is
 
     // Field Constants
     public static final double GRAVITY = 9.81; // Meters per second per second
@@ -99,9 +101,9 @@ public final class Constants {
     public static final double DRIVE_KD = 0.00;
 
     // Shooter Angle Alignment PID
-    public static final double SHOOTING_ANGLE_KP = 4.0;
+    public static final double SHOOTING_ANGLE_KP = 7.0;
     public static final double SHOOTING_ANGLE_KI = 0.000;
-    public static final double SHOOTING_ANGLE_KD = 0.3;
+    public static final double SHOOTING_ANGLE_KD = 0.5;
 // shooter PID
     public static final double SHOOTER_KP = 2.0;
     public static final double SHOOTER_KI = 0.0;

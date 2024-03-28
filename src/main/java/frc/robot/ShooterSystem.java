@@ -266,6 +266,11 @@ public class ShooterSystem {
         }
 
         angleMoveSpeed = anglePIDController.calculate(getAngle(), getGoalAngle());
+        // if (goalRotation > Constants.ARM_MAX_ANGLE){
+        //     setRotation(Constants.ARM_MAX_ANGLE);
+        // }else if (goalRotation < Constants.ARM_INTAKE_ANGLE){
+        //     setRotation(Constants.ARM_INTAKE_ANGLE);
+        // }
         if((angleMoveSpeed > 0 && !isHighestAngle()) || (angleMoveSpeed < 0 && !isLowestAngle())) {
             angleAlignmentMotor.set(-angleMoveSpeed);
         }
@@ -274,7 +279,7 @@ public class ShooterSystem {
     }
 
     public double getAngle(){
-        return angleEncoder.getAbsolutePosition().getValueAsDouble();
+        return angleEncoder.getAbsolutePosition().getValueAsDouble() ;
     }
 
     public double getMotorOutput(){
@@ -282,7 +287,7 @@ public class ShooterSystem {
     }
 
     public double getGoalAngle(){
-        return goalRotation;
+        return -goalRotation;
     }
 
     public boolean isLoaded(){

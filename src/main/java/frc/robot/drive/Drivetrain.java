@@ -125,15 +125,15 @@ public class Drivetrain {
     }
 
     private double closestAngle(double previous, double goal) {
-        // get direction
-        double dir = nearestRotation(goal) - nearestRotation(previous);
+        // // get direction
+        // double dir = nearestRotation(goal) - nearestRotation(previous);
 
-        // If rotation is greater than 180 degrees, then rotate swerve in the other way
-        if (Math.abs(dir) > FULL_ROTATION / 2) {
-            dir = -(Math.signum(dir) * FULL_ROTATION) + dir;
-        }
+        // // If rotation is greater than 180 degrees, then rotate swerve in the other way
+        // if (Math.abs(dir) > FULL_ROTATION / 2) {
+        //     dir = -(Math.signum(dir) * FULL_ROTATION) + dir;
+        // }
 
-        return dir;
+        return goal;
     }
 
     // For some reason, the built-in modulo function didn't work...

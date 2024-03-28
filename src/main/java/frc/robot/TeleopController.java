@@ -117,9 +117,9 @@ public class TeleopController {
         if (m_stick.getAButton()) {
             shooterSystem.stopAngleAlignment();
         } else if (m_stick.getPOV() == 0) {
-            shooterSystem.rotateAngle(1);
+            shooterSystem.rotateAngle(Constants.MANUAL_ARM_MOVE_SPEED);
         } else if (m_stick.getPOV() == 180) {
-            shooterSystem.rotateAngle(-1);
+            shooterSystem.rotateAngle(-Constants.MANUAL_ARM_MOVE_SPEED);
         } else if(m_stick.getPOV() == -1) {
             shooterSystem.stopAngleAlignment();
         }
