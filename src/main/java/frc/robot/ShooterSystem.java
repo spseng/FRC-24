@@ -10,8 +10,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.sensors.*;
+
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.fasterxml.jackson.databind.AnnotationIntrospector.ReferenceProperty.Type;
 
 import static frc.robot.Constants.*;
@@ -27,7 +27,7 @@ public class ShooterSystem {
     private final CANSparkMax shooterMotor;
     private final CANSparkMax angleAlignmentMotor;
 
-    private final CANCoder angleEncoder;
+    private final CANcoder angleEncoder;
     
     // private final WPI_CANCoder angleEncoder;
     // private final WPI_TalonFX angleAlignmentMotor;
@@ -44,7 +44,7 @@ public class ShooterSystem {
     private boolean isShooting = false;
     private boolean finishedShooting = false; // TODO: Find better way to tell if auton shot is done
 //    private boolean isCalibrating = false;
-    private double goalRotation = 0.0;
+    private double goalRotation;
 
     private final DigitalInput isLoadedButton;
     private final DigitalInput isLowestAngleButton;
@@ -63,7 +63,7 @@ public class ShooterSystem {
 
         angleAlignmentMotor = new CANSparkMax(angleAlignmentMotorCAN, MotorType.kBrushed);
         // angleEncoder = angleAlignmentMotor.getEncoder();
-        angleEncoder = new CANCoder(0);
+        angleEncoder = new CANcoder(ARM_CANCODER);
         // angleEncoder = new WPI_CANCoder(angleAlignmentEncoderCAN);
         // angleAlignmentMotor = new WPI_TalonFX(angleAlignmentMotorCAN);
 
@@ -93,11 +93,11 @@ public class ShooterSystem {
     }
 
     public void setArmAngle(double angle){
-        setRotation(angle*SHOOTER_ANGLE_CONVERSION - SHOOTER_RESTING_ANGLE);
+        goalRotation = angle;
     }
 
     public void setRotation(double angle){
-        goalRotation = Math.max(angle, 0);
+        goalRotation = angle;
     }
 
     public void intakeUnlessLoaded(){
@@ -116,7 +116,7 @@ public class ShooterSystem {
 
     public void rotateAngle(double amount) {
         if((amount > 0 && !isHighestAngle()) || (amount < 0 && !isLowestAngle())) {
-            goalRotation += amount * SHOOTER_ANGLE_CONVERSION;
+            goalRotation += amount;
         }
     }
 
@@ -141,7 +141,7 @@ public class ShooterSystem {
 
     public void stopAngleAlignment(){
         angleAlignmentMotor.stopMotor();
-        setRotation(0);
+        setRotation(Constants.ARM_INTAKE_ANGLE);
     }
 
     public void shootMaxSpeed(){
@@ -261,10 +261,10 @@ public class ShooterSystem {
             // angleEncoder.setPosition(0);
 
             if (goalRotation < 0) {
-                setRotation(0);
+                setRotation(Constants.ARM_INTAKE_ANGLE);
             }
         }else if(isHighestAngle()){
-            goalRotation = Math.min(goalRotation, angleEncoder.getPosition());
+            goalRotation = Math.min(goalRotation, angleEncoder.getAbsolutePosition().getValueAsDouble());
         }
 
         double angleMoveSpeed = anglePIDController.calculate(getAngle(), goalRotation);
@@ -276,11 +276,11 @@ public class ShooterSystem {
     }
 
     public double getAngle(){
-        return angleEncoder.getPosition() / SHOOTER_ANGLE_CONVERSION + SHOOTER_RESTING_ANGLE;
+        return angleEncoder.getAbsolutePosition().getValueAsDouble();
     }
 
     public double getGoalAngle(){
-        return goalRotation / SHOOTER_ANGLE_CONVERSION + SHOOTER_RESTING_ANGLE;
+        return goalRotation;
     }
 
     public boolean isLoaded(){
