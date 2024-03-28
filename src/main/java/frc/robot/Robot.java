@@ -47,7 +47,7 @@ public class Robot extends TimedRobot {
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
 
-        CameraServer.startAutomaticCapture();
+        // CameraServer.startAutomaticCapture();
 
         m_stick = new XboxController(0);
         m_stick_2 = new XboxController(1);
@@ -159,7 +159,7 @@ public class Robot extends TimedRobot {
 
         // shooterSystem.periodic(kDefaultPeriod);
         // teleopController.periodic(m_stick_2, drivetrain, shooterSystem, visionSystem);
-        shooterSystem.spinAngle();
+        
     }
 
     /**
