@@ -76,10 +76,9 @@ public final class Constants {
  
     public static final double SHOOTER_EXIT_VELOCITY = 8.0; // Meters per second
     public static final double ROBOT_SHOOTER_HEIGHT = 1; // Meters
-    public static final double AMP_SCORING_ANGLE = -0.308; // Rads
-    public static final double ARM_INTAKE_ANGLE = 0.232; // Rad
-    public static final double ARM_MAX_ANGLE = -0.423; // TODO change this to what it is
-
+    public static final double AMP_SCORING_ANGLE = -0.308;
+    public static final double ARM_INTAKE_ANGLE = 0.232;
+    public static final double ARM_MAX_ANGLE = -0.423;
     // Field Constants
     public static final double GRAVITY = 9.81; // Meters per second per second
     public static final double GOAL_HEIGHT = 2.44; // Meters

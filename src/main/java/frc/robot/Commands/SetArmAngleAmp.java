@@ -10,9 +10,9 @@ public class SetArmAngleAmp extends BigRedCommand {
 
     }
     public void excecute(){
-        _shooter.setArmAngle(Constants.AMP_SCORING_ANGLE);
+        _shooter.setArmRotation(Constants.AMP_SCORING_ANGLE);
     }
     public boolean isFinished(){
-        return (_shooter.getAngle() >= (Constants.AMP_SCORING_ANGLE - .05));
+        return (_shooter.getEncoderPosition() >= (Constants.AMP_SCORING_ANGLE - .05));
     }
 }

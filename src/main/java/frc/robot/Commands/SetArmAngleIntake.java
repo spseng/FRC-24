@@ -9,10 +9,10 @@ public class SetArmAngleIntake extends BigRedCommand {
         _shooter = shooter;
     }
     public void execute(){
-        _shooter.setArmAngle(Constants.ARM_INTAKE_ANGLE);
+        _shooter.setArmRotation(Constants.ARM_INTAKE_ANGLE);
     }
     public boolean isFinished(){
-        return (_shooter.getAngle() >= (Constants.ARM_INTAKE_ANGLE + .05));
+        return (_shooter.getEncoderPosition() >= (Constants.ARM_INTAKE_ANGLE + .05));
     }
     
 }

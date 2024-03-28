@@ -8,12 +8,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Commands.SetArmAngleAmp;
-import frc.robot.Commands.SetArmAngleIntake;
-import frc.robot.Commands.Shoot;
 import frc.robot.drive.Drivetrain;
-import frc.robot.vision.FieldLayout;
-import frc.robot.vision.VisionSystem;
 
 import static frc.robot.Constants.*;
 
@@ -91,7 +86,7 @@ public class TeleopController {
         
         if (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE) {
             if(!isLeftTriggerActive){
-                shooterSystem.setArmAngle(0);
+                shooterSystem.setArmRotation(0);
                 shooterSystem.intakeUnlessLoaded();
             }
             isLeftTriggerActive = true;
@@ -104,22 +99,23 @@ public class TeleopController {
         
         if (m_stick.getLeftBumper()) {
             shooterSystem.rejectCurrentIntake();
-        } else if (m_stick.getRightBumper()) {
-           shooterSystem.setArmAngle(Constants.AMP_SCORING_ANGLE);
-        } else if (m_stick.getBButton()) {
-          shooterSystem.setArmAngle(Constants.ARM_INTAKE_ANGLE);
         } else if (m_stick.getXButton()) {
             drivetrain.calibrateSteering();
-        } else if (m_stick.getYButton()) {
-            shooterSystem.setArmAngle(Constants.AMP_SCORING_ANGLE);
         }
 
-        if (m_stick.getAButton()) {
+        // Shooter Arm Alignment
+        if (m_stick.getYButton()) {
+            shooterSystem.setArmRotation(Constants.AMP_SCORING_ANGLE);
+        } else if (m_stick.getRightBumper()) {
+            shooterSystem.setArmRotation(Constants.AMP_SCORING_ANGLE);
+        } else if (m_stick.getBButton()) {
+            shooterSystem.setArmRotation(Constants.ARM_INTAKE_ANGLE);
+        } else if (m_stick.getAButton()) {
             shooterSystem.stopAngleAlignment();
         } else if (m_stick.getPOV() == 0) {
-            shooterSystem.rotateAngle(Constants.MANUAL_ARM_MOVE_SPEED);
+            shooterSystem.rotateArmAngle(Constants.MANUAL_ARM_MOVE_SPEED);
         } else if (m_stick.getPOV() == 180) {
-            shooterSystem.rotateAngle(-Constants.MANUAL_ARM_MOVE_SPEED);
+            shooterSystem.rotateArmAngle(-Constants.MANUAL_ARM_MOVE_SPEED);
         } else if(m_stick.getPOV() == -1) {
             shooterSystem.stopAngleAlignment();
         }
