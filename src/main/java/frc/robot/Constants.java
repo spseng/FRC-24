@@ -30,6 +30,7 @@ public final class Constants {
     public static final int SHOOTER_MOTOR_CAN = 11;
     public static final int ANGLE_ALIGNMENT_MOTOR_CAN = 2;
     public static final int ANGLE_ALIGNMENT_ENCODER_CAN = 2;
+    public static final int ARM_CANCODER = 15;
 
     // Button IDs
     public static final int SHOOTER_IS_LOADED_BUTTON_ID = 0;
@@ -54,8 +55,8 @@ public final class Constants {
     public static final double AUTONOMOUS_POSITION_MAX_ERROR = 0.04; // Meters
 
     // Driver Settings
-    public static final double DRIVE_SPEED = 0.575;
-    public static final double TURN_SPEED = 0.09; // Radians per update
+    public static final double DRIVE_SPEED = 1.9;
+    public static final double TURN_SPEED = 0.19; // Radians per update
     public static final double JOYSTICK_DEAD_ZONE = 0.1; // Zero to one
     public static final double TRIGGER_DEAD_ZONE = 0.2; // Zero to one
 
@@ -71,11 +72,11 @@ public final class Constants {
     // Robot Physical Constants
     public static final double WHEELBASE = 0.6985; // Meters, distance between front and back
     public static final double TRACKWIDTH = 0.6223; // Meters, distance between left and right
-    public static final double SHOOTER_RESTING_ANGLE = 0; // Degrees
+ 
     public static final double SHOOTER_EXIT_VELOCITY = 8.0; // Meters per second
     public static final double ROBOT_SHOOTER_HEIGHT = 1; // Meters
-    public static final double AMP_SCORING_ANGLE = -20; // Degrees
-    public static final double ARM_INTAKE_ANGLE = 0; // degreees
+    public static final double AMP_SCORING_ANGLE = -0.308; // Rads
+    public static final double ARM_INTAKE_ANGLE = 0.232; // Rad
 
     // Field Constants
     public static final double GRAVITY = 9.81; // Meters per second per second
@@ -98,11 +99,11 @@ public final class Constants {
     public static final double DRIVE_KD = 0.00;
 
     // Shooter Angle Alignment PID
-    public static final double SHOOTING_ANGLE_KP = 0.08;
-    public static final double SHOOTING_ANGLE_KI = 0.0005;
-    public static final double SHOOTING_ANGLE_KD = 0.0008;
+    public static final double SHOOTING_ANGLE_KP = 4.0;
+    public static final double SHOOTING_ANGLE_KI = 0.000;
+    public static final double SHOOTING_ANGLE_KD = 0.3;
 // shooter PID
-    public static final double SHOOTER_KP = 6.0;
-    public static final double SHOOTER_KI = 0.000;
-    public static final double SHOOTER_KD = 0.6;
+    public static final double SHOOTER_KP = 2.0;
+    public static final double SHOOTER_KI = 0.0;
+    public static final double SHOOTER_KD = 0.00;
 }

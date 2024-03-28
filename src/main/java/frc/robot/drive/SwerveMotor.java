@@ -40,10 +40,10 @@ public final class SwerveMotor {
 
     public SwerveMotor(int steerPort, int drivePort, double offset) {
         this.offset = offset;
-        this.steerMotor = new CANSparkMax(steerPort,MotorType.kBrushless);
-        this.driveMotor = new CANSparkMax(drivePort,MotorType.kBrushless);
+        this.steerMotor = new CANSparkMax(steerPort, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
+        this.driveMotor = new CANSparkMax(drivePort, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
 
-        this.steerAbsoluteEncoder = this.steerMotor.getAbsoluteEncoder(Type.kDutyCycle);
+        this.steerAbsoluteEncoder = this.steerMotor.getAbsoluteEncoder(com.revrobotics.SparkAbsoluteEncoder.Type.kDutyCycle);
     
         this.steeringReal = NetworkTableInstance.getDefault().getDoubleTopic("/steeringReal" + steerPort).publish();
         this.steeringGoal = NetworkTableInstance.getDefault().getDoubleTopic("/steeringGoal" + steerPort).publish();
