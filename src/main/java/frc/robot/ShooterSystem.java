@@ -83,9 +83,9 @@ public class ShooterSystem {
     public void intakeUnlessLoaded(){
         if(!isLoaded()){
             intakeMotor.set(INTAKE_SPEED);
-            if(isLowestAngle()){
+           
                 loadingMotor.set(LOADING_SPEED);
-            }
+            
         } else {
             intakeMotor.stopMotor();
             loadingMotor.stopMotor();

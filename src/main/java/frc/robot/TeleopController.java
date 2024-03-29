@@ -118,6 +118,8 @@ public class TeleopController {
             shooterSystem.stopAngleAlignment();
         }else if (m_stick.getStartButton()){
             drivetrain.calibrateSteering();
+        }else if (m_stick.getBackButton()){
+            shooterSystem.setArmRotation(Constants.CLIMB_ANGLE);;
         }
 
         if (m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE && !m_stick.getLeftBumper() ) {
