@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.TeleopController;
 import frc.robot.vision.FieldLayout;
 
 
@@ -154,7 +155,7 @@ public class Drivetrain {
     }
 
     public void rotate(double byAmount) {
-        turnSpeed = byAmount * TURN_SPEED;
+        turnSpeed = byAmount * TeleopController.realTurnSpeed;
     }
 
     public void move(double driveX, double driveY, double heading) {

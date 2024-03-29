@@ -19,6 +19,9 @@ public class TeleopController {
 
     double intakeBackSpin = 0;
 
+    static public double realDriveSpeed = DRIVE_SPEED;
+    static public double realTurnSpeed = TURN_SPEED;
+
 
     private final StructArrayPublisher<SwerveModuleState> publisherReal;
     private final StructArrayPublisher<SwerveModuleState> publisherGoal;
@@ -63,7 +66,7 @@ public class TeleopController {
         double leftY = Math.abs(m_stick.getLeftY()) < JOYSTICK_DEAD_ZONE ? 0 : -m_stick.getLeftY();
 
         double leftR = Math.sqrt(Math.pow(leftX, 2) + Math.pow(leftY, 2));
-        double driveSpeed = (leftR < JOYSTICK_DEAD_ZONE) ? 0 : leftR * DRIVE_SPEED;
+        double driveSpeed = (leftR < JOYSTICK_DEAD_ZONE) ? 0 : leftR * realDriveSpeed;
 
         double rightX = -m_stick.getRightX();
         double rightY = m_stick.getRightY();
@@ -111,7 +114,7 @@ public class TeleopController {
         // Shooter Arm Alignment
         if (m_stick.getXButton()) {
             shooterSystem.setArmRotation(Constants.AMP_SCORING_ANGLE);
-        } else if (m_stick.getRightBumper()) {
+        } else if (m_stick.getBackButton()) {
             shooterSystem.setArmRotation(Constants.SPEAKER_SCORING_ANGLE);
         } else if (m_stick.getBButton()) {
             shooterSystem.setArmRotation(Constants.ARM_INTAKE_ANGLE);
@@ -123,8 +126,14 @@ public class TeleopController {
             shooterSystem.stopAngleAlignment();
         } else if (m_stick.getStartButton()) {
             drivetrain.calibrateSteering();
-        } else if (m_stick.getBackButton()) {
-            shooterSystem.setArmRotation(Constants.CLIMB_ANGLE);
+        }
+        
+        if (m_stick.getRightBumper()) {
+            realDriveSpeed = SLOW_DRIVE_SPEED;
+            realTurnSpeed = SLOW_TURN_SPEED;
+        } else{
+            realDriveSpeed = DRIVE_SPEED;
+            realTurnSpeed = TURN_SPEED;
         }
 
         if (m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE && !m_stick.getLeftBumper() ) {

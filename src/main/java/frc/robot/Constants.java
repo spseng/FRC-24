@@ -55,8 +55,10 @@ public final class Constants {
     public static final double AUTONOMOUS_POSITION_MAX_ERROR = 0.04; // Meters
 
     // Driver Settings
-    public static final double DRIVE_SPEED = 1.4;
+    public static final double DRIVE_SPEED = 1.6;
+    public static final double SLOW_DRIVE_SPEED = 0.5;
     public static final double TURN_SPEED = 0.13; // Radians per update
+    public static final double SLOW_TURN_SPEED = 0.10; // Radians per update
     public static final double JOYSTICK_DEAD_ZONE = 0.1; // Zero to one
     public static final double TRIGGER_DEAD_ZONE = 0.2; // Zero to one
     public static final double MANUAL_ARM_MOVE_SPEED = 0.0075;

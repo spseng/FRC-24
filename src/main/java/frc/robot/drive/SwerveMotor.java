@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.Constants;
+import frc.robot.TeleopController;
 
 import static frc.robot.Constants.*;
 
@@ -83,7 +84,7 @@ public final class SwerveMotor {
         latestDriveSpeed = speed * directionFactor;
     }
     public void setModuleState(SwerveModuleState state){
-        double driveSpeed = state.speedMetersPerSecond * Constants.DRIVE_SPEED;
+        double driveSpeed = state.speedMetersPerSecond * TeleopController.realDriveSpeed;
         double inDirection = state.angle.getRadians() / (2 * Math.PI) * Constants.FULL_ROTATION;
 
         double closestDirection = closestAngle(prevAngle, inDirection + this.getOffset()); //  % FULL_ROTATION + (directionFactor == -1 ? FULL_ROTATION/2 : 0)
