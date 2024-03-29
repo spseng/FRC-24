@@ -100,9 +100,13 @@ public class ShooterSystem {
     }
 
     public void rejectCurrentIntake(){
-        intakeMotor.set(-0.8);
-        loadingMotor.set(-0.3);
-        shooterMotor.set(-0.8);
+        rejectCurrentIntake(1);
+    }
+
+    public void rejectCurrentIntake(double mod){
+        intakeMotor.set(-0.8 * mod);
+        loadingMotor.set(-0.3 * mod);
+        shooterMotor.set(-0.8* mod);
     }
 
     public void stopIntake() {
