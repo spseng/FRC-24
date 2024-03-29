@@ -129,11 +129,11 @@ public class TeleopController {
         }
         
         if (m_stick.getRightBumper()) {
-            realDriveSpeed = SLOW_DRIVE_SPEED;
-            realTurnSpeed = SLOW_TURN_SPEED;
-        } else{
             realDriveSpeed = DRIVE_SPEED;
             realTurnSpeed = TURN_SPEED;
+        } else{
+            realDriveSpeed = SLOW_DRIVE_SPEED;
+            realTurnSpeed = SLOW_TURN_SPEED;
         }
 
         if (m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE && !m_stick.getLeftBumper() ) {
