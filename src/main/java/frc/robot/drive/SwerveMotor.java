@@ -86,12 +86,19 @@ public final class SwerveMotor {
         double driveSpeed = state.speedMetersPerSecond * Constants.DRIVE_SPEED;
         double inDirection = state.angle.getRadians() / (2 * Math.PI) * Constants.FULL_ROTATION;
 
-        double closestDirection = closestAngle(prevAngle, inDirection + this.getOffset());
+        double closestDirection = closestAngle(prevAngle, inDirection + this.getOffset()); //  % FULL_ROTATION + (directionFactor == -1 ? FULL_ROTATION/2 : 0)
 
-        if (Math.abs(closestDirection - getSteeringPosition()) > FULL_ROTATION/2) {
-            driveSpeed *= -1;
-            closestDirection += FULL_ROTATION / 2;
-        }
+        // if (Math.abs(closestDirection - (prevAngle)) % FULL_ROTATION > FULL_ROTATION/4) {
+        //     directionFactor = -1;
+        //     // driveSpeed *= -1;
+        //     // closestDirection += FULL_ROTATION / 2;
+        // }else {
+        //     directionFactor = 1;
+        // }
+
+        // if(directionFactor == -1) {
+        //     closestDirection += FULL_ROTATION/2;
+        // }
 
         drive(driveSpeed);
         steer(closestDirection);
@@ -107,8 +114,12 @@ public final class SwerveMotor {
     // and the drive wheel should spin in the opposite direction
 
     // https://compendium.readthedocs.io/en/latest/tasks/drivetrains/swerve.html
-    private double closestAngle(double previous, double goal)
+    private double closestAngle(double previous, double desiredAngle)
     {
+        double goal = desiredAngle;
+        // if ( directionFactor == -1) {
+        //     goal += FULL_ROTATION/2;
+        // }
         // get direction
         double dir = nearestRotation(goal) - nearestRotation(previous);
         
@@ -117,18 +128,6 @@ public final class SwerveMotor {
         {
             dir = -(Math.signum(dir) * FULL_ROTATION) + dir;
         }
-
-        // If rotation is greater than 90 degrees, then spin drive wheel in opposite direction
-//         if (Math.abs(dir) > FULL_ROTATION/4)
-//         {
-//             dir = Math.signum(dir) * (FULL_ROTATION/2 - Math.abs(dir));
-//             if (!directionInverted) {
-//                 directionInverted = true;
-//                 directionFactor *= -1;
-//             }
-//         }else {
-//             directionInverted = false;
-//         }
 
         return dir;
     }
