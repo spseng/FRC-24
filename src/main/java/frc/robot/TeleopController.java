@@ -16,12 +16,12 @@ public class TeleopController {
     // Instance Variables
     boolean joystickController = false;
     boolean isLeftTriggerActive = false;
-    
+
 
     private final StructArrayPublisher<SwerveModuleState> publisherReal;
     private final StructArrayPublisher<SwerveModuleState> publisherGoal;
     private final StructPublisher<Pose2d> publisherPose;
-    
+
     public TeleopController(boolean jsController) {
         joystickController = jsController;
 
@@ -69,34 +69,35 @@ public class TeleopController {
 
         if (rightR > JOYSTICK_DEAD_ZONE) {
             drivetrain.rotate(-rightX);
-        }
-        else {
+        } else {
             drivetrain.rotate(0);
         }
 
         // Check if either joystick is beyond the dead zone
         if (driveSpeed > 0) {
             drivetrain.move(leftX, leftY);
-        }  else if (m_stick.getRightTriggerAxis() > TRIGGER_DEAD_ZONE) {
-            
-          shooterSystem.shootMaxSpeed();
         } else {
             drivetrain.move();
         }
-        
+
         if (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE) {
-            if(!isLeftTriggerActive){
+            if (!isLeftTriggerActive) {
                 shooterSystem.setArmRotation(ARM_INTAKE_ANGLE);
                 shooterSystem.intakeUnlessLoaded();
             }
             isLeftTriggerActive = true;
-        }else if(m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE){
-            if(isLeftTriggerActive){
+        } else if (m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE) {
+            if (isLeftTriggerActive) {
                 shooterSystem.stopIntake();
             }
             isLeftTriggerActive = false;
         }
-        
+
+        if (m_stick.getRightTriggerAxis() > TRIGGER_DEAD_ZONE) {
+            shooterSystem.shootMaxSpeed();
+        }
+
+
         if (m_stick.getLeftBumper()) {
             shooterSystem.rejectCurrentIntake();
         } else if (m_stick.getXButton()) {
@@ -114,15 +115,15 @@ public class TeleopController {
             shooterSystem.rotateArmAngle(-Constants.MANUAL_ARM_MOVE_SPEED);
         } else if (m_stick.getAButton()) {
             shooterSystem.rotateArmAngle(Constants.MANUAL_ARM_MOVE_SPEED);
-        } else if(m_stick.getPOV() != -1) {
+        } else if (m_stick.getPOV() != -1) {
             shooterSystem.stopAngleAlignment();
-        }else if (m_stick.getStartButton()){
+        } else if (m_stick.getStartButton()) {
             drivetrain.calibrateSteering();
-        }else if (m_stick.getBackButton()){
-            shooterSystem.setArmRotation(Constants.CLIMB_ANGLE);;
+        } else if (m_stick.getBackButton()) {
+            shooterSystem.setArmRotation(Constants.CLIMB_ANGLE);
         }
 
-        if (m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE && !m_stick.getLeftBumper() ) {
+        if (m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE && !m_stick.getLeftBumper()) {
             shooterSystem.stopIntake();
         }
 
