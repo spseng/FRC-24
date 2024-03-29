@@ -189,15 +189,21 @@ public class Drivetrain {
 
         previousStates = moduleStates;
 
-        var frontLeftOptimized = SwerveModuleState.optimize(moduleStates[0], Rotation2d.fromDegrees(convertSwerveStateRange(fl_motor.getSteeringPosition())));
-        var frontRightOptimized = SwerveModuleState.optimize(moduleStates[1], Rotation2d.fromDegrees(convertSwerveStateRange(fr_motor.getSteeringPosition())));
-        var backLeftOptimized = SwerveModuleState.optimize(moduleStates[2], Rotation2d.fromDegrees(convertSwerveStateRange(bl_motor.getSteeringPosition())));
-        var backRightOptimized = SwerveModuleState.optimize(moduleStates[3], Rotation2d.fromDegrees(convertSwerveStateRange(br_motor.getSteeringPosition())));
+//        var frontLeftOptimized = SwerveModuleState.optimize(moduleStates[0], Rotation2d.fromDegrees(convertSwerveStateRange(fl_motor.getSteeringPosition())));
+//        var frontRightOptimized = SwerveModuleState.optimize(moduleStates[1], Rotation2d.fromDegrees(convertSwerveStateRange(fr_motor.getSteeringPosition())));
+//        var backLeftOptimized = SwerveModuleState.optimize(moduleStates[2], Rotation2d.fromDegrees(convertSwerveStateRange(bl_motor.getSteeringPosition())));
+//        var backRightOptimized = SwerveModuleState.optimize(moduleStates[3], Rotation2d.fromDegrees(convertSwerveStateRange(br_motor.getSteeringPosition())));
 
-        fl_motor.setModuleState(frontLeftOptimized);
-        fr_motor.setModuleState(frontRightOptimized);
-        bl_motor.setModuleState(backLeftOptimized);
-        br_motor.setModuleState(backRightOptimized);
+        fl_motor.setModuleState(moduleStates[0]);
+        fr_motor.setModuleState(moduleStates[1]);
+        bl_motor.setModuleState(moduleStates[2]);
+        br_motor.setModuleState(moduleStates[3]);
+
+
+//        fl_motor.setModuleState(frontLeftOptimized);
+//        fr_motor.setModuleState(frontRightOptimized);
+//        bl_motor.setModuleState(backLeftOptimized);
+//        br_motor.setModuleState(backRightOptimized);
 
         // fl_motor.drive(fl_speed);
         // fr_motor.drive(fr_speed);

@@ -66,8 +66,8 @@ public final class SwerveMotor {
         steerMotor.set(0);
     }
 
-    public void steer(double goalRotation){
-        double goalAngle = prevAngle + closestAngle(prevAngle, goalRotation + this.getOffset());
+    public void steer(double toAngle){
+        double goalAngle = toAngle + prevAngle;
         steerMotor.set(pidController.calculate(prevAngle, goalAngle));
 
         steeringGoal.set(goalAngle);
@@ -83,8 +83,18 @@ public final class SwerveMotor {
         latestDriveSpeed = speed * directionFactor;
     }
     public void setModuleState(SwerveModuleState state){
-        drive(state.speedMetersPerSecond * Constants.DRIVE_SPEED);
-        steer(state.angle.getRadians() / (2 * Math.PI) * Constants.FULL_ROTATION);
+        double driveSpeed = state.speedMetersPerSecond * Constants.DRIVE_SPEED;
+        double inDirection = state.angle.getRadians() / (2 * Math.PI) * Constants.FULL_ROTATION;
+
+        double closestDirection = closestAngle(prevAngle, inDirection + this.getOffset());
+
+        if (Math.abs(closestDirection - getSteeringPosition()) > FULL_ROTATION/2) {
+            driveSpeed *= -1;
+            closestDirection += FULL_ROTATION / 2;
+        }
+
+        drive(driveSpeed);
+        steer(closestDirection);
     }
 
     
@@ -109,16 +119,16 @@ public final class SwerveMotor {
         }
 
         // If rotation is greater than 90 degrees, then spin drive wheel in opposite direction
-        // if (Math.abs(dir) > FULL_ROTATION/4)
-        // {
-        //     dir = Math.signum(dir) * (FULL_ROTATION/2 - Math.abs(dir));
-        //     if (!directionInverted) {
-        //         directionInverted = true;
-        //         directionFactor *= -1;
-        //     }
-        // }else {
-        //     directionInverted = false;
-        // }
+//         if (Math.abs(dir) > FULL_ROTATION/4)
+//         {
+//             dir = Math.signum(dir) * (FULL_ROTATION/2 - Math.abs(dir));
+//             if (!directionInverted) {
+//                 directionInverted = true;
+//                 directionFactor *= -1;
+//             }
+//         }else {
+//             directionInverted = false;
+//         }
 
         return dir;
     }
