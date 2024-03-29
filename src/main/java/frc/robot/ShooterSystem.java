@@ -24,7 +24,7 @@ public class ShooterSystem {
     private final PIDController _shooterController = new PIDController(SHOOTER_KP, SHOOTER_KI, SHOOTER_KD);
 
     private double shootEndDelay = 0.6;
-    private double shootDelay = 0.2;
+    private double shootDelay = 0.1;
     private double shootDelayCounter = 0;
 
     private double angleMoveSpeed = 0;
@@ -32,7 +32,7 @@ public class ShooterSystem {
     private boolean isShooting = false;
     private boolean finishedShooting = false; // TODO: Find better way to tell if auton shot is done
 
-    private double goalRotation;
+    private double goalRotation = Constants.ARM_INTAKE_ANGLE;
 
     private final DigitalInput isLoadedButton;
     private final DigitalInput isLowestAngleButton;
@@ -94,7 +94,7 @@ public class ShooterSystem {
     }
 
     public void rotateArmAngle(double amount) {
-        if((amount > 0 && !isHighestAngle()) || (amount < 0 && !isLowestAngle())) {
+        if((amount < 0 && !isHighestAngle()) || (amount > 0 && !isLowestAngle())) {
             goalRotation = Math.min(Math.max(goalRotation + amount, ARM_MAX_ANGLE), ARM_INTAKE_ANGLE);
         }
     }

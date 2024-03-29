@@ -86,7 +86,7 @@ public class TeleopController {
         
         if (m_stick.getLeftTriggerAxis() > TRIGGER_DEAD_ZONE) {
             if(!isLeftTriggerActive){
-                shooterSystem.setArmRotation(0);
+                shooterSystem.setArmRotation(ARM_INTAKE_ANGLE);
                 shooterSystem.intakeUnlessLoaded();
             }
             isLeftTriggerActive = true;
@@ -104,20 +104,20 @@ public class TeleopController {
         }
 
         // Shooter Arm Alignment
-        if (m_stick.getYButton()) {
+        if (m_stick.getXButton()) {
             shooterSystem.setArmRotation(Constants.AMP_SCORING_ANGLE);
         } else if (m_stick.getRightBumper()) {
-            shooterSystem.setArmRotation(Constants.AMP_SCORING_ANGLE);
+            shooterSystem.setArmRotation(Constants.SPEAKER_SCORING_ANGLE);
         } else if (m_stick.getBButton()) {
             shooterSystem.setArmRotation(Constants.ARM_INTAKE_ANGLE);
-        } else if (m_stick.getAButton()) {
-            shooterSystem.stopAngleAlignment();
-        } else if (m_stick.getPOV() == 0) {
-            shooterSystem.rotateArmAngle(Constants.MANUAL_ARM_MOVE_SPEED);
-        } else if (m_stick.getPOV() == 180) {
+        } else if (m_stick.getYButton()) {
             shooterSystem.rotateArmAngle(-Constants.MANUAL_ARM_MOVE_SPEED);
-        } else if(m_stick.getPOV() == -1) {
+        } else if (m_stick.getAButton()) {
+            shooterSystem.rotateArmAngle(Constants.MANUAL_ARM_MOVE_SPEED);
+        } else if(m_stick.getPOV() != -1) {
             shooterSystem.stopAngleAlignment();
+        }else if (m_stick.getStartButton()){
+            drivetrain.calibrateSteering();
         }
 
         if (m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE && !m_stick.getLeftBumper() ) {

@@ -21,9 +21,9 @@ public class AutonomousController {
         if(startPosition == null){
             startPosition = drivetrain.getPose();
         }
-
+        // JACK WAS HERE
         counter++;
-        if(counter < 110){
+        if(counter < 40){
             drivetrain.move(0,0.5);
         }else {
             drivetrain.move(0,0);

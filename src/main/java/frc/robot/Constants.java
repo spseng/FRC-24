@@ -55,8 +55,8 @@ public final class Constants {
     public static final double AUTONOMOUS_POSITION_MAX_ERROR = 0.04; // Meters
 
     // Driver Settings
-    public static final double DRIVE_SPEED = 1.9;
-    public static final double TURN_SPEED = 0.19; // Radians per update
+    public static final double DRIVE_SPEED = 1.4;
+    public static final double TURN_SPEED = 0.13; // Radians per update
     public static final double JOYSTICK_DEAD_ZONE = 0.1; // Zero to one
     public static final double TRIGGER_DEAD_ZONE = 0.2; // Zero to one
     public static final double MANUAL_ARM_MOVE_SPEED = 0.0075;
@@ -76,7 +76,8 @@ public final class Constants {
  
     public static final double SHOOTER_EXIT_VELOCITY = 8.0; // Meters per second
     public static final double ROBOT_SHOOTER_HEIGHT = 1; // Meters
-    public static final double AMP_SCORING_ANGLE = -0.308;
+    public static final double SPEAKER_SCORING_ANGLE = 0.14+8;
+    public static final double AMP_SCORING_ANGLE = -0.323;
     public static final double ARM_INTAKE_ANGLE = 0.232;
     public static final double ARM_MAX_ANGLE = -0.423;
     // Field Constants
@@ -85,7 +86,7 @@ public final class Constants {
 
     // PID Constants
     // Steering PID
-    public static final double STEER_KP = 1.8;
+    public static final double STEER_KP = 1.6;
     public static final double STEER_KI = 0.0;
     public static final double STEER_KD = 0.05;
 
@@ -103,7 +104,8 @@ public final class Constants {
     public static final double SHOOTING_ANGLE_KP = 7.0;
     public static final double SHOOTING_ANGLE_KI = 0.000;
     public static final double SHOOTING_ANGLE_KD = 0.5;
-// shooter PID
+    
+    // shooter PID
     public static final double SHOOTER_KP = 2.0;
     public static final double SHOOTER_KI = 0.0;
     public static final double SHOOTER_KD = 0.00;
