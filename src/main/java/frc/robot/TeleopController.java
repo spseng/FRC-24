@@ -71,7 +71,8 @@ public class TeleopController {
 
         if (rightR > JOYSTICK_DEAD_ZONE) {
             drivetrain.rotate(-rightX);
-        } else {
+        }
+        else {
             drivetrain.rotate(0);
         }
 
@@ -89,13 +90,8 @@ public class TeleopController {
             }
             intakeBackSpin = 0;
             isLeftTriggerActive = true;
-        } else if (m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE) {
-            if (isLeftTriggerActive) {
-                shooterSystem.stopIntake();
-            }
-            if(intakeBackSpin < 4) {
-                shooterSystem.rejectCurrentIntake(0.6);   
-            } else {
+        }else if(m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE){
+            if(isLeftTriggerActive){
                 shooterSystem.stopIntake();
             }
             isLeftTriggerActive = false;
@@ -105,8 +101,7 @@ public class TeleopController {
         if (m_stick.getRightTriggerAxis() > TRIGGER_DEAD_ZONE) {
             shooterSystem.shootMaxSpeed();
         }
-
-
+        
         if (m_stick.getLeftBumper()) {
             shooterSystem.rejectCurrentIntake();
         } else if (m_stick.getXButton()) {
@@ -132,7 +127,7 @@ public class TeleopController {
             shooterSystem.setArmRotation(Constants.CLIMB_ANGLE);
         }
 
-        if (m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE && !m_stick.getLeftBumper() && intakeBackSpin >= 10) {
+        if (m_stick.getLeftTriggerAxis() < TRIGGER_DEAD_ZONE && !m_stick.getLeftBumper() ) {
             shooterSystem.stopIntake();
         }
 
