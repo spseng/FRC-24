@@ -119,6 +119,11 @@ public class Drivetrain {
         SmartDashboard.putNumber("FR Position", fr_motor.getSteeringPosition());
         SmartDashboard.putNumber("BL Position", bl_motor.getSteeringPosition());
         SmartDashboard.putNumber("BR Position", br_motor.getSteeringPosition());
+        
+        SmartDashboard.putNumber("FL ABS Position", fl_motor.getAbsoluteSteeringPosition());
+        SmartDashboard.putNumber("FR AbS Position", fr_motor.getAbsoluteSteeringPosition());
+        SmartDashboard.putNumber("BL ABS Position", bl_motor.getAbsoluteSteeringPosition());
+        SmartDashboard.putNumber("BR ABS Position", br_motor.getAbsoluteSteeringPosition());
 
         SmartDashboard.putNumber("Odometry X", getPose().getX());
         SmartDashboard.putNumber("Odometry Y", getPose().getY());
@@ -173,8 +178,8 @@ public class Drivetrain {
 
         double closestAngle = closestAngle(adjustedGyroAngle, getGoalHeading());
 
-        double turningSpeed = turningPIDController.calculate(closestAngle, 0);
-        turningSpeed = Math.abs(turningSpeed) > MIN_TURNING_SPEED ? Math.min(MAX_TURING_SPEED, Math.max(-MAX_TURING_SPEED, turningSpeed)) : 0;
+        // double turningSpeed = turningPIDController.calculate(closestAngle, 0);
+        // turningSpeed = Math.abs(turningSpeed) > MIN_TURNING_SPEED ? Math.min(MAX_TURING_SPEED, Math.max(-MAX_TURING_SPEED, turningSpeed)) : 0;
 
         turningReal.set(closestAngle);
         turningGoal.set(0);
@@ -189,9 +194,9 @@ public class Drivetrain {
     private void move(SwerveModuleState[] moduleStates) {
         previousStates = moduleStates;
         var frontLeftoptimized = SwerveModuleState.optimize(moduleStates[0], Rotation2d.fromDegrees(convertSwerveStateRange(fl_motor.getSteeringPosition())));
-        var frontRightoptimized = SwerveModuleState.optimize(moduleStates[0], Rotation2d.fromDegrees(convertSwerveStateRange(fr_motor.getSteeringPosition())));
-        var backLeftoptimized = SwerveModuleState.optimize(moduleStates[0], Rotation2d.fromDegrees(convertSwerveStateRange(bl_motor.getSteeringPosition())));
-        var backRightoptimized = SwerveModuleState.optimize(moduleStates[0], Rotation2d.fromDegrees(convertSwerveStateRange(br_motor.getSteeringPosition())));
+        var frontRightoptimized = SwerveModuleState.optimize(moduleStates[1], Rotation2d.fromDegrees(convertSwerveStateRange(fr_motor.getSteeringPosition())));
+        var backLeftoptimized = SwerveModuleState.optimize(moduleStates[2], Rotation2d.fromDegrees(convertSwerveStateRange(bl_motor.getSteeringPosition())));
+        var backRightoptimized = SwerveModuleState.optimize(moduleStates[3], Rotation2d.fromDegrees(convertSwerveStateRange(br_motor.getSteeringPosition())));
 
         // var frontRightoptimized = SwerveModuleState.optimize(moduleStates[1], new Rotation2d(fr_motor.getSteeringPosition()));
         // var backLeftoptimized = SwerveModuleState.optimize(moduleStates[2], new Rotation2d(bl_motor.getSteeringPosition()));
