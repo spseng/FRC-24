@@ -67,8 +67,8 @@ public final class SwerveMotor {
         steerMotor.set(0);
     }
 
-    public void steer(double toAngle){
-        double goalAngle = toAngle + prevAngle;
+    public void steer(double goalRotation){
+        double goalAngle = prevAngle + closestAngle(prevAngle, goalRotation + this.getOffset());
         steerMotor.set(pidController.calculate(prevAngle, goalAngle));
 
         steeringGoal.set(goalAngle);
@@ -83,28 +83,14 @@ public final class SwerveMotor {
 
         latestDriveSpeed = speed * directionFactor;
     }
+
+
+
+   
     public void setModuleState(SwerveModuleState state){
-        double driveSpeed = state.speedMetersPerSecond * TeleopController.realDriveSpeed;
-        double inDirection = state.angle.getRadians() / (2 * Math.PI) * Constants.FULL_ROTATION;
-
-        double closestDirection = closestAngle(prevAngle, inDirection + this.getOffset()); //  % FULL_ROTATION + (directionFactor == -1 ? FULL_ROTATION/2 : 0)
-
-        // if (Math.abs(closestDirection - (prevAngle)) % FULL_ROTATION > FULL_ROTATION/4) {
-        //     directionFactor = -1;
-        //     // driveSpeed *= -1;
-        //     // closestDirection += FULL_ROTATION / 2;
-        // }else {
-        //     directionFactor = 1;
-        // }
-
-        // if(directionFactor == -1) {
-        //     closestDirection += FULL_ROTATION/2;
-        // }
-
-        drive(driveSpeed);
-        steer(closestDirection);
+        drive(state.speedMetersPerSecond * TeleopController.realDriveSpeed);
+        steer(state.angle.getRadians() / (2 * Math.PI) * Constants.FULL_ROTATION);
     }
-
     
     // Helper functions
 

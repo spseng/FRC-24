@@ -187,29 +187,28 @@ public class Drivetrain {
     }
 
     private void move(SwerveModuleState[] moduleStates) {
-
         previousStates = moduleStates;
+        var frontLeftoptimized = SwerveModuleState.optimize(moduleStates[0], new Rotation2d(fl_motor.getSteeringPosition()));
+        var frontRightoptimized = SwerveModuleState.optimize(moduleStates[1], new Rotation2d(fr_motor.getSteeringPosition()));
+        var backLeftoptimized = SwerveModuleState.optimize(moduleStates[2], new Rotation2d(bl_motor.getSteeringPosition()));
+        var backRightoptimized = SwerveModuleState.optimize(moduleStates[3], new Rotation2d(br_motor.getSteeringPosition()));
 
-//        var frontLeftOptimized = SwerveModuleState.optimize(moduleStates[0], Rotation2d.fromDegrees(convertSwerveStateRange(fl_motor.getSteeringPosition())));
-//        var frontRightOptimized = SwerveModuleState.optimize(moduleStates[1], Rotation2d.fromDegrees(convertSwerveStateRange(fr_motor.getSteeringPosition())));
-//        var backLeftOptimized = SwerveModuleState.optimize(moduleStates[2], Rotation2d.fromDegrees(convertSwerveStateRange(bl_motor.getSteeringPosition())));
-//        var backRightOptimized = SwerveModuleState.optimize(moduleStates[3], Rotation2d.fromDegrees(convertSwerveStateRange(br_motor.getSteeringPosition())));
+        // double fl_angle = moduleStates[0].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
+        // double fr_angle = moduleStates[1].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
+        // double bl_angle = moduleStates[2].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
+        // double br_angle = moduleStates[3].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
 
-        fl_motor.setModuleState(moduleStates[0]);
-        fr_motor.setModuleState(moduleStates[1]);
-        bl_motor.setModuleState(moduleStates[2]);
-        br_motor.setModuleState(moduleStates[3]);
+        // // double fl_speed = Math.max(moduleStates[0].speedMetersPerSecond * DRIVE_SPEED, -MAX_DRIVE_SPEED);
+        // double fl_speed = moduleStates[0].speedMetersPerSecond * DRIVE_SPEED;
+        // double fr_speed = moduleStates[1].speedMetersPerSecond * DRIVE_SPEED;
+        // double bl_speed = moduleStates[2].speedMetersPerSecond * DRIVE_SPEED;
+        // double br_speed = moduleStates[3].speedMetersPerSecond * DRIVE_SPEED;
 
+        fl_motor.setModuleState(frontLeftoptimized);
+        fr_motor.setModuleState(frontRightoptimized);
+        bl_motor.setModuleState(backLeftoptimized);      
+        br_motor.setModuleState(backRightoptimized);
 
-//        fl_motor.setModuleState(frontLeftOptimized);
-//        fr_motor.setModuleState(frontRightOptimized);
-//        bl_motor.setModuleState(backLeftOptimized);
-//        br_motor.setModuleState(backRightOptimized);
-
-        // fl_motor.drive(fl_speed);
-        // fr_motor.drive(fr_speed);
-        // bl_motor.drive(bl_speed);
-        // br_motor.drive(br_speed);
     }
 
     private double convertSwerveStateRange(double rotations) {

@@ -23,6 +23,7 @@ public class ShooterSystem {
     private final PIDController anglePIDController = new PIDController(SHOOTING_ANGLE_KP, SHOOTING_ANGLE_KI, SHOOTING_ANGLE_KD);
     private final PIDController _shooterController = new PIDController(SHOOTER_KP, SHOOTER_KI, SHOOTER_KD);
 
+
     private double shootEndDelay = 0.6;
     private double shootDelay = 0.1;
     private double shootDelayCounter = 0;
@@ -178,7 +179,7 @@ public class ShooterSystem {
     }
 
     public double getEncoderPosition(){
-        return angleEncoder.getAbsolutePosition().getValueAsDouble() ;
+        return angleEncoder.getAbsolutePosition().getValueAsDouble() - .045 ;
     }
 
     public double getMotorOutput(){
