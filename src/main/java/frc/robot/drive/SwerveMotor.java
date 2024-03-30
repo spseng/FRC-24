@@ -83,9 +83,6 @@ public final class SwerveMotor {
 
         latestDriveSpeed = speed * directionFactor;
     }
-
-
-
    
     public void setModuleState(SwerveModuleState state){
         drive(state.speedMetersPerSecond * TeleopController.realDriveSpeed);

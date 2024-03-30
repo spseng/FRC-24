@@ -188,10 +188,14 @@ public class Drivetrain {
 
     private void move(SwerveModuleState[] moduleStates) {
         previousStates = moduleStates;
-        var frontLeftoptimized = SwerveModuleState.optimize(moduleStates[0], new Rotation2d(fl_motor.getSteeringPosition()));
-        var frontRightoptimized = SwerveModuleState.optimize(moduleStates[1], new Rotation2d(fr_motor.getSteeringPosition()));
-        var backLeftoptimized = SwerveModuleState.optimize(moduleStates[2], new Rotation2d(bl_motor.getSteeringPosition()));
-        var backRightoptimized = SwerveModuleState.optimize(moduleStates[3], new Rotation2d(br_motor.getSteeringPosition()));
+        var frontLeftoptimized = SwerveModuleState.optimize(moduleStates[0], Rotation2d.fromDegrees(convertSwerveStateRange(fl_motor.getSteeringPosition())));
+        var frontRightoptimized = SwerveModuleState.optimize(moduleStates[0], Rotation2d.fromDegrees(convertSwerveStateRange(fr_motor.getSteeringPosition())));
+        var backLeftoptimized = SwerveModuleState.optimize(moduleStates[0], Rotation2d.fromDegrees(convertSwerveStateRange(bl_motor.getSteeringPosition())));
+        var backRightoptimized = SwerveModuleState.optimize(moduleStates[0], Rotation2d.fromDegrees(convertSwerveStateRange(br_motor.getSteeringPosition())));
+
+        // var frontRightoptimized = SwerveModuleState.optimize(moduleStates[1], new Rotation2d(fr_motor.getSteeringPosition()));
+        // var backLeftoptimized = SwerveModuleState.optimize(moduleStates[2], new Rotation2d(bl_motor.getSteeringPosition()));
+        // var backRightoptimized = SwerveModuleState.optimize(moduleStates[3], new Rotation2d(br_motor.getSteeringPosition()));
 
         // double fl_angle = moduleStates[0].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
         // double fr_angle = moduleStates[1].angle.getRadians() / (2 * Math.PI) * FULL_ROTATION;
@@ -212,7 +216,7 @@ public class Drivetrain {
     }
 
     private double convertSwerveStateRange(double rotations) {
-        return (rotations/FULL_ROTATION - 0.5) * 360;
+        return ((rotations/FULL_ROTATION - 0.5) * 360) % 360;
     }
 
     public boolean moveTo(String nearestLocationCalled){
