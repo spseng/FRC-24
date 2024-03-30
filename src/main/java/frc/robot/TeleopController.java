@@ -107,8 +107,6 @@ public class TeleopController {
         
         if (m_stick.getLeftBumper()) {
             shooterSystem.rejectCurrentIntake();
-        } else if (m_stick.getXButton()) {
-            drivetrain.calibrateSteering();
         }
 
         // Shooter Arm Alignment
@@ -124,7 +122,9 @@ public class TeleopController {
             shooterSystem.rotateArmAngle(Constants.MANUAL_ARM_MOVE_SPEED);
         } else if (m_stick.getPOV() != -1) {
             shooterSystem.stopAngleAlignment();
-        } else if (m_stick.getStartButton()) {
+        }
+        
+        if (m_stick.getStartButton()) {
             drivetrain.calibrateSteering();
         }
         
