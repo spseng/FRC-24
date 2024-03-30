@@ -73,7 +73,6 @@ public class ShooterSystem {
     public void calibrate(){
         if(isLowestAngle()){
             angleAlignmentMotor.stopMotor();
-          
         }
     }
 
@@ -168,7 +167,7 @@ public class ShooterSystem {
             angleMoveSpeed = 0;
         }
 
-        if (isHighestAngle() && angleMoveSpeed < 0) {
+        if ((isHighestAngle()) && angleMoveSpeed < 0) {
             setArmRotation(getEncoderPosition());
             angleMoveSpeed = 0;
         }
@@ -179,7 +178,7 @@ public class ShooterSystem {
     }
 
     public double getEncoderPosition(){
-        return angleEncoder.getAbsolutePosition().getValueAsDouble() - .045 ;
+        return angleEncoder.getAbsolutePosition().getValueAsDouble() - .045;
     }
 
     public double getMotorOutput(){
@@ -199,6 +198,6 @@ public class ShooterSystem {
     }
 
     public boolean isHighestAngle(){
-        return !isHighestAngleButton.get();
+        return !isHighestAngleButton.get() || getEncoderPosition() < ARM_MAX_ANGLE || getEncoderPosition() > 0.3;
     }
 }

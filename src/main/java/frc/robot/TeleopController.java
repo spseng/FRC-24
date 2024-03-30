@@ -111,7 +111,7 @@ public class TeleopController {
 
         // Shooter Arm Alignment
         if (m_stick.getXButton()) {
-            shooterSystem.setArmRotation(Constants.AMP_SCORING_ANGLE);
+            shooterSystem.setArmRotation(Constants.CLIMB_ANGLE);
         } else if (m_stick.getBackButton()) {
             shooterSystem.setArmRotation(Constants.SPEAKER_SCORING_ANGLE);
         } else if (m_stick.getBButton()) {
